@@ -12,6 +12,7 @@ import {
 } from "@/motion/route-transition";
 import { Footer } from "./Footer";
 import { MenuCard } from "./MenuCard";
+import { OverflowReport } from "./OverflowReport";
 import { SlideView } from "./SlideView";
 import type { Lang } from "./langs";
 import { slides } from "./slides";
@@ -202,6 +203,7 @@ export function Deck({
       : [Math.min(index, preview), Math.max(index, preview)];
   return (
     <DeckContext.Provider value={{ slides }}>
+      <OverflowReport />
       <div className={styles.stage} aria-roledescription="slide deck">
         <div
           ref={area}

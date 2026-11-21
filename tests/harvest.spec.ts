@@ -16,7 +16,7 @@ const lang = langs[0];
  *  the template keeps). */
 const holdsGlass = (block: Block) =>
   block.type === "facts" ||
-  (block.type === "org" && block.style !== "ledger") ||
+  block.type === "org" ||
   block.type === "fork" ||
   block.type === "week" ||
   (block.type === "points" && (block.style ?? "cards") !== "numbered");

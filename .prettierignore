@@ -26,6 +26,7 @@ src/deck/*
 !src/deck/icon.tsx
 !src/deck/menu-dropdown.tsx
 !src/deck/text.tsx
+!src/deck/OverflowReport.tsx
 src/gate/
 src/boot/
 scripts/render-pdf.mjs

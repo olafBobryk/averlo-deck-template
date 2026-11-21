@@ -19,9 +19,14 @@ const server = spawn(
     cwd: root,
     stdio: ["ignore", "ignore", "inherit"],
     env: { ...process.env, NODE_ENV: "production" },
+    detached: true,
   },
 );
-const stop = () => server.kill("SIGTERM");
+const stop = () => {
+  try {
+    process.kill(-server.pid, "SIGTERM");
+  } catch {}
+};
 process.on("exit", stop);
 
 async function waitForServer() {
