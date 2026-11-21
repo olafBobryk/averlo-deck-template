@@ -1,0 +1,677 @@
+/* Derived from Client 1 app/globals.css at f6e170c513c23d082e435a87e57390d7cb9f4128. Scoped and palette-bound for package consumers. */
+@scope (.aq) {
+
+  :scope { --bg:var(--paper); --paper:#fff; --text:#171719; --muted:#777982; --line:#e8e8ed; --blue:var(--aq-accent); --blue-soft:#f5f5f5; --red:#d33a22; --success:#4baa79; --radius:22px; }
+  * { box-sizing:border-box; }
+  :scope { scroll-behavior:smooth; overscroll-behavior-y:none; }
+  :scope { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Arial,sans-serif; font-size:15px; -webkit-font-smoothing:antialiased; }
+  button,input,textarea { font:inherit; }
+  button { cursor:pointer; }
+  button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+  .top { position:fixed; inset:0 0 auto; z-index:20; background:rgba(255,255,255,.94); border-bottom:1px solid var(--line); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px); }
+  .top-inner { max-width:1190px; height:76px; padding:0 32px; margin:auto; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  .brand { display:flex; align-items:center; gap:19px; min-width:0; }
+  .brand-mark { font-size:24px; font-weight:750; letter-spacing:-1.65px; white-space:nowrap; }
+  .brand-mark span { color:var(--blue); }
+  .brand-divider { height:23px; width:1px; background:var(--line); }
+  .brand-sub { font-size:13px; color:#6a6c75; white-space:nowrap; }
+  .header-right { display:flex; align-items:center; gap:16px; font-size:12px; color:var(--muted); white-space:nowrap; }
+  .save-chip { display:flex; align-items:center; gap:6px; }
+  .save-dot { width:6px; height:6px; border-radius:50%; background:var(--success, #4baa79); display:inline-block; }
+  .step-pill { background:#f5f5f7; border:1px solid #ececf0; border-radius:100px; padding:7px 11px; color:#43444a; font-size:12px; font-weight:600; }
+  .progress-rail { width:100%; height:4px; background:#eef0f4; }
+  .progress-fill { height:100%; width:8.333%; background:var(--blue); transition:width .3s ease; border-radius:0 2px 2px 0; }
+  .shell { max-width:1190px; padding:47px 32px 96px; margin:auto; display:grid; grid-template-columns:243px minmax(0,1fr); gap:47px; }
+  .sidebar { position:fixed; top:128px; left:max(32px,calc((100vw - 1190px)/2 + 32px)); width:243px; max-height:calc(100svh - 152px); overflow-y:auto; align-self:start; }
+  .smallcap { font-size:12px; font-weight:400; color:var(--muted); letter-spacing:0; }
+  .side-list { position:relative; isolation:isolate; margin:0; display:flex; flex-direction:column; gap:3px; }
+  .side-link { position:relative; background:transparent; border:0; padding:12px; border-radius:10px; display:flex; gap:12px; align-items:center; width:100%; color:var(--muted); text-align:left; line-height:1.25; font-size:13px; font-weight:400; transition:color .24s; }
+  .side-link::before { content:""; position:absolute; inset:0; z-index:0; border-radius:inherit; background:color-mix(in srgb,var(--ink) 5%,var(--bg)); opacity:0; transition:opacity .16s; }
+  .side-link:hover::before { opacity:1; }
+  .side-active-pill { position:absolute; top:0; left:0; right:0; z-index:1; pointer-events:none; border-radius:10px; background:color-mix(in srgb,var(--accent) 10%,var(--bg)); transition:transform .42s cubic-bezier(.22,1,.36,1),height .42s cubic-bezier(.22,1,.36,1),opacity .2s; }
+  .side-link.active,.side-link.done { color:var(--ink); }
+  .side-number,.side-label { position:relative; z-index:2; }
+  .side-number { width:23px; display:grid; place-items:center; flex:0 0 23px; color:inherit; font-size:12px; font-variant-numeric:tabular-nums; }
+  .side-help { margin:28px 12px 0; padding:0; border:0; color:var(--muted); line-height:1.55; font-size:12px; background:transparent; }
+  .side-help strong { display:block; color:var(--ink); margin-bottom:6px; font-size:13px; font-weight:400; }
+  .main { min-width:0; grid-column:2; }
+  .intro { padding:5px 0 28px; }
+  .eyebrow { display:flex; align-items:center; gap:10px; font-size:12px; font-weight:400; letter-spacing:0; color:#83858d; }
+  .eyebrow:before { display:none; }
+  h1 { font-size:clamp(34px,4vw,49px); font-weight:500; letter-spacing:-.054em; line-height:1.09; margin:17px 0 15px; }
+  .intro p { max-width:590px; color:#777982; line-height:1.6; font-size:15px; margin:0; }
+  .main-card { background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); box-shadow:0 12px 32px rgba(23,23,25,.025); overflow:hidden; }
+  .card-top { display:flex; justify-content:space-between; align-items:center; gap:14px; padding:23px 33px; border-bottom:1px solid var(--line); }
+  .section-hint { color:#71747d; font-size:12px; }
+  .section-time { display:flex; align-items:center; gap:6px; color:#9799a2; font-size:12px; white-space:nowrap; }
+  .questions { padding:0 33px; }
+  .question { padding:31px 0 32px; border-bottom:1px solid #f0f0f3; }
+  .question:last-child { border-bottom:0; }
+  .q-number { font-size:12px; letter-spacing:0; font-weight:400; color:#999ba4; margin-bottom:9px; }
+  .q-label { font-size:17px; font-weight:500; line-height:1.4; letter-spacing:-.025em; margin:0 0 9px; }
+  .req { color:var(--red); font-weight:650; margin-left:3px; }
+  .q-help { color:#92949c; font-size:13px; line-height:1.5; margin:0 0 17px; }
+  .choice-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:18px; }
+  .choice { position:relative; display:flex; align-items:center; gap:12px; padding:15px 14px; border:1px solid #e6e7ec; border-radius:12px; background:white; color:#494b53; font-size:13px; line-height:1.3; transition:all .16s; min-height:55px; cursor:pointer; }
+  .choice:hover { border-color:#999999; background:#fafafa; }
+  .choice.selected { border-color:#888888; background:#f5f5f5; color:#242424; box-shadow:0 0 0 1px rgba(36,36,36,.09); }
+  .choice input { position:absolute; opacity:0; width:1px; height:1px; }
+  .choice:has(input:focus-visible) { outline:2px solid var(--accent); outline-offset:3px; }
+  .control-symbol { display:grid; place-items:center; width:19px; height:19px; flex:0 0 19px; border:1.5px solid #bfc2cb; color:white; background:white; border-radius:50%; font-size:11px; font-weight:900; }
+  .choice.multi .control-symbol { border-radius:5px; }
+  .choice.selected .control-symbol { border-color:var(--blue); background:var(--blue); }
+  input[type=text],input[type=email],input[type=url],textarea { display:block; width:100%; background:white; border:1px solid #e3e5eb; color:#26272d; border-radius:12px; font-size:14px; line-height:1.5; padding:14px 16px; transition:border-color .2s,box-shadow .2s; }
+  input[type=text]:focus,input[type=email]:focus,input[type=url]:focus,textarea:focus { outline:0; border-color:#999999; box-shadow:0 0 0 3px #efefef; }
+  textarea { resize:vertical; min-height:110px; }
+  input::placeholder,textarea::placeholder { color:#b0b1b9; }
+  .error { color:var(--red); font-size:12px; margin-top:10px; display:none; }
+  .question.invalid .error { display:block; }
+
+  .question.invalid input[type=text],.question.invalid input[type=email],.question.invalid textarea { border-color:var(--red); }
+  .card-footer { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:25px 33px; background:#fcfcfd; border-top:1px solid var(--line); }
+  .btn { border:1px solid #e2e4e9; border-radius:11px; padding:13px 20px; font-size:13px; font-weight:680; transition:transform .15s,background .15s,border-color .15s; }
+  .btn:hover { transform:translateY(-1px); }
+  .btn.primary { background:#17181b; border-color:#17181b; color:white; min-width:140px; }
+  .btn.primary:hover { background:rgb(var(--color-accent-hover-rgb)); }
+  .btn.secondary { background:white; color:#171719; }
+  .btn.secondary:hover { background:#f5f6f9; }
+  .btn.ghost { background:transparent; border-color:transparent; color:#73757f; padding-left:0; }
+  .btn.blue { background:var(--blue); border-color:var(--blue); color:#171719; }
+  .card-footnote { color:#a0a1a9; font-size:12px; line-height:1.4; }
+  .floating-note { padding:17px 2px; color:#9a9ca5; font-size:12px; text-align:center; line-height:1.6; }
+  .review { padding:26px 33px; }
+  .review-lead { border:1px solid #dce7df; border-radius:14px; background:#f4f8f5; padding:18px 20px; font-size:13px; line-height:1.6; color:#52675b; margin-bottom:21px; }
+  .review-group { border:1px solid var(--line); border-radius:14px; margin-bottom:12px; overflow:hidden; }
+  .review-group-head { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px 18px; background:#fafafd; border-bottom:1px solid #eeeef1; }
+  .review-group-head strong { font-size:14px; }
+  .review-group-head button { display:inline-flex;align-items:center;gap:5px;border:0; background:transparent; color:var(--blue); font-size:12px; font-weight:650; }
+  .review-line { display:grid; grid-template-columns:minmax(0,42%) 1fr; gap:12px; padding:11px 18px; border-bottom:1px solid #f3f3f5; font-size:12px; line-height:1.5; }
+  .review-line:last-child { border:0; }
+  .review-q { color:#8b8c95; }
+  .review-a { color:#303139; font-weight:550; overflow-wrap:anywhere; white-space:pre-line; }
+  .review-empty { padding:13px 18px; color:#a0a2ac; font-size:12px; }
+  .action-panel { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+  .action-panel .btn { padding:13px 15px; }
+  .submitted-notice { display:none; color:#16834c; font-size:12px; font-weight:650; margin-top:12px; }
+  @media(max-width:900px){ .shell{display:block;max-width:900px;padding:35px 22px 70px}.sidebar{display:none}.side-link{font-size:12px}.top-inner{padding:0 22px}.questions{padding:0 25px}.card-top,.card-footer{padding-left:25px;padding-right:25px} }
+  @media(max-width:690px){ .shell{display:block;padding:30px 16px 64px}.sidebar{display:none}.top-inner{height:64px;padding:0 17px}.brand-mark{font-size:22px}.brand-divider,.brand-sub,.save-chip{display:none}.intro{padding:4px 5px 22px}.intro p{font-size:14px}.main-card{border-radius:18px}.questions{padding:0 19px}.card-top,.card-footer{padding:18px 19px}.choice-grid{grid-template-columns:1fr;gap:8px}.choice{min-height:53px}.q-label{font-size:16px}.question{padding:24px 0}.review{padding:19px}.review-line{grid-template-columns:1fr;gap:4px}.card-footnote{display:none}.btn.primary{min-width:115px} }
+  @media print { :scope{background:white}.top,.sidebar,.card-footer,.floating-note,.action-panel,.card-top{display:none!important}.shell{display:block;padding:0}.intro{display:none}.main-card{border:0;box-shadow:none}.review{padding:0}.review-group{break-inside:avoid}.review-lead{display:none}.review-group-head button{display:none} }
+  @media (prefers-reduced-motion:reduce) { *,*:before,*:after { scroll-behavior:auto!important;transition:none!important } }
+
+.progress-navigator{position:absolute;inset:100% 0 auto;height:44px;z-index:30;pointer-events:none;overflow:visible}
+.progress-navigator .progress-track{z-index:1}
+.progress-mound{position:absolute;inset:0 0 auto;display:block;overflow:hidden;pointer-events:none;z-index:2}
+.progress-mound path{shape-rendering:geometricPrecision}
+.progress-mound-button{position:absolute;z-index:3;width:44px;height:20px;transform:translateX(-50%);padding:0;border:0;border-radius:0;background-color:transparent;background-clip:text;-webkit-background-clip:text;color:transparent;-webkit-text-fill-color:transparent;font-size:11px;font-weight:600;line-height:1;pointer-events:auto}
+.progress-mound-button:disabled{pointer-events:none}
+.progress-mound-button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.progress-touch-zone{display:none}
+.step-jump-button,.step-jump-input{display:inline-block;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:inherit;font:inherit;line-height:inherit;text-align:center;vertical-align:baseline}
+.step-jump-button{cursor:text}
+.step-jump-button:focus-visible,.step-jump-input:focus-visible{outline:0}
+.step-jump-input{min-width:1ch;appearance:textfield;caret-color:var(--accent)}
+.step-jump-input::-webkit-inner-spin-button,.step-jump-input::-webkit-outer-spin-button{margin:0;appearance:none}
+@media(pointer:coarse){
+	.progress-touch-zone{position:absolute;inset:0 0 auto;height:44px;display:block;z-index:4;pointer-events:auto;touch-action:none}
+}
+
+:scope{--accent:var(--aq-accent);--color-accent-rgb:var(--aq-accent-rgb);--color-accent-hover-rgb:var(--aq-hover-rgb);--ink:#272a2d;--muted:#777b80;--line:#e5e5e3;--paper:#fff;--progress-muted:color-mix(in srgb,var(--muted) 22%,var(--paper));--text:var(--ink)}
+:scope{font-family:var(--font-body);color:var(--ink)}button,input,textarea{font-family:inherit}.brand-logo{width:31px;height:33px;display:block;color:var(--ink)}
+.top-inner{height:80px}.brand-sub{font-size:14px;color:var(--ink)}.brand-sub span{color:var(--muted)}.progress-track{height:3px;position:absolute;top:0;left:0;right:0;background:var(--progress-muted)}.progress-track>div{height:100%;background:var(--accent);transition:width .65s cubic-bezier(.22,1,.36,1)}
+.step-pill small{font:inherit}.section-title{font-size:clamp(34px,4vw,55px);line-height:1.03;letter-spacing:-.04em;font-weight:500}.section-title:focus,#cover-title:focus{outline:none}.intro>p{font-size:14px;line-height:1.5}.eyebrow{font-size:16px;letter-spacing:0;line-height:1.4}.q-label{display:block;font-size:16px;line-height:1.35;letter-spacing:.01em}.q-help{font-size:14px;line-height:1.45;margin:0 0 17px;color:var(--muted)}.q-number{line-height:1.4}.question{padding:29px 0}.questions>div:not(:last-child) .question{border-bottom:1px solid #f0f0f3}.question .error{display:block;color:var(--red)}
+.choice{border-color:var(--line);border-radius:14px;min-height:58px;padding:16px;line-height:1.3;color:var(--ink)}.choice span{line-height:1.3}.choice.selected{border-color:var(--line);background:white;color:var(--ink);box-shadow:none}.choice:hover{background:color-mix(in srgb,var(--accent) 3%,white);border-color:#c1c5ca}.choice:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:3px}.choice input{position:absolute}
+:is(.question,.questionnaire-modal-card) input[type=text],:is(.question,.questionnaire-modal-card) input[type=email],:is(.question,.questionnaire-modal-card) textarea{border:0;border-radius:0;background:transparent;box-shadow:none;padding:14px 16px;font-size:14px;line-height:1.5}:is(.question,.questionnaire-modal-card) input:focus,:is(.question,.questionnaire-modal-card) textarea:focus{border:0;box-shadow:none;outline:none}:is(.question,.questionnaire-modal-card) textarea{min-height:110px}:is(.question,.questionnaire-modal-card) [data-slot=input-frame]{display:block;height:auto;padding:0;border:1px solid var(--line);border-radius:12px;background:white;box-shadow:none;transition:border-color .2s ease,box-shadow .2s ease}:is(.question,.questionnaire-modal-card) [data-slot=input-frame]:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,white)}:is(.question,.questionnaire-modal-card) [data-slot=input-frame][data-error=true]{border-color:var(--red)}
+/* Pinheiros reveal timing: outer height and spacing, inner opacity, clipped exit. */
+.error-reveal{height:0;padding-top:0;overflow:hidden;interpolate-size:allow-keywords;transition:height .25s ease .2s,padding-top .25s ease .2s}
+.error-reveal[data-open=true]{height:auto;padding-top:10px;transition-delay:0s}
+.error-reveal-inner{overflow:visible;opacity:0;pointer-events:none;transition:opacity .2s ease}
+.error-reveal[data-open=true] .error-reveal-inner{opacity:1;pointer-events:auto;transition-delay:.25s}
+.field-error{margin:0;color:var(--red);font-size:13px;line-height:1.5}
+.choice-grid{position:relative;padding-left:0;transition:padding-left .25s ease .2s}
+.choice-grid::after{content:"";position:absolute;top:0;bottom:0;left:0;width:2px;background:var(--red);opacity:0;transform:scaleY(0);transform-origin:top;transition:transform .25s ease,opacity .2s ease}
+.question.invalid .choice-grid{padding-left:12px;transition-delay:0s}
+.question.invalid .choice-grid::after{opacity:1;transform:scaleY(1)}
+.progress-mound{transform-origin:center top;transition:transform .38s cubic-bezier(.22,1,.36,1)}
+.progress-navigator[data-pressed=true] .progress-mound{transform:scaleY(.8);transition-duration:.24s;transition-timing-function:cubic-bezier(.4,0,.2,1)}
+.progress-navigator[data-pressed=true] .progress-mound-button{translate:0 -3px;transition-duration:.24s;transition-timing-function:cubic-bezier(.4,0,.2,1)}
+.progress-mound-button{transition:translate .38s cubic-bezier(.22,1,.36,1)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:400;line-height:1.15}.btn:disabled{opacity:.6;cursor:wait}.btn:focus-visible{outline-color:var(--accent)}.card-footer{position:static}.error,.submission-error{font-size:13px;color:var(--red);line-height:1.5}.review-group-head h2{margin:0;font-size:16px;line-height:1.3}.review-line{font-size:14px}.review-q{color:var(--muted)}.review-a{font-weight:400}.feedback{font-size:13px;line-height:1.5;color:var(--muted);margin-top:12px}.feedback:empty{display:none}.storage-warning{background:#fff4e7;padding:14px;border-radius:12px;font-size:14px;line-height:1.4;margin-bottom:20px}
+.question-viewport{overflow:visible}
+.question-transition{--question-enter-x:24px}.question-transition[data-direction=backward]{--question-enter-x:-24px}
+.animate-in{animation:appear .3s cubic-bezier(.22,1,.36,1) both}@keyframes appear{from{opacity:0;transform:translateX(var(--question-enter-x,24px))}to{opacity:1;transform:translateX(0)}}
+.skip-content{padding:32px}.skip-content h2{font-size:24px;line-height:1.2;font-weight:500;letter-spacing:-.025em;margin:0 0 16px}.skip-content p{font-size:14px;line-height:1.55;color:var(--muted);margin:0}
+
+.loading{min-height:100svh;display:grid;place-items:center;color:var(--muted)}
+.bookend{position:fixed;inset:0;z-index:100;height:100vh;height:100lvh;overflow:hidden;background:var(--cover-bg);color:var(--cover-ink);transform:translate3d(0,0,0);transition:transform 600ms cubic-bezier(.76,0,.24,1);will-change:transform}.bookend-content{height:100vh;height:100svh;overflow:auto;overscroll-behavior:contain;display:flex;flex-direction:column;padding:max(36px,env(safe-area-inset-top)) max(48px,env(safe-area-inset-right)) max(36px,env(safe-area-inset-bottom)) max(48px,env(safe-area-inset-left))}.bookend[data-cover=intro][data-phase=entering],.bookend[data-cover=intro][data-phase=exiting]{transform:translate3d(-100%,0,0)}.bookend[data-cover=done][data-phase=entering],.bookend[data-cover=done][data-phase=exiting]{transform:translate3d(100%,0,0)}.bookend[data-phase=entering],.bookend[data-phase=exiting]{pointer-events:none}.cover-header,.cover-footer{display:flex;align-items:center;justify-content:space-between;gap:20px;font-size:12px}.cover-logo{width:36px;height:38px;color:var(--cover-ink)}.cover-content{width:min(100%,1000px);margin:auto;padding:64px 0}.cover-eyebrow{font-size:14px;line-height:1.4;margin-bottom:28px}.cover-content h1{font-size:clamp(62px,9vw,130px);font-weight:600;line-height:.97;letter-spacing:-.04em;margin:0 0 32px}.cover-content p{max-width:540px;font-size:18px;line-height:1.45;margin:0 0 20px}.cover-meta{display:flex;align-items:center;flex-wrap:wrap;gap:10px;font-size:13px;line-height:1.5;opacity:.8;margin-bottom:32px}.cover-duration{display:inline-flex;align-items:center;gap:6px}.cover-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.cover-actions .btn{min-height:44px;padding:13px 22px}.cover-button{background:var(--cover-ink);border-color:var(--cover-ink);color:#171719;padding:13px 22px;min-height:44px}.cover-footer{border-top:1px solid #ffffff55;padding-top:22px}.cover-footer a{color:var(--cover-ink);text-decoration:none}.bookend .btn.blue{background:color-mix(in srgb,var(--accent) 75%,white);color:#171719;border-color:transparent}.bookend .btn.secondary{background:var(--cover-ink);color:#171719;border-color:var(--cover-ink)}.cover-content>p[role=status]{font-size:14px;margin-top:16px}
+@media(max-width:690px){.top-inner{height:72px}.brand-sub span{display:none}.brand{gap:13px}.brand-divider{display:none}.brand-sub{display:block;font-size:13px}.brand-logo{width:27px;height:29px}.step-pill{font-size:11px;padding:6px 9px}.shell{padding-top:30px}.q-label{font-size:16px}.choice-grid{grid-template-columns:1fr}.card-footer{flex-wrap:wrap}.btn.primary{min-width:125px}.review-line{grid-template-columns:1fr}.bookend-content{padding:max(24px,env(safe-area-inset-top)) max(24px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left))}.cover-header{font-size:10px}.cover-content{padding:52px 0}.cover-content p{font-size:16px}.cover-content h1{font-size:clamp(56px,15vw,96px)}.cover-footer{font-size:10px}.cover-eyebrow{font-size:12px}.cover-meta{font-size:12px}.cover-logo{width:30px;height:32px}}
+
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media print{.bookend{display:none}.application{display:block}}
+
+.cover-eyebrow{color:inherit}
+
+.section-status-error{color:var(--red)}
+
+/* Review sections are independent cards, without a surrounding card or sidebar. */
+.shell.review-shell{display:block;max-width:960px}
+.review-layout>.review{padding:0}
+.review-layout .review-group{margin:0 0 20px;border-radius:20px}
+.review-layout .review-group-head{padding:20px 24px;background:white}
+.review-layout .review-line{padding:14px 24px}
+.review-layout>.card-footer{padding:8px 0 0;border:0;background:none}
+.footer-actions{display:flex;align-items:center;gap:12px}
+@media(max-width:690px){.review-layout .review-group-head{padding:18px}.review-layout .review-line{padding:14px 18px}.review-layout>.card-footer{gap:12px}.footer-actions{flex-wrap:wrap;gap:8px}}
+:scope{--card-border-color:color-mix(in srgb,var(--ink) 10%,white);--dropdown-shadow:0 8px 32px rgb(24 24 22 / 12%),0 2px 6px rgb(24 24 22 / 4%)}
+.export-trigger{width:auto;height:auto;min-height:44px;padding:12px 18px;border:1px solid var(--line);border-radius:12px;background:white;color:var(--ink);font-weight:400}
+.review-group-head button{color:var(--muted);font-weight:400;transition:color .16s ease}
+.review-group-head button:hover{color:var(--ink)}
+
+/* The last card owns no external gap: the error owns its reveal gap instead. */
+.review-layout .review-group:last-of-type{margin-bottom:0}
+.submission-feedback .error-reveal[data-open=true]{padding-top:10px}
+.review-layout>.card-footer{padding-top:24px}
+
+/* Header owns a fixed viewport layer; reserve its former flow height. */
+.application{padding-top:81px}
+@media(max-width:690px){.application{padding-top:73px}}
+@media print{.application{padding-top:0}}
+.questionnaire-modal-backdrop{background:rgb(23 24 27 / .48);backdrop-filter:blur(3px)}
+.questionnaire-modal-card{width:100%;max-width:560px;max-height:inherit;overflow:auto;color:var(--ink);overscroll-behavior:contain}
+.questionnaire-modal-card .card-footer{padding:22px 32px;flex-wrap:wrap}
+
+.cover-content .replay-notice{font-size:12px;line-height:1.5;opacity:.7;margin:12px 0 0;max-width:540px}
+
+/* Centered single-question composition with the default Averlo palette. */
+:scope{--accent:var(--aq-accent);--blue:var(--aq-accent);--color-primary-rgb:var(--aq-accent-rgb);--color-primary-hover-rgb:var(--aq-hover-rgb);--color-primary-active-rgb:var(--aq-active-rgb);--color-accent-rgb:var(--aq-accent-rgb);--color-accent-hover-rgb:var(--aq-hover-rgb);--ink:#242424;--muted:#777777;--line:#e5e5e5;--cover-bg:var(--aq-accent);--cover-ink:#fff;--color-primary-foreground-rgb:255 255 255;--color-accent-foreground-rgb:255 255 255;--color-foreground-rgb:36 36 36;--color-danger-rgb:211 58 34;--color-border:var(--line);--progress-muted:color-mix(in srgb,var(--muted) 22%,var(--bg))}
+.application{padding-top:100px;overflow-x:clip}
+.top{position:fixed;inset:0 0 auto;z-index:50;background:var(--paper);border:0;backdrop-filter:none;-webkit-backdrop-filter:none}
+.header-surface{position:absolute;inset:0;pointer-events:none;background:var(--paper);border-bottom:1px solid var(--line)}
+.top .brand{transform-origin:left center}
+.top-inner{position:relative;max-width:1120px;height:100px;min-height:0;padding:0 40px}
+.shell,.shell.review-shell{display:block;width:min(calc(100% - 48px),600px);max-width:600px;margin:60px auto;padding:0 0 32px}
+.topline{display:flex;justify-content:space-between;align-items:center;min-height:32px;font-size:12px;color:var(--muted);margin-bottom:12px}
+.inline-progress{position:relative;height:3px;margin-bottom:44px}
+.inline-progress .progress-navigator{inset:0 0 auto}
+.intro{padding:0 0 44px}
+.eyebrow{font-size:12px;line-height:1.5;margin-bottom:12px;color:var(--muted)}
+.section-title{font-size:36px;line-height:1.2;letter-spacing:-1.2px;font-weight:500;margin:0 0 24px;text-wrap:balance}
+.intro>p{font-size:15px;line-height:1.55;margin:0;color:var(--muted)}
+.questions{padding:0;--question-inset:24px}
+.question-form{display:flex;flex-direction:column;gap:0}
+/* Each visible field owns its following gap, including through collapse. */
+.question-form>div{min-height:0;padding-bottom:0;transition:padding-bottom .25s ease var(--gap-delay,.2s)}
+.question-form>div[data-gap=true]{padding-bottom:24px;--gap-delay:0s}
+/* The track follows the actual content height and reverses from its current size. */
+.question-form>.question-reveal{
+  display:grid;
+  grid-template-rows:minmax(0,0fr);
+  overflow:clip;
+  overflow-clip-margin:6px;
+  transition:grid-template-rows .25s ease var(--reveal-delay,.2s),padding-bottom .25s ease var(--gap-delay,.2s);
+}
+.question-form>.question-reveal[data-visible=true]{grid-template-rows:minmax(0,1fr);overflow:visible;--reveal-delay:0s}
+.question-reveal>.reveal-inner{min-height:0;min-width:0;opacity:0;transition:opacity .2s ease}
+.question-reveal[data-visible=true]>.reveal-inner{opacity:1;transition-delay:.25s}
+.question-form .question,.question-form>div:not(:last-child) .question{padding:0;border:0}
+.q-label{font-size:16px;font-weight:500;line-height:1.4;margin:0 0 8px}
+/* The question is the largest text of a field; its help sits right under it. */
+.q-label+.q-help,.field-content>label+.q-help{margin-top:-6px}
+.choice-grid{grid-template-columns:1fr;gap:8px;margin-top:0}
+.choice{min-height:54px;padding:15px 16px;font-size:14px;border-radius:12px}
+.choice.selected{background:white;color:var(--ink);border-color:var(--line);box-shadow:none}
+.choice:hover{background:color-mix(in srgb,var(--accent) 3%,white);border-color:#c1c5ca}
+:is(.question,.questionnaire-modal-card) input[type=date],:is(.question,.questionnaire-modal-card) input[type=number],:is(.question,.questionnaire-modal-card) input[type=text],:is(.question,.questionnaire-modal-card) textarea{display:block;width:100%;border:0;border-radius:0;background:transparent;box-shadow:none;padding:14px 16px;font-size:14px;line-height:1.5;min-height:49px;color:var(--ink)}
+:is(.question,.questionnaire-modal-card) input[type=date]{min-width:0;appearance:none}
+:is(.question,.questionnaire-modal-card) textarea{min-height:150px}
+:is(.question,.questionnaire-modal-card) [data-slot=input-frame]:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,white)}
+.question [data-slot=input-frame].country-search-frame{display:flex;min-height:54px;padding:4px 16px}
+.question .country-search-frame :is(input[type=text],input[type=search]){min-height:44px;padding:0;width:100%;border:0;background:transparent;box-shadow:none;outline:none;appearance:none}
+.country-search{margin-bottom:12px}.country-search-status{margin:0 0 2px;pointer-events:none}
+.country-choice-label{display:flex;align-items:center;gap:10px;min-width:0}
+.country-flag,.country-flag-placeholder{flex:none;width:20px;height:15px}
+.country-flag{display:inline-grid;place-items:center;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;font-size:16px;line-height:1;transform:translateY(-2.5px)}
+.country-flag-placeholder{display:grid;place-items:center;color:var(--muted)}
+.shared-select{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;min-height:49px;width:100%;background:transparent;border:0;border-radius:12px;color:var(--ink);font-size:14px;text-align:left}
+.shared-select:focus-visible{outline:none}.select-placeholder{color:#8a8f8b}
+.text-btn{display:inline-flex;align-items:center;gap:8px;background:none;border:0;padding:8px 0;font-size:13px;color:var(--muted);line-height:1.4}
+.text-btn:hover{color:var(--ink)}.text-btn:disabled{opacity:.5;cursor:wait}
+.card-footer{padding:0;margin-top:36px;background:none;border:0;display:flex;flex-wrap:nowrap;gap:14px;justify-content:space-between}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--cover-ink);min-width:0;padding:13px 20px;min-height:44px}
+.btn.primary:hover{background:rgb(var(--color-accent-hover-rgb));border-color:rgb(var(--color-accent-hover-rgb))}
+.footer-actions{gap:20px}.floating-note{padding:24px 0 0;font-size:12px}
+.review-layout>.review{padding:0}
+.review-layout .review-group{padding:24px 0;margin:0;border:0;border-bottom:1px solid var(--line);border-radius:0;overflow:visible}
+.review-layout .review-group-head{padding:0 0 12px;border:0;background:none;align-items:start;gap:20px}
+.review-group-head h2{font-size:15px;font-weight:500;line-height:1.5}
+.review-group-head button{flex:none;padding:2px 0;color:var(--muted)}
+.review-layout .review-line{padding:8px 0;border:0;grid-template-columns:1fr;gap:4px;font-size:14px}
+.review-q{font-size:13px}.review-a{display:block;white-space:pre-wrap}.review-empty{padding:4px 0 0;margin:0;color:var(--muted)}
+.language-control{display:flex;align-items:center;gap:8px;font-size:12px}
+.language-control button{border:0;padding:5px 0;background:none;color:inherit;opacity:.5;font-size:12px;font-weight:400}
+.language-control button[aria-pressed=true]{opacity:1}.language-control button:hover{opacity:1}
+.language-control button+button:before{content:'/';display:inline-block;margin-right:8px;opacity:.5}
+.cover-header-right{display:flex;align-items:center;gap:24px}
+.questionnaire-modal-card .card-footer{margin-top:0;background:white;border-top:1px solid var(--line)}
+.questionnaire-modal-card .skip-content>p{margin-bottom:20px}
+@media(max-width:1023px){.application{padding-top:76px}.top-inner{height:76px}}
+@media(max-width:690px){.top-inner{min-height:0;padding:0 24px}.shell,.shell.review-shell{margin:32px auto 40px;padding:0;width:calc(100% - 48px)}.brand-sub{display:block}.header-right{gap:12px}.save-chip{display:none}.intro{padding:0 0 36px}.section-title{font-size:29px;letter-spacing:-.8px}.inline-progress{margin-bottom:36px}.card-footer{margin-top:28px;gap:12px}.footer-actions{gap:14px;flex-wrap:nowrap}.btn{padding:12px 15px}.review-shell .question-transition>.card-footer{flex-wrap:wrap}.review-shell .footer-actions{margin-left:auto}.review-layout .review-group-head{padding:0 0 12px}.review-layout .review-line{padding:8px 0}.cover-header-right{gap:12px}.cover-header-right>span{font-size:10px}.cover-content h1{overflow-wrap:normal}.cover-content{padding:52px 0}.questionnaire-modal-card .card-footer{flex-wrap:wrap}}
+@media print{.application{padding-top:0}.topline,.inline-progress,.top,.card-footer,.floating-note{display:none}.shell,.shell.review-shell{width:100%;max-width:none;margin:0;padding:0}.review-group{break-inside:avoid}}
+
+/* The selected value moves within the input; its menu uses Export's disclosure motion. */
+.shared-select-value{display:grid;flex:1;min-width:0;overflow:hidden;text-align:left}
+.shared-select-value>span{grid-area:1/1;min-width:0}
+.shared-select-menu{transform-origin:center top}
+
+.asset-attachments{margin-top:16px;min-width:0;max-width:100%}
+.asset-file-input .field-content{display:flex;flex-direction:column;gap:12px}
+.asset-file-input .field-content>p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.asset-file-input [data-slot=card]{border-radius:12px;border-color:var(--line);box-shadow:none}
+.asset-file-input button{color:var(--ink)}
+/* The rail scrolls into the gutter while its first tile lines up with the fields. */
+.asset-file-input fieldset{
+  margin-inline:calc(-1 * var(--question-inset));
+  width:calc(100% + 2 * var(--question-inset));
+  max-width:none;
+  border-radius:0;
+  scroll-padding-inline:var(--question-inset);
+  overscroll-behavior-inline:contain;
+}
+.asset-file-input fieldset>div{padding-inline:var(--question-inset);padding-block:6px}
+.review-asset{display:flex;align-items:center;gap:6px;overflow-wrap:anywhere;color:var(--accent);margin-top:8px}.review-asset svg{flex-shrink:0}
+
+/* Required markers and errors use the shared questionnaire styles. */
+.required-asterisk{color:var(--accent);font-weight:400}
+
+.bookend .cover-button{padding-inline:20px}.bookend .cover-button:hover{background:#f5f5f5;border-color:#f5f5f5}.bookend .btn:focus-visible{outline-color:var(--cover-ink)}
+
+/* Averlo DateInput uses the existing form frame; the ported calendar owns its geometry. */
+.shared-date-trigger{padding:14px 16px;min-height:49px;width:100%;background:transparent;border:0;border-radius:12px;color:var(--ink);font-size:14px;line-height:1.5}
+.shared-date-trigger:focus-visible{outline:none}
+.shared-calendar{--color-primary:rgb(var(--aq-accent-rgb));--color-primary-hover:rgb(var(--aq-hover-rgb));--color-primary-active:rgb(var(--aq-active-rgb));--color-primary-rgb:var(--aq-accent-rgb);--color-primary-hover-rgb:var(--aq-hover-rgb);--color-primary-active-rgb:var(--aq-active-rgb)}
+
+/* The title supplies the visible label; this label keeps each control explicitly named. */
+.section-title .required-asterisk{font-size:.65em;vertical-align:top}
+
+.comparison{max-width:1280px;margin:0 auto;padding:56px 32px 80px;color:var(--ink)}
+.comparison-header{max-width:760px;margin-bottom:48px}
+.comparison-eyebrow{font-size:12px;line-height:1.5;color:var(--muted)}
+.comparison h1{font-size:clamp(36px,5vw,60px);line-height:1.08;margin:16px 0 24px;letter-spacing:-.04em}
+.comparison-header>p:not(.comparison-eyebrow){font-size:16px;line-height:1.6;color:var(--muted);margin-bottom:24px}
+.comparison .btn{text-decoration:none}
+.comparison-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:48px}
+.comparison-columns>section{min-width:0}
+.comparison h2{font-size:22px;line-height:1.3;font-weight:500;margin:0 0 8px;letter-spacing:-.025em}
+.comparison-caption{font-size:13px;line-height:1.5;color:var(--muted);margin:0 0 12px}
+.comparison-question{border-top:1px solid var(--line);padding:24px 0;font-size:14px;line-height:1.6}
+.comparison-question h3{font-size:17px;line-height:1.4;font-weight:500;margin:0 0 12px;letter-spacing:-.015em}
+.comparison-question ul{padding-left:20px;margin:0;list-style:disc}
+.comparison-question li+li{margin-top:6px}
+.comparison-question p{margin-top:0}
+@media(max-width:767px){.comparison{padding:32px 24px 56px}.comparison-columns{grid-template-columns:1fr;gap:36px}.comparison-header{margin-bottom:36px}}
+
+:scope{line-height:1.5;overflow-wrap:normal;color:var(--ink);--aq-ink:var(--ink);--aq-muted:var(--muted);--aq-line:var(--line)}
+.section-title:focus,.cover-content h1:focus{outline:none}
+.text-btn{border:0}.cover-logo{display:block}.btn{display:inline-flex;align-items:center;gap:8px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.brand-logo svg,.cover-logo svg{width:100%;height:100%}
+.question-form fieldset{margin:0;min-width:0;padding:0;border:0}
+.question-form legend{padding:0}
+}
+
+/* Pinned local private-review assets. Weights match the donor's font/index.ts. */
+@font-face{font-family:"Averlo Questionnaire SF Pro";src:url("./fonts/SFPRODISPLAYREGULAR.otf") format("opentype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Averlo Questionnaire SF Pro";src:url("./fonts/SFPRODISPLAYMEDIUM.otf") format("opentype");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Averlo Questionnaire SF Pro";src:url("./fonts/SFPRODISPLAYBOLD.otf") format("opentype");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"Averlo Questionnaire SF Pro";src:url("./fonts/SFPRODISPLAYBOLD.otf") format("opentype");font-weight:700;font-style:normal;font-display:swap}
+@scope (.aq) {
+  :scope { --font-sf-pro:"Averlo Questionnaire SF Pro";--font-body:var(--font-sf-pro),var(--font-sans-fallback); }
+}
+
+/* Keep editable text legible on touch and narrow screens without restricting pinch zoom. */
+@media (any-pointer: coarse), (max-width: 690px) {
+  .aq :is(.question,.questionnaire-modal-card) [data-slot="input-frame"] :is(input,textarea),
+  .aq .step-jump-input { font-size:max(16px,1rem); }
+}
+
+/* Keep review navigation and export together when the submit action needs its own row. */
+@media (max-width: 500px) {
+  .aq .review-shell .question-transition > .card-footer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .aq .review-shell .card-footer > .footer-actions { display: contents; }
+  .aq .review-shell .card-footer > .back-button { justify-self: start; }
+  .aq .review-shell .card-footer > .footer-actions > button[type="submit"] {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+}
+
+/* Ghost actions keep the canvas clear while pressed. */
+.aq :is(.text-btn, .btn.ghost):not(:disabled):not([aria-disabled="true"]):active {
+  opacity: .65;
+  background: transparent;
+}
+
+.aq .top[data-language-switcher] .brand-sub {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aq .top[data-language-switcher] :is(.brand-logo, .brand-divider) { flex: none; }
+.aq .questionnaire-language { flex: none; }
+.aq .questionnaire-language-trigger,
+.aq .questionnaire-language-trigger:is(:hover,:active,[aria-expanded="true"]) {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+}
+.aq .questionnaire-language-trigger:not(:disabled):active { opacity: .65; }
+.aq .questionnaire-language-trigger:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.aq .bookend .questionnaire-language-trigger:focus-visible { outline-color: var(--cover-ink); }
+.aq .questionnaire-language-face { display: inline-flex; align-items: center; gap: 3px; }
+.aq .questionnaire-language-caret { display: inline-flex; opacity: .72; }
+.aq .questionnaire-language-menu {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 24px rgba(0,0,0,.13);
+  z-index: 120 !important;
+}
+.aq .questionnaire-language-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: 18px/1 "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+}
+.aq .cover-header:has(.questionnaire-language) .cover-header-right { min-width: 0; }
+.aq .cover-header:has(.questionnaire-language) .cover-header-right > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Some embedded browsers clip fixed layers to the smaller viewport. While a
+   cover is stationary, let the orange document canvas show through the chrome. */
+@media (hover: none) and (pointer: coarse) {
+  .aq:has(> .bookend[data-cover-settled]) > .application { visibility: hidden; }
+}
+
+/* Synthetic cover comparison only. Normal client covers keep the inherited
+   document lock and settling behavior above. */
+html:has([data-aq-cover-comparison]),
+html:has([data-aq-cover-comparison]) body {
+  background-color: #fff;
+}
+[data-aq-cover-comparison] .aq:has(> .bookend[data-cover-settled]) > .application {
+  visibility: visible;
+}
+[data-aq-cover-comparison="sheet"] .aq > .bookend {
+  position: absolute;
+  inset-block: var(--aq-sheet-top, 0px) auto;
+}
+[data-aq-cover-comparison="neutral"] .aq > .bookend {
+  height: 100vh;
+  height: 100svh;
+}
+html:has([data-aq-cover-comparison="fade"]),
+html:has([data-aq-cover-comparison="fade"]) body {
+  transition: background-color 600ms cubic-bezier(.76,0,.24,1);
+}
+html:has([data-aq-cover-comparison="fade"] .bookend[data-phase="resting"]),
+html:has([data-aq-cover-comparison="fade"] .bookend[data-phase="resting"]) body {
+  background-color: #ff3200;
+}
+@media (prefers-reduced-motion: reduce) {
+  html:has([data-aq-cover-comparison="fade"]),
+  html:has([data-aq-cover-comparison="fade"]) body {
+    transition: none;
+  }
+}
+
+/* Overlay both captions so the progress track and label baseline stay put. */
+.progress-caption { display: inline-grid; align-items: baseline; }
+.progress-caption > * { grid-area: 1 / 1; transition: opacity 160ms ease; }
+.progress-caption-review { opacity: 0; pointer-events: none; }
+.topline [data-progress-review-action][aria-hidden="true"] { visibility: hidden; }
+.progress-caption[data-review] .progress-caption-step { opacity: 0; pointer-events: none; }
+.progress-caption[data-review] .progress-caption-review { opacity: 1; }
+.progress-caption[data-review]:focus-within .progress-caption-step { opacity: 1; pointer-events: auto; }
+.progress-caption[data-review]:focus-within .progress-caption-review { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .progress-caption > * { transition: none; }
+}
+
+.aq .rank-list { list-style: none; margin: 0; padding-block: 0; padding-right: 0; }
+.aq .rank-row { position: relative; cursor: default; transition-property: border-color, background-color; }
+/* A rank row or card is opaque, so one dragged over the others never shows them through it (Olaf, 11 November 2026: "draggable
+   card inputs are see-through when they're floating. Shouldn't be, color mix to make them opaque."). At rest it is the page's own
+   colour, which reads as no background; hovered or floating it is the hover wash mixed into that colour, not laid over it. */
+.aq .choice.rank-row { background: var(--bg); }
+.aq .choice.rank-row:hover, .aq .choice.rank-row[data-dragging] { background: color-mix(in srgb, rgb(var(--color-foreground-rgb)) 3%, var(--bg)); }
+.aq .rank-row:has(.rank-handle:focus-visible) { outline: 2px solid var(--accent); outline-offset: 3px; }
+.aq .rank-row:has(.rank-handle[aria-pressed=true]) { border-color: var(--accent); }
+.aq .rank-handle {
+  display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin: -11px;
+  padding: 0; border: 0; background: none; color: var(--muted); cursor: grab; touch-action: none;
+}
+.aq .rank-handle:active { cursor: grabbing; }
+.aq .rank-handle:focus-visible { outline: none; }
+.aq .review-a ol { list-style: decimal; }
+
+/* Option help: one line under the label of a radio, multi, toggle or rank option, in rows and on cards alike. It is small and tight so a described row is as tall as a plain one (its vertical padding is trimmed to match). */
+.option-text { display: grid; gap: 1px; min-width: 0; overflow-wrap: anywhere; line-height: 1.3; text-align: left; }
+.option-help, .choice .option-help { font-size: 12px; line-height: 1.2; color: var(--muted); letter-spacing: .01em; }
+/* In a row or on a card the help never wraps: it stays on one line and ends in an ellipsis, so a described option is as tall as a plain one. */
+.choice .option-help { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+/* Option labels carry a little tracking. */
+.choice .option-text > :first-child { letter-spacing: .01em; }
+.choice:not(.card):has(.option-help) { padding-block: 9px; }
+/* Selection look: anything selected is primary (the indicator fills with the accent, from ChoiceIndicators). Backgrounds change on hover only, a 3% near-black wash, 6% on a selected control; rest and selected get no background, and the border never changes. */
+.aq .choice, .aq .choice.selected { background: transparent; border-color: var(--line); box-shadow: none; }
+.aq .choice:hover { background: rgb(var(--color-foreground-rgb) / .03); border-color: var(--line); }
+.aq .choice.selected:hover { background: rgb(var(--color-foreground-rgb) / .06); }
+.back-button svg { transform: translateY(-.5px); }
+.review-a .review-option-help { display: block; font-size: 13px; line-height: 1.4; color: var(--muted); }
+
+/* Option cards (display "cards"): the choice row's own border, radius, hover and focus ring around a media header and a fixed 55px footer with the indicator beside the label and help. The media fills the card's width edge to edge (cover), 4:3 up to 173px tall, so a card is 230px tall at a 1000px viewport with or without help, and every card's media is the same height. Two columns at every width. */
+.choice-grid.card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.choice.card { flex-direction: column; align-items: stretch; gap: 0; min-height: 0; padding: 0; overflow: hidden; }
+.card-media { display: block; flex: none; }
+.card-media-frame { display: block; position: relative; width: 100%; aspect-ratio: 4 / 3; max-height: 173px; overflow: hidden; }
+.card-media-frame > :is(img, video) { display: block; width: 100%; height: 100%; object-fit: cover; }
+.card-media-html { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; }
+.card-media-html > svg { display: block; width: 100%; height: 100%; }
+.card-media-swatch { position: absolute; inset: 0; display: flex; }
+.card-media-swatch > span { flex: 1 1 0; min-width: 0; }
+/* Cadence: a month drawn in the form's own colours (src/cadence-data.ts), so it matches any accent; the review PDF mixes the same shares in hex. */
+.card-media-cadence { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.card-media-cadence [data-paint=frame] { fill: color-mix(in srgb, var(--accent) 7%, var(--bg)); }
+.card-media-cadence [data-paint=day] { fill: color-mix(in srgb, var(--accent) 20%, color-mix(in srgb, var(--ink) 6%, var(--bg))); }
+.card-media-cadence [data-paint=lit] { fill: var(--accent); }
+.card-media-cadence [data-paint=mark] { stroke: var(--accent); }
+.card-media-type { position: absolute; inset: 0; display: grid; place-items: center; padding: 8px; overflow: hidden; text-align: center; font-size: clamp(28px, 9vw, 60px); line-height: 1.1; color: var(--ink); overflow-wrap: anywhere; }
+/* The type-style presets: an "Aa" sample in a fitting stack, from fonts the visitor's system already has. */
+.card-media-type[data-type-preset] { font-size: clamp(40px, 12vw, 72px); line-height: 1; }
+.card-media-type[data-type-preset=serif] { font-family: Georgia, "Times New Roman", Times, serif; }
+.card-media-type[data-type-preset=sans] { font-family: system-ui, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.card-media-type[data-type-preset=slab] { font-family: Rockwell, "Rockwell Nova", "Roboto Slab", "DejaVu Serif", "Bitstream Vera Serif", serif; font-weight: 700; }
+.card-media-type[data-type-preset=mono] { font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace; }
+.card-media-type[data-type-preset=script] { font-family: "Segoe Script", "Snell Roundhand", "Brush Script MT", "Apple Chancery", cursive; }
+.card-media-type[data-type-preset=display] { font-family: Impact, Haettenschweiler, "Arial Narrow Bold", "Arial Black", sans-serif; font-weight: 800; }
+/* The suggestion option as a card: its icon (the sparkle when it names none), centred in the frame, filled and soft (Olaf,
+ * 13 Nov 2026: "should be filled and soft"). Its shapes are filled in soft grey, the ink at 22% over the surface,
+ * with a stroke in the same tint, so there is no hard outline: a closed shape reads as one soft fill, and an open line (a
+ * glyph's plus or tick) stays a soft stroke. */
+/* Soft grey, not the accent: the suggestion is the quiet way out, not a pick to promote (Olaf, 17 November 2026: "non
+   primary soft grey"). */
+.card-media-icon { position: absolute; inset: 0; display: grid; place-items: center; color: color-mix(in srgb, var(--ink) 22%, var(--bg)); }
+.card-media-icon > * { width: min(84px, 44%) !important; height: auto !important; aspect-ratio: 1; }
+.card-media-icon svg { fill: currentColor; stroke: currentColor; stroke-width: 1.5; }
+/* An icon card that is not the suggestion card (the pricing bases' stage cards) keeps the glyph's outline: Lucide draws in
+ * strokes, and filled they read as blobs. */
+.choice.card:not(.suggestion-card) .card-media-icon svg { fill: none; }
+/* The indicator is vertically centred on the label and help block, which reads from the left. The footer is a fixed 55px: the label takes at most two lines and the help one. */
+.card-foot { flex: none; display: flex; align-items: center; gap: 10px; height: 55px; min-width: 0; padding: 0 14px; overflow: hidden; text-align: left; }
+.aq .rank-card { cursor: default; }
+/* The rank badge takes the indicator's slot and size: a soft pale disc with a regular-weight muted digit, no accent. The digit is centred on its own box (line-height equals the height, tabular figures), then nudged by the font's offset. */
+.choice .rank-badge { display: grid; place-items: center; flex: none; width: 22px; height: 22px; border-radius: 50%; background: color-mix(in srgb, var(--color-input) 50%, transparent); color: var(--muted); padding-top: .5px; font-size: 12px; font-weight: 400; line-height: 22px; font-variant-numeric: tabular-nums; text-align: center; }
+.aq .rank-card .rank-handle { position: absolute; top: 8px; right: 8px; z-index: 1; width: 36px; height: 36px; margin: 0; border-radius: 50%; background: color-mix(in srgb, white 82%, transparent); color: var(--ink); backdrop-filter: blur(6px); }
+.aq .rank-card .rank-handle:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* Card text breaks only between words; a long word wraps whole rather than mid-word. */
+.card-foot .card-text { min-width: 0; flex: 1 1 0; overflow-wrap: normal; word-break: normal; hyphens: auto; }
+.card-foot .card-text > :first-child { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+@media (max-width: 690px) {
+  .choice-grid.card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .card-foot { gap: 8px; padding: 0 12px; }
+}
+
+
+/* Material cards retain their outline when a host stylesheet resets borders. */
+.aq .asset-attachments [data-slot="card"] {
+  border: 1px solid var(--aq-control-line);
+}
+
+/* The test link (#k=<key>&test=1, or #test=1 for a keyless form): a small pill that stays visible on every screen, including covers. */
+.aq .test-banner {
+  position: fixed; left: 50%; top: 14px; transform: translateX(-50%); z-index: 1000; padding: 6px 12px; border-radius: 999px;
+  background: #fff4e7; color: #7a4100; border: 1px solid #f0c48a; font-size: 13px; font-weight: 500; line-height: 1.2;
+  pointer-events: none;
+}
+@media (max-width: 640px) {
+  .aq .test-banner { top: auto; bottom: 14px; }
+}
+/* An open phone drawer covers the bottom edge, where the pill sits on phones: the pill steps aside until it closes. */
+.aq:has([data-dropdown-drawer]) .test-banner { visibility: hidden; }
+
+/* The access key field: small, under the lock on the startup page (spec 005), and after a 403 on Review. */
+.key-entry { display: flex; flex-direction: column; gap: 8px; max-width: 540px; }
+.key-entry .key-entry-intro { margin: 0 0 4px; font-size: 14px; line-height: 1.45; }
+.key-entry-label { font-size: 14px; line-height: 1.4; font-weight: 500; }
+.key-entry-row { display: flex; gap: 10px; align-items: stretch; }
+.key-entry-input { flex: 1 1 auto; min-width: 0; min-height: 50px; padding: 12px 16px; border: 1px solid var(--line, #e8e8ed); border-radius: 12px;
+  background: #fff; color: #171719; font: inherit; font-size: 16px; }
+.key-entry-input:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent, #171719) 35%, transparent); outline-offset: 1px; }
+.key-entry-input[aria-invalid="true"] { border-color: var(--red, #d33a22); }
+.key-entry-button { flex: none; min-height: 50px; padding: 12px 20px; }
+.key-entry-button:disabled { cursor: not-allowed; }
+.key-entry[data-on="gate"] { max-width: none; gap: 10px; }
+.key-entry[data-on="gate"] .key-entry-intro { margin: 0 0 6px; font-size: 14px; line-height: 1.5; color: var(--muted); text-align: center; text-wrap: pretty; }
+.key-entry[data-on="gate"] .key-entry-input, .key-entry[data-on="gate"] .key-entry-button { min-height: 46px; }
+.key-entry[data-on="gate"] .key-entry-input { padding: 10px 14px; }
+.key-entry[data-on="gate"] .key-entry-input::placeholder { color: var(--muted); }
+.key-entry[data-on="gate"] .key-entry-button { padding: 10px 18px; background: var(--accent); border-color: var(--accent); color: var(--cover-ink); }
+.key-entry[data-on="gate"] .key-entry-error { font-size: 13px; text-wrap: pretty; }
+.key-entry[data-on="inline"] { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line, #e8e8ed); }
+.key-entry[data-on="inline"] .key-entry-button { background: var(--accent); border-color: var(--accent); color: var(--cover-ink); }
+.key-entry .key-entry-error { margin: 0; font-size: 14px; line-height: 1.45; color: var(--red, #d33a22); }
+.aq .key-entry-saved { margin: 12px 0 0; font-size: 14px; line-height: 1.45; }
+@media (max-width: 640px) {
+  .key-entry:not([data-on="gate"]) .key-entry-row { flex-direction: column; }
+  .key-entry:not([data-on="gate"]) .key-entry-button { width: 100%; }
+}
+
+/* The two-column sort (multi, display "sort"): two drop columns side by side, at every width. Each item is the option card
+   (.choice.card): its media over the card foot, or the foot alone, and its arrow sits on the side facing the other column. */
+.aq .sort-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; outline: none; }
+.aq .sort-column { display: grid; align-content: start; gap: 8px; min-height: 140px; padding: 10px; border: 1px dashed var(--line); border-radius: 12px; transition: border-color 120ms ease, background-color 120ms ease; }
+.aq .sort-column[data-over] { border-color: var(--accent); border-style: solid; background: color-mix(in srgb, var(--accent) 5%, var(--bg)); }
+.aq .sort-column-body { display: grid; align-content: start; gap: 8px; }
+.aq .sort-heading { margin: 0; padding: 2px 2px 0; }
+.aq .sort-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.aq .sort-slot { cursor: grab; }
+.aq .sort-slot:active { cursor: grabbing; }
+.aq .choice.card.sort-item { background: var(--bg); transition-property: border-color, background-color; }
+/* .choice transitions `all`, which would also ease the transform motion writes every frame of the move: the card would lag,
+   then wobble as it lands. Only the colours transition here, as on the ranking's rows. */
+.aq .sort-item .card-foot { gap: 8px; padding: 0 10px 0 14px; }
+.aq .sort-item[data-column="1"] .card-foot { padding: 0 14px 0 10px; }
+/* The arrow is the package's round icon button (as the palette's remove button): line border, ink glyph, an ink tint on hover. */
+.aq .sort-move { flex: none; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); color: var(--ink); cursor: pointer; }
+.aq .sort-move:hover { background: color-mix(in srgb, var(--ink) 6%, var(--bg)); }
+.aq .sort-move:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 690px) {
+  .aq .sort-columns { gap: 8px; }
+  .aq .sort-column { padding: 8px; }
+  .aq .sort-item .card-foot { padding: 0 8px 0 10px; }
+  .aq .sort-item[data-column="1"] .card-foot { padding: 0 10px 0 8px; }
+}
+@media (prefers-reduced-motion: reduce) { .aq .sort-column { transition: none; } }
+
+/* The accordion (multi, display "accordion"): one column of option cards (.choice.card), each with a chevron at the end of
+   its foot that opens an indented checklist of its sub-options, by the disclosure's panel motion. */
+.aq .accordion-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; outline: none; }
+.aq .accordion-card { position: relative; }
+.aq .accordion-pick { display: flex; flex-direction: column; align-items: stretch; cursor: pointer; }
+.aq .accordion-card .card-foot { padding-right: 61px; }
+.aq .accordion-count { flex: none; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.aq .accordion-toggle { position: absolute; right: 0; bottom: 0; display: grid; place-items: center; width: 47px; height: 55px; padding: 0; border: 0; border-left: 1px solid var(--line); background: none; color: var(--muted); cursor: pointer; }
+.aq .accordion-toggle svg { transition: transform .2s ease; }
+.aq .accordion-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+/* The chevron sits as far from its divider as the box sits from the card's edge (14px each side, around the 18px glyph),
+   and the count sits the same 14px from the divider on its other side. Olaf, 16 November 2026. */
+/* Muted until hovered or open, as the package's other chevrons (.aq-option-chevron). */
+.aq .accordion-toggle:hover, .aq .accordion-toggle[aria-expanded="true"] { color: var(--ink); }
+.aq .accordion-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; border-radius: 0 12px 12px 0; }
+/* The gap between a sub-option's box and its text spans the same columns as the card's gap between its box and its label:
+   the smaller box ends where the card's box ends (border 1 + foot padding 14 + the 4px the 22px box is wider), and the
+   text starts where the label starts. Olaf, 16 November 2026. */
+.aq .accordion-items { display: grid; gap: 0; margin: 0; padding-left: 19px; list-style: none; }
+.aq .accordion-panel[data-open=true] > .accordion-items { padding-top: 6px; }
+.aq .accordion-row { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 4px 0; cursor: pointer; border-radius: 8px; }
+.aq .accordion-row:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 0; }
+@media (prefers-reduced-motion: reduce) { .aq .accordion-toggle svg { transition: none; } }
+
+/* A question with its description behind an info icon (info-tip.tsx): the icon after the question opens the package's
+   dropdown (the bottom drawer on a touch phone) holding the description. */
+.aq .q-label-info { display: flex; align-items: center; gap: 6px; }
+.aq .aq-info { display: inline-flex; }
+.aq .aq-info-button { display: grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
+.aq .aq-info-button:hover, .aq .aq-info-button[aria-expanded="true"] { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, var(--bg)); }
+.aq .aq-info-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Opaque: the float surface's `bg-popover` has no colour in the package's theme, so a scale's visual showed through it. */
+.aq-info-panel { padding: 12px 14px; outline: none; background: var(--bg, #fff); }
+.aq-info-panel p { margin: 0; }
+.aq-info-title { font-size: 16px; font-weight: 500; line-height: 1.35; margin-bottom: 6px !important; color: var(--ink, #191b25); }
+.aq-info-text { font-size: 14px; line-height: 1.45; color: var(--ink, #191b25); }
+.aq-info-panel[data-drawer] { padding: 4px 20px 24px; }
+
+/* The reset to what research found (reset-to-found.tsx): an icon after the question of a field with a default, placed like
+   the info icon. Its negative block margin keeps the question's line height, so it appears and goes without moving the field. */
+.aq .q-label-row { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; }
+.aq .q-label-row > label { margin: 0; }
+.aq .field-content > .q-label-row + .q-help { margin-top: -6px; }
+.aq .aq-reset-button { display: grid; flex: none; place-items: center; width: 24px; height: 24px; margin: -4px 0; padding: 0; border: 0; border-radius: 999px; background: none; color: var(--muted); cursor: pointer; }
+.aq .aq-reset-button:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 6%, var(--bg)); }
+.aq .aq-reset-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.aq .q-label-row > [tabindex="-1"]:focus:not(:focus-visible) { outline: none; }
+/* A toggle's row is its question: the reset sits after the row. */
+.aq .q-toggle-row { display: flex; align-items: center; gap: 6px; }
+.aq .q-toggle-row > .choice { flex: 1; min-width: 0; }
+
+/* The error screen QuestionnaireErrorBoundary shows when the form cannot render: centred, in the form's own type and accent. */
+.aq .aq-error { display: grid; justify-items: start; gap: 16px; max-width: 560px; margin: 0 auto; padding: 96px 24px; }
+.aq .aq-error-title { margin: 0; font-size: 14px; color: var(--muted); }
+.aq .aq-error-heading { margin: 0; font-size: 28px; line-height: 1.2; font-weight: 500; letter-spacing: -.01em; color: var(--ink); }
+
+/* Toasts (toast-host.tsx): Averlo's Sonner look from averlo-web-transition, in the questionnaire's tokens. */
+[data-sonner-toaster] .aq-toast { border: 1px solid var(--line, #e4e4e7); border-radius: 8px; padding: 12px 16px; box-shadow: none; font-family: inherit; gap: 10px; }
+[data-sonner-toaster] .aq-toast-title { font-size: 14px; font-weight: 400; line-height: 1.3; letter-spacing: 0; color: var(--ink, #191b25); }
+[data-sonner-toaster] .aq-toast-description { font-size: 14px; line-height: 1.3; color: var(--muted, #6b6f7a); }
+[data-sonner-toaster] .aq-toast-icon { color: var(--ink, #191b25); }
+/* Success and error icons in the form's own success green (the saved dot's) and red; loading keeps the ink spinner. */
+[data-sonner-toaster] [data-type="success"] .aq-toast-icon { color: var(--success, #4baa79); }
+[data-sonner-toaster] [data-type="error"] .aq-toast-icon { color: var(--red, #d33a22); }
+/* A toast with an action (the live Reload) stays one line and the height of every other toast: a smaller pill, the
+   padding trimmed to fit it. Olaf, 16 November 2026: "I don't like how the reload breaks onto two lines". */
+[data-sonner-toaster] .aq-toast:has([data-button]) { padding-block: 13px; }
+[data-sonner-toaster] .aq-toast [data-button].aq-toast-action { height: 27px; padding: 0 12px; line-height: 27px; }
+[data-sonner-toaster] .aq-toast-close { display: none; }
+[data-sonner-toaster] .aq-toast [data-button].aq-toast-action { border-radius: 999px; background: var(--accent, #ff3200); color: #fff; font-size: 14px; font-weight: 500; }
+[data-sonner-toaster] .aq-toast [data-button].aq-toast-cancel { height: auto; border-radius: 999px; padding: 8px 16px; background: color-mix(in srgb, var(--ink, #191b25) 6%, var(--bg, #fff)); color: var(--ink, #191b25); font-size: 14px; }
