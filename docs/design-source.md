@@ -52,11 +52,11 @@ The blurs are kept so the carried fades (the page step's `fade="glass"`, the men
 
 ## Ported files
 
-30 files from 2 sources, each a byte-identical copy of its source at the pinned commit. `npm run check:ports` compares them with the source (scripts/ports.lock.json).
+31 files from 2 sources, each a byte-identical copy of its source at the pinned commit. `npm run check:ports` compares them with the source (scripts/ports.lock.json).
 
 ### averlo-web-transition @ `cfa3d61`
 
-Entries: `src/components/ui/foundations/focus.ts`, `src/components/ui/foundations/library.css`, `src/components/ui/foundations/iconAnimations.css`, `src/components/ui/foundations/motionTiming.ts`, `src/components/ui/foundations/spring.ts`, `src/components/ui/foundations/motionDisableOverride.ts`, `src/components/ui/foundations/settingsContext.tsx`, `src/components/ui/foundations/appearance.ts`, `src/components/ui/foundations/MotionProvider.tsx`, `src/components/ui/foundations/motionDriverContext.tsx`, `src/components/ui/primitives/Button.tsx`, `src/components/ui/primitives/Text.tsx`, `src/components/ui/primitives/Panel.tsx`, `src/components/ui/primitives/Dropdown.tsx`, `src/components/ui/primitives/Listbox.tsx`, `src/components/ui/primitives/dropdownStyles.ts`, `src/components/ui/overlays/Portal.tsx`, `src/components/ui/icons/Icon.tsx`, `src/components/ui/helpers/IconSwap.tsx`, `src/components/branding/Logo.tsx`.
+Entries: `src/components/ui/foundations/focus.ts`, `src/components/ui/foundations/library.css`, `src/components/ui/foundations/iconAnimations.css`, `src/components/ui/foundations/motionTiming.ts`, `src/components/ui/foundations/spring.ts`, `src/components/ui/foundations/motionDisableOverride.ts`, `src/components/ui/foundations/settingsContext.tsx`, `src/components/ui/foundations/appearance.ts`, `src/components/ui/foundations/MotionProvider.tsx`, `src/components/ui/foundations/motionDriverContext.tsx`, `src/components/ui/primitives/Button.tsx`, `src/components/ui/primitives/Text.tsx`, `src/components/ui/primitives/Panel.tsx`, `src/components/ui/primitives/Dropdown.tsx`, `src/components/ui/primitives/Listbox.tsx`, `src/components/ui/primitives/dropdownStyles.ts`, `src/components/ui/primitives/Collapse.tsx`, `src/components/ui/overlays/Portal.tsx`, `src/components/ui/icons/Icon.tsx`, `src/components/ui/helpers/IconSwap.tsx`, `src/components/branding/Logo.tsx`.
 
 | Source repository     | Commit    | Source path                                                           | Target path                                                           |
 | --------------------- | --------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
@@ -77,6 +77,7 @@ Entries: `src/components/ui/foundations/focus.ts`, `src/components/ui/foundation
 | averlo-web-transition | `cfa3d61` | `src/components/ui/motion/source/scheduler/context.ts`                | `src/components/ui/motion/source/scheduler/context.ts`                |
 | averlo-web-transition | `cfa3d61` | `src/components/ui/overlays/Portal.tsx`                               | `src/components/ui/overlays/Portal.tsx`                               |
 | averlo-web-transition | `cfa3d61` | `src/components/ui/primitives/Button.tsx`                             | `src/components/ui/primitives/Button.tsx`                             |
+| averlo-web-transition | `cfa3d61` | `src/components/ui/primitives/Collapse.tsx`                           | `src/components/ui/primitives/Collapse.tsx`                           |
 | averlo-web-transition | `cfa3d61` | `src/components/ui/primitives/Dropdown.tsx`                           | `src/components/ui/primitives/Dropdown.tsx`                           |
 | averlo-web-transition | `cfa3d61` | `src/components/ui/primitives/Listbox.tsx`                            | `src/components/ui/primitives/Listbox.tsx`                            |
 | averlo-web-transition | `cfa3d61` | `src/components/ui/primitives/LoadingSpinner.tsx`                     | `src/components/ui/primitives/LoadingSpinner.tsx`                     |
@@ -114,9 +115,9 @@ Where the closure stops. Versions follow research R2: the origin's pins win for 
 | `class-variance-authority` | 3 ports     | averlo-web-transition 0.7.1                               | 0.7.1        | averlo-web-transition's lockfile (R2 rule 2)                                                               |
 | `clsx`                     | 8 ports     | averlo-web-transition 2.1.1                               | 2.1.1        | averlo-web-transition's lockfile (R2 rule 2)                                                               |
 | `lucide-react`             | 2 ports     | averlo-web-transition 1.18.0                              | 1.18.0       | averlo-web-transition's lockfile (R2 rule 2)                                                               |
-| `motion`                   | 3 ports     | averlo-web-transition 12.38.0                             | 14.7.1       | override: the origin's pin wins over averlo-web-transition 12.38.0 (R2 rule 1)                             |
+| `motion`                   | 4 ports     | averlo-web-transition 12.38.0                             | 14.7.1       | override: the origin's pin wins over averlo-web-transition 12.38.0 (R2 rule 1)                             |
 | `next`                     | 4 ports     | averlo-web-transition 16.2.6; averlo-next-template 16.4.3 | 16.4.5       | override: the origin's pin wins over averlo-web-transition 16.2.6, averlo-next-template 16.4.3 (R2 rule 1) |
-| `react`                    | 17 ports    | averlo-web-transition 19.2.6                              | 19.3.1       | override: the origin's pin wins over averlo-web-transition 19.2.6 (R2 rule 1)                              |
+| `react`                    | 18 ports    | averlo-web-transition 19.2.6                              | 19.3.1       | override: the origin's pin wins over averlo-web-transition 19.2.6 (R2 rule 1)                              |
 | `react-dom`                | 1 port      | averlo-web-transition 19.2.6                              | 19.3.1       | override: the origin's pin wins over averlo-web-transition 19.2.6 (R2 rule 1)                              |
 | `tailwindcss`              | 1 port      | averlo-web-transition 4.3.0                               | 4.3.0        | averlo-web-transition's lockfile (R2 rule 2)                                                               |
 

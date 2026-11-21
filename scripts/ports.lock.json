@@ -22,6 +22,7 @@
         "src/components/ui/primitives/Dropdown.tsx",
         "src/components/ui/primitives/Listbox.tsx",
         "src/components/ui/primitives/dropdownStyles.ts",
+        "src/components/ui/primitives/Collapse.tsx",
         "src/components/ui/overlays/Portal.tsx",
         "src/components/ui/icons/Icon.tsx",
         "src/components/ui/helpers/IconSwap.tsx",
@@ -97,6 +98,10 @@
           "target": "src/components/ui/primitives/Button.tsx"
         },
         {
+          "source": "src/components/ui/primitives/Collapse.tsx",
+          "target": "src/components/ui/primitives/Collapse.tsx"
+        },
+        {
           "source": "src/components/ui/primitives/Dropdown.tsx",
           "target": "src/components/ui/primitives/Dropdown.tsx"
         },
@@ -170,7 +175,7 @@
         {
           "name": "motion",
           "version": "12.38.0",
-          "importedBy": 3
+          "importedBy": 4
         },
         {
           "name": "next",
@@ -180,7 +185,7 @@
         {
           "name": "react",
           "version": "19.2.6",
-          "importedBy": 17
+          "importedBy": 18
         },
         {
           "name": "react-dom",

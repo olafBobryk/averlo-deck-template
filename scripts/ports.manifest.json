@@ -87,6 +87,10 @@
           "target": "src/components/ui/primitives/dropdownStyles.ts"
         },
         {
+          "source": "src/components/ui/primitives/Collapse.tsx",
+          "target": "src/components/ui/primitives/Collapse.tsx"
+        },
+        {
           "source": "src/components/ui/overlays/Portal.tsx",
           "target": "src/components/ui/overlays/Portal.tsx"
         },
