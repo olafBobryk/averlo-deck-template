@@ -2,7 +2,7 @@
 
 **Input**: [spec.md](spec.md) (approved), [plan.md](plan.md), [research.md](research.md), [data-model.md](data-model.md), [contracts/deck-config.md](contracts/deck-config.md), [quickstart.md](quickstart.md). Local only (ignored, on the gate machine): `.local/origin.md`, `.local/origin-inventory.md`, `.local/public-scan-terms.txt`, `.local/env`. If any of them is missing, stop.
 
-**Status**: Draft, awaiting the owner's approval. Approval also re-approves the revised spec. Nothing below may be implemented before it (constitution IV, VI).
+**Status**: Approved by the owner on 2026-11-21 ("Approve, start run"). This approval also re-approves the revised spec.
 
 Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel with the other `[P]` task in the same phase (never more than 2 at once).
 
