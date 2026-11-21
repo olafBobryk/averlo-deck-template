@@ -43,9 +43,8 @@ export type Block =
   | { type: "steps"; items: Step[]; style?: "rail" | "nodes" }
   | { type: "facts"; items: Fact[] }
   | { type: "note"; item: Item }
-  /** One node over the roles that report to it; `ledger`: the team's name
-   *  over one row per role, what each owns as chips, a spine joining them. */
-  | { type: "org"; root: Point; items: Point[]; style?: "tree" | "ledger" }
+  /** One node over the roles that report to it. */
+  | { type: "org"; root: Point; items: Point[]; style?: "tree" }
   /** One stage branching into options. */
   | { type: "fork"; root: Point; items: Point[] }
   /** A working week with its fixed moments. */

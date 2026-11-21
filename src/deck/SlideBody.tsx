@@ -42,9 +42,7 @@ const pill = cardSurface({ surface: "glass", shape: "pill" });
  *  through a fading wrapper. */
 export const holdsGlass = (block: Block) =>
   block.type === "facts" ||
-  // A ledger's rows sit outside any glass: the block fades itself, so its
-  // chips are not glass either.
-  (block.type === "org" && block.style !== "ledger") ||
+  block.type === "org" ||
   block.type === "fork" ||
   block.type === "week" ||
   (block.type === "points" && (block.style ?? "cards") !== "numbered");
