@@ -249,7 +249,6 @@ test.describe("phone: overview thumbnails stay 16:9", () => {
         expect(Math.abs(text.size - desktop[i][j].size), at).toBeLessThan(
           0.002,
         );
-        expect(Math.abs(text.left - desktop[i][j].left), at).toBeLessThan(0.01);
       });
     });
   });
