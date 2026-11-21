@@ -31,9 +31,14 @@
 - `source repository`, `commit`, `source path`, `target path`, plus the npm packages recorded with their lockfile versions.
 - Validation: the drift test compares each target with `source@commit:path` byte for byte.
 
-## Carried-file record (`docs/carried.md`)
+## Carried-file record (`docs/carried/<area>.md`: `app`, `deck`, `gate`, `boot`, `motion`, `tests`)
 
-- `file` (target path) and `changes`: a list of `{ kind: rename | detach | compose, what, why }`. Rename rows say "product identifier → deck" and never name the product.
+- `file` (target path) and `changes`: a list of `{ kind: rename | detach | compose | redact, what, why }`. Rename rows say "product identifier → deck" and never name the product. Redact rows give the line and "comment reworded" or "comment removed", never the original text.
+- One file per area, so phases that run in parallel never write the same record.
+
+## Open question (`docs/decisions/open-questions/<phase>-<slug>.md`)
+
+- `question`, `context`, `options` with a recommendation, `blocks` (the task and phase). One file per question, so parallel phases never write the same file. When the owner answers, the answer moves to the spec's Session block or `decisions.md`, and the question file is deleted.
 
 ## Motion baseline (`specs/001-deck-template/references/strips/*.json`)
 

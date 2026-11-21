@@ -50,7 +50,7 @@ A feature's tests are derived from its spec's acceptance scenarios and seen fail
 
 ## Documentation and delivery
 
-**Layout.** `src/app` routes (deck, print); `src/deck` the deck engine; `src/gate` the intro; `src/motion` the deck's motion module; ported Averlo design-system code under `src/components` (see [design-source.md](../../docs/design-source.md)); `content/` a deck's source material and slides; `docs/decisions` the decision log; `specs/NNN-*` features; `scripts` build and port helpers; `tests` the gate. Rendered PDFs are build output, not committed.
+**Layout.** `src/app` routes (deck, print); `src/deck` the deck engine; `src/gate` the intro; `src/boot` the hard-load screen; `src/motion` the deck's motion module; ported code at its source-relative paths (`src/components`, `src/hooks`, `src/lib`, `src/config`, `src/font`, and `src/questionnaire` for the questionnaire's top bar; see [design-source.md](../../docs/design-source.md)); template-owned `src/brand` and `src/styles`; `content/` a deck's source material and slides; `docs/decisions` the decision log; `specs/NNN-*` features; `scripts` build and port helpers; `tests` the gate. Rendered PDFs are build output, not committed.
 
 **Spec Kit.** Official github/spec-kit v1.4.1, pinned in [`scripts/specify.sh`](../../scripts/specify.sh), integrations `claude` (`.claude/skills/speckit-*`) and `codex` (`.agents/skills/speckit-*`). Keep upstream skills, templates and scripts unchanged; refresh them only through `scripts/specify.sh integration upgrade`. Each feature lives in `specs/NNN-kebab-name/` with `spec.md`, `plan.md`, `tasks.md`, and `references/` for screenshots and evidence.
 
@@ -70,6 +70,6 @@ Resolve each skill at use time; if one is unavailable, follow the linked procedu
 
 ## Governance
 
-These principles record the owner's standing instructions. The owner's corrections take precedence: record each with its date, and in the same change reconcile every rule that conflicts with it. Record substantive changes here and increment the version: major for incompatible rule changes, minor for additions, patch for clarifications. 1.0.0 adopted 21 November 2026. 1.0.1 (21 November 2026): Principle VIII says ports are whole, unchanged copies, and that the Averlo look binds the template's build, not decks made from it.
+These principles record the owner's standing instructions. The owner's corrections take precedence: record each with its date, and in the same change reconcile every rule that conflicts with it. Record substantive changes here and increment the version: major for incompatible rule changes, minor for additions, patch for clarifications. 1.0.0 adopted 21 November 2026. 1.0.1 (21 November 2026): Principle VIII says ports are whole, unchanged copies, and that the Averlo look binds the template's build, not decks made from it. 1.0.2 (21 November 2026): the Layout paragraph lists every folder ports and template-owned code live in.
 
-**Version**: 1.0.1 | **Ratified**: 2026-11-21 | **Last Amended**: 2026-11-21
+**Version**: 1.0.2 | **Ratified**: 2026-11-21 | **Last Amended**: 2026-11-21

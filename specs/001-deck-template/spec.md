@@ -12,7 +12,7 @@
 
 - **Origin deck**: the private client deck this template is built from. It is never named in this repository.
 - **Port**: a whole copy of files from a pinned source commit, made by the port script.
-- **Carried file**: a file from the origin deck, kept as it is except for listed rename, detach and compose changes.
+- **Carried file**: a file from the origin deck, kept as it is except for listed rename, detach, compose and redact changes.
 - **Hard-load screen**: the screen shown while the deck loads again later in a session.
 - **Language switcher**: the menu control for choosing a language.
 - **Strip diff**: the comparison of recorded per-frame motion values against the baseline.
@@ -36,23 +36,22 @@
 - Q: Is the bar the questionnaire's header band, its progress navigator, or both? → A: Both, as they are in the questionnaire.
 - Q: The template's licence? → A: MIT.
 
-### Session 2026-11-21, after approval (the owner's additions)
-
-- The Averlo look binds the template's build only. A deck made from the template may change its look and its ports.
-- Porting fidelity: port everything as it is, never a lesser partial copy. Ports are whole, unchanged files with all their dependencies, never re-implementations.
-
-### Session 2026-11-21, planning (grilling with the owner)
+- After approval, the owner added:
+  - The Averlo look binds the template's build only. A deck made from the template may change its look and its ports.
+  - Porting fidelity: port everything as it is, never a lesser partial copy. Ports are whole, unchanged files with all their dependencies, never re-implementations.
 
 - Q: The deck's motion lives in the origin product's design-source files, whose identifiers carry the product's name. How does it come in? → A: "Copy files, rename only". The owner confirms the code is theirs to publish.
 - Q: How much of the Averlo design system? → A: "What the deck uses, complete".
 - Q: The intro's product orb and the hard-load screen? → A: "Averlo mark in both", with the same timing.
 
-### Session 2026-11-21, after analyze (grilling with the owner)
-
 - Q: The questionnaire's bar files carry a client's name in their file names and comments. → A: "Rename upstream first". The names are changed inside averlo-questionnaire-template itself, and the port is re-pinned to that commit, so the port stays byte-identical.
 - Q: Can the motion files also drop their imports of the product's screen-switch, registry and config code? → A: "Detach them". Only those imports and calls go, every motion value stays, and the strip diff proves it.
 - Q: How do the setup commits reach `main`? → A: "Agent pushes setup once": once, at creation, after the public scan passes. Everything after that arrives through PRs the owner merges.
 - Q: The private list of terms the public scan blocks? → A: The owner approved the list, which is kept in an ignored local file.
+- Q: Carried code comments that quote people, give dates or cite the origin's own specs? → A: "Allow redact, listed". Such comments are reworded neutrally or removed, each listed; code is never changed by a redact.
+- Q: The questionnaire's shell CSS declares fonts that may not be redistributed? → A: "Exclude the font files only". The CSS is ported unchanged, its font files are not copied, and the deck's fonts come from averlo-next-template.
+- Q: The licence of the ported code and of the Averlo mark? → A: "MIT; mark excluded". The ported code is published under this repository's MIT licence. The Averlo name and mark are brand assets, shown as the default placeholder but not licensed for reuse, and the LICENSE says so.
+- Q: How do the approved spec, plan and tasks reach `main`? → A: "In the setup push". They are part of the one-time setup push, and P0 branches from `main`.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -142,7 +141,7 @@ A deck owner adds a second language through configuration and translated strings
 - **FR-003**: The template MUST keep the print view and render a PDF of every slide on every build.
 - **FR-004**: The template MUST keep the intro, which plays once per browser session and is skipped under reduced motion and with `?intro=off`.
 - **FR-004a**: The template MUST keep the hard-load screen, with the brand mark in place of the origin product's orb.
-- **FR-005**: The intro and the hard-load screen MUST show the Averlo mark by default, and the "your logo" placeholder when a deck is set to another brand without assets.
+- **FR-005**: The intro, the hard-load screen, the top bar's brand slot and the footer wordmark MUST show the Averlo brand by default. For another brand they show its assets and name; without assets, the marks show the "your logo" placeholder and the wordmark shows the brand's name as text.
 - **FR-006**: The template MUST remove every product-specific feature, block, screen, image and alternate deck of the origin. The exact list is kept outside this repository.
 - **FR-007**: The template MUST default to one language. A second language MUST be addable by configuration plus strings, and the language switcher MUST appear only with two or more languages.
 
@@ -151,7 +150,13 @@ A deck owner adds a second language through configuration and translated strings
 - **FR-008**: The template MUST use the Averlo design system's components, tokens and helpers from averlo-web-transition and the averlo-questionnaire-template top bar, and fonts from averlo-next-template. All of them come in as ports listed with their source commits.
 - **FR-009**: A drift test MUST fail when any port differs from its pinned source. It guards the template's own build. A deck made from the template may change its look and its ports, and the README MUST say how to re-pin, re-target or turn off the drift test for such a deck.
 - **FR-009a**: Every port MUST be a whole, unchanged copy of its source files together with every file they import, so it renders and behaves exactly as in its source. Re-implementing, simplifying, stubbing or partially copying a port, or editing it to make it compile, is a defect. When a port needs something the template doesn't have, that is ported too. A gap that truly cannot be ported is raised with the owner.
-- **FR-009b**: Carried files (engine, intro, print, hard-load screen and motion module) MUST stay as they are, except for: renaming the origin product's identifiers; detaching removed features and the product's screen-switch, registry and config code; and composing ports in place of removed components. Each change MUST be listed with its reason.
+- **FR-009b**: Carried files (engine, intro, print, hard-load screen and motion module) MUST stay as they are, except for four kinds of change:
+  - renaming the origin product's identifiers;
+  - detaching removed features and the product's screen-switch, registry and config code;
+  - composing ports or template-owned parts in place of removed components;
+  - redacting comments that name people, give dates, cite the origin's own specs or describe its client. A redact never changes code.
+
+  Each change MUST be listed with its reason.
 - **FR-010**: No design-source code of the origin product may remain, other than the carried motion module.
 - **FR-011**: Fonts MUST come from averlo-next-template.
 - **FR-012**: The questionnaire's whole top MUST be ported as it is in the questionnaire and shown full-bleed across the top of the deck: the header band (brand on the left, controls on the right) together with its progress navigator, where pressing or dragging the step track jumps between slides. The footer's own progress indicator stays as well (FR-013).
@@ -171,7 +176,7 @@ A deck owner adds a second language through configuration and translated strings
 - **FR-017**: The repository MUST start with fresh history, and no file or commit may contain a blocked term.
 - **FR-018**: A public scan MUST fail when the blocked-term list is missing or empty, when any blocked term appears in files or history, and when any font, image, package or port is missing from the licence list.
 - **FR-019**: Every font, image, package and port MUST be listed with its source and licence, and committed only when its licence allows redistribution.
-- **FR-020**: The repository MUST carry the MIT licence. Ports keep any licence notice they carry from their source.
+- **FR-020**: The repository MUST carry the MIT licence, covering the template's code and the ported code. The Averlo name and mark MUST be excluded from it as brand assets, and the LICENSE says so. Ports keep any licence notice they carry from their source. Font files that may not be redistributed are never copied, even when a ported stylesheet declares them.
 
 **Gate**
 
@@ -180,7 +185,7 @@ A deck owner adds a second language through configuration and translated strings
 ### Key Entities
 
 - **Slide**: one stage of the deck: kind, layout, title, section, and content in each configured language.
-- **Deck configuration**: languages, brand (Averlo or the owner's, with its assets), deck title and top-bar accent colour.
+- **Deck configuration**: brand (Averlo or the owner's, with its assets), deck title and top-bar accent colour. Languages are configured with the slides.
 - **Port record**: a port's source repository, commit, source path and target path.
 - **Motion baseline**: per-frame values for each recorded motion, with the machine, runs and tolerance.
 - **Licence entry**: a font, image, package or port, with its source, licence and whether it may be redistributed.

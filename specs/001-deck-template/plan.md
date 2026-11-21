@@ -107,7 +107,7 @@ src/
 └── styles/              # template-owned fonts.css and tokens.css
 scripts/  port-averlo.mjs (+ ports.manifest.json), check-ports.mjs, scan-public.mjs, render-pdf.mjs (carried), gate.mjs, specify.sh
 tests/    carried and adapted specs, baseline recorder, strip diff
-docs/     design-source.md, licences.md, carried.md, decisions/, orchestration.md
+docs/     design-source.md, licences.md, carried/<area>.md, decisions/ (decisions.md, open-questions/), orchestration.md
 process/workflows.md, WORKFLOWS.md, README.md, LICENSE
 ```
 
@@ -115,18 +115,20 @@ process/workflows.md, WORKFLOWS.md, README.md, LICENSE
 
 ## Phases (stacked branches; the owner merges each PR into `main` in order)
 
+**Setup on `main`** (the one approved agent push): the commits "Ignore secrets, local documents and tool output", "Install Spec Kit v1.4.1 …", "Adopt the template's constitution …", "Specify, plan and break down the deck template (feature 001)", and the follow-up commits on `feat/001-deck-template` up to the owner's approval of tasks.md. `p0-baseline` branches from `main`. The scan for that push runs from P0's working tree over `git log --all -p`.
+
 | Phase | Branch (base) | Owns |
 |---|---|---|
-| P0 Baseline, tooling, public | `p0-baseline` (main) | tooling, `scripts/gate.mjs`, `scan-public.mjs`, `docs/licences.md`, `docs/decisions/*`, `tests/baseline/*`, `tests/motion/*`, `references/strips/*` |
-| P1 Carry and strip | `p1-carry` (p0) | `src/app`, `src/deck`, `src/gate`, `src/boot`, `src/_origin-temp`, `docs/carried.md`, `scripts/render-pdf.mjs` |
-| P2 Motion module | `p2-motion` (p1) | `src/motion/*`, imports in carried files |
-| P3 Averlo ports and brand | `p3-averlo` (p2) | port script, manifest, `check-ports.mjs`, ported folders, `src/styles`, `src/app/globals.css`, `src/brand`, `docs/design-source.md` |
-| P4 Top bar | `p4-topbar` (p3) | the upstream rename (in averlo-questionnaire-template), `src/questionnaire/*`, `src/deck/TopBar.tsx`, deck layout and footer CSS |
-| P5 Intro and hard-load screen | `p5-brand` (p3) | `src/gate`, `src/boot` |
-| P6 Slides and languages | `p6-slides`: from `p4-topbar`, with `p5-brand` merged in by a merge commit | `src/deck/slides.ts`, language switcher condition, PDF name |
-| P7 Docs and fresh copy | `p7-public` (p6) | LICENSE, README, workflows, content workflow, fresh-copy check |
+| P0 Baseline, tooling, public | `p0-baseline` (main) | tooling, `scripts/gate.mjs`, `scan-public.mjs`, `LICENSE`, `docs/licences.md`, `docs/decisions/*`, `docs/carried/tests.md`, `docs/orchestration.md` (minimal), `tests/baseline/*`, `tests/motion/strips.spec.ts`, `references/strips/*` |
+| P1 Carry and strip | `p1-carry` (p0) | `src/app`, `src/deck`, `src/gate`, `src/boot`, `src/motion` (rename only), `src/_origin-temp`, `src/brand/placeholder`, `docs/carried/{app,deck,gate,boot,motion,tests}.md`, `scripts/render-pdf.mjs`, `tests/*` adapted |
+| P2 Motion module | `p2-motion` (p1) | `src/motion/*` (detach), `docs/carried/motion.md`, `tests/motion/constants.spec.ts` |
+| P3 Averlo ports and brand | `p3-averlo` (p2) | port script and manifest, `check-ports.mjs`, ported folders, `src/styles`, `src/app/globals.css`, `src/brand/config.ts`, `docs/design-source.md`, compose rows in `docs/carried/{app,deck}.md` |
+| P4 Top bar | `p4-topbar` (p3) | the upstream rename (in averlo-questionnaire-template), `src/questionnaire/*`, `src/deck/TopBar.tsx`, deck layout and footer CSS, `docs/carried/deck.md` |
+| P5 Intro and hard-load screen | `p5-brand` (p3) | `src/gate`, `src/boot`, `docs/carried/{gate,boot}.md` |
+| P6 Slides and languages | `p6-slides`: from `p4-topbar`, with `p5-brand` merged in by a merge commit. Its PR targets `p4-topbar` and is retargeted to `main` once P4 and P5 are merged | `src/deck/slides.ts` (template-owned; imports the carried types), the language switcher condition, the PDF name |
+| P7 Docs and fresh copy | `p7-public` (p6) | README, `process/workflows.md`, `WORKFLOWS.md`, `docs/orchestration.md` (complete), `tests/fixtures/*`, `tests/docs/*` |
 
-The repo is created after P0's first gate on `main`'s setup commits. Every phase ends with `npm run gate`.
+Open questions are one file each under `docs/decisions/open-questions/`, so parallel phases never write the same file; `decisions.md` is written only by the owner thread. Every phase ends with `npm run gate`.
 
 ## Complexity Tracking
 
