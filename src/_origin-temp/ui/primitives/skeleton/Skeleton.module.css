@@ -1,0 +1,126 @@
+.skeleton {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--deck-surface-subtle);
+  pointer-events: none;
+  user-select: none;
+}
+:global([data-theme="dark"]) .skeleton {
+  background: var(--deck-surface-raised);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: calc(
+    var(--deck-shimmer-opacity, 0) * var(--deck-skeleton-ready, 0)
+  );
+  background-image: linear-gradient(
+    100deg,
+    transparent 20%,
+    color-mix(in srgb, var(--deck-text-primary) 10%, transparent) 50%,
+    transparent 80%
+  );
+  background-repeat: no-repeat;
+  background-size: calc(
+      var(--deck-shimmer-width, 100vw) / var(--deck-skeleton-scale-x, 1)
+    )
+    calc(var(--deck-shimmer-height, 100vh) / var(--deck-skeleton-scale-y, 1));
+  background-position: calc(
+      (var(--deck-shimmer-x, -100vw) - var(--deck-skeleton-x, 0px)) /
+        var(--deck-skeleton-scale-x, 1)
+    )
+    calc(-1 * var(--deck-skeleton-y, 0px) / var(--deck-skeleton-scale-y, 1));
+}
+.skeleton[data-animation="static"]::after {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme])) .skeleton {
+    background: var(--deck-surface-raised);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    display: none;
+  }
+}
+/* Skeleton.Text: one line box per line, the bar centred in it. */
+.text {
+  display: grid;
+  width: 100%;
+}
+.line {
+  display: grid;
+  align-items: center;
+  height: var(--skeleton-line);
+}
+/* Centred or end-aligned text (a centred summary) keeps its bars where its
+   lines sit. */
+.text[data-align="center"] .line {
+  justify-items: center;
+}
+.text[data-align="end"] .line {
+  justify-items: end;
+}
+
+/* Copy typeset hidden in the variant sizes
+   the slot; one glyph-height bar per line it wraps to, placed by
+   Skeleton.Text. Until measured (before hydration), each line fragment
+   draws the same bar from the copy's own background. */
+/* Sized like the text it stands for: it fills a block line as text does,
+   and in a flex row it is as wide as its copy, never a forced full line. */
+.copied {
+  position: relative;
+  display: block;
+  width: auto;
+  min-width: 0;
+}
+.copy {
+  display: block;
+  color: transparent;
+  user-select: none;
+  pointer-events: none;
+}
+.text[data-align="center"] .copy {
+  text-align: center;
+}
+.text[data-align="end"] .copy {
+  text-align: end;
+}
+.copy[data-truncate] {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: clip;
+}
+.copy[data-clamp] {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--skeleton-clamp);
+}
+/* Rounded before it is measured, from CSS alone. Three layers, the
+   same size as the measured bar (Skeleton.tsx barHeight): two round caps and
+   the span between them. */
+.copied:not([data-measured]) .ink {
+  --bar: max(0.72em, 1.056em - 5.376px);
+  --cap: radial-gradient(
+    circle closest-side,
+    var(--deck-surface-subtle) 97%,
+    transparent 100%
+  );
+  background:
+    var(--cap) 0 50% / var(--bar) var(--bar) no-repeat,
+    var(--cap) 100% 50% / var(--bar) var(--bar) no-repeat,
+    linear-gradient(var(--deck-surface-subtle), var(--deck-surface-subtle))
+      50% 50% / calc(100% - var(--bar)) var(--bar) no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.bar {
+  position: absolute;
+}

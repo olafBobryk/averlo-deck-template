@@ -1,0 +1,82 @@
+/* Inner scroll edges: a scrolling
+   area inside a padded container owns that padding, so its content scrolls
+   to the container's real edge, and a mask the size of the padding fades
+   the content under that edge. Compose `scrollEdges` on the element that
+   scrolls and set --scroll-edge to the padding it takes over (block axis). */
+/* Never declared by the classes below, only read with a fallback: an element
+   that composes them sets --scroll-edge at the same specificity, and which one
+   won would depend on the order the CSS chunks load (a composer's
+   text fell below its placeholder). It doesn't inherit, so a nested scroller
+   still gets its own default rather than its parent's edge. */
+@property --scroll-edge {
+  syntax: "*";
+  inherits: false;
+}
+/* A scroller runs to the next visible edge on each side, so its two sides
+   rarely take the same gap: --scroll-edge-start
+   and --scroll-edge-end set one side each, and --scroll-edge is both when they
+   aren't. The fade on a side is that side's padding, always. */
+@property --scroll-edge-start {
+  syntax: "*";
+  inherits: false;
+}
+@property --scroll-edge-end {
+  syntax: "*";
+  inherits: false;
+}
+.scrollEdges {
+  padding-block-start: var(
+    --scroll-edge-start,
+    var(--scroll-edge, var(--deck-space-10))
+  );
+  padding-block-end: var(
+    --scroll-edge-end,
+    var(--scroll-edge, var(--deck-space-10))
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 var(--scroll-edge-start, var(--scroll-edge, var(--deck-space-10))),
+    #000
+      calc(
+        100% - var(--scroll-edge-end, var(--scroll-edge, var(--deck-space-10)))
+      ),
+    transparent
+  );
+}
+/* The same for a row that scrolls sideways (a tab list, step pills):
+   --scroll-edge is the inline padding it takes over. */
+.scrollEdgesInline {
+  padding-inline-start: var(
+    --scroll-edge-start,
+    var(--scroll-edge, var(--deck-space-4))
+  );
+  padding-inline-end: var(
+    --scroll-edge-end,
+    var(--scroll-edge, var(--deck-space-4))
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--scroll-edge-start, var(--scroll-edge, var(--deck-space-4))),
+    #000
+      calc(
+        100% - var(--scroll-edge-end, var(--scroll-edge, var(--deck-space-4)))
+      ),
+    transparent
+  );
+}
+/* A focus ring is never faded (on a row of pill tabs): a tab's ring stands 2px outside it, in the row's 4px edge, so the
+   first and last tabs' rings were masked. While a child shows a keyboard ring
+   the row drops its fade; at any other time it keeps it for overflowing scroll.
+   A pointer press never shows a ring (pointer-focus.ts), so it keeps the fade. */
+.scrollEdgesInline:has(:focus-visible:not([data-pointer-focus])) {
+  mask-image: none;
+}
+/* Print has no scrolling to hint at; never fade printed text. */
+@media print {
+  .scrollEdges,
+  .scrollEdgesInline {
+    mask-image: none;
+  }
+}

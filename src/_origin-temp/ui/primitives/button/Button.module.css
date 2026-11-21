@@ -1,0 +1,342 @@
+/* Button. Intrinsic padding, not control-height tokens. */
+.button {
+  composes: stateLayer from "../../foundations/StateLayer.module.css";
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 100%;
+  padding: var(--deck-space-8) var(--deck-space-14);
+  /* The filled variants keep the 1px border (transparent unless drawn), so one
+     size is one height and they line up in a row. Figma's Primary Md is 33
+     beside Secondary Md's 35. Ghost has none, as drawn. */
+  border: 1px solid transparent;
+  --button-border-width: 1px;
+  border-radius: var(--deck-radius-pill);
+  background: transparent;
+  color: var(--deck-text-primary);
+  /* md: Label/M. The font shorthand resets optical sizing, so each
+     size restates base.css's none (Inter 4 renders like Figma's Inter 3). */
+  font: var(--deck-font-label-m);
+  letter-spacing: var(--deck-type-label-m-tracking);
+  font-optical-sizing: none;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  --button-icon-size: var(--deck-size-icon-sm);
+  --button-gap: var(--deck-space-6);
+  --state-inset: var(--button-border-width, 0px);
+}
+/* The fill is its own layer, so the shared state layer (StateLayer.module.css)
+   sits between it and the label. Variants set --button-fill. */
+/* The state layer isolates the button, so this layer paints over the button's
+   own border: it draws that border itself, over the fill, as Figma's inside
+   stroke is (a Light Secondary's 10% navy edge vanished under its 85%
+   white fill), and the button's own border paints nothing. Every rule that sets
+   the button's border width or colour still sets this one. */
+.button {
+  border-image: linear-gradient(transparent, transparent) 1;
+}
+.button::before {
+  content: "";
+  position: absolute;
+  box-sizing: border-box;
+  /* Under the border too, as the background was (border-box). */
+  inset: calc(-1 * var(--button-border-width, 0px));
+  z-index: -1;
+  border-width: inherit;
+  border-style: inherit;
+  border-color: inherit;
+  border-radius: inherit;
+  background: var(--button-fill, transparent);
+  transition: background-color var(--deck-motion-fade);
+  pointer-events: none;
+}
+.button[data-size="sm"] {
+  padding: var(--deck-space-6) var(--deck-space-10);
+  /* Label/S. */
+  font: var(--deck-font-label-s);
+  letter-spacing: var(--deck-type-label-s-tracking);
+  font-optical-sizing: none;
+  --button-icon-size: var(--deck-size-icon-xs);
+}
+.button[data-size="lg"] {
+  padding: var(--deck-space-14) var(--deck-space-24);
+  /* Body/L Strong. */
+  font: var(--deck-font-body-l-strong);
+  letter-spacing: var(--deck-type-body-l-strong-tracking);
+  font-optical-sizing: none;
+  --button-icon-size: var(--deck-size-icon-lg);
+  --button-gap: var(--deck-space-8);
+}
+.button[data-variant="primary"] {
+  --button-fill: linear-gradient(
+    var(--deck-action-primary-top),
+    var(--deck-action-primary-bottom)
+  );
+  color: var(--deck-text-on-primary);
+}
+.button[data-variant="secondary"] {
+  --button-fill: var(--deck-action-secondary-bg);
+  border-color: var(--deck-action-secondary-border);
+}
+.button[data-variant="tint"] {
+  --button-fill: var(--deck-action-tint-bg);
+  color: var(--deck-text-accent);
+}
+.button[data-variant="danger"] {
+  --button-fill: var(--deck-action-danger-bg);
+  border-color: var(--deck-action-danger-border);
+  color: var(--deck-action-danger-text);
+}
+/* No border, as drawn: a small ghost is 28, not 29.6 (row
+   actions, head actions). The state layer and fill inset by
+   the same variable, so they still fill the button. */
+/* Expand control:
+   no fill, a 1px 10% white border, the label and
+   icon in text/secondary, 12 by 6 at 12/Medium. Its own variant, so no other
+   button changes. */
+.button[data-variant="outline"] {
+  border-color: var(--deck-border-subtle);
+  color: var(--deck-text-secondary);
+}
+.button[data-variant="outline"][data-size="sm"] {
+  padding-inline: var(--deck-space-12);
+}
+.button[data-variant="ghost"] {
+  border: 0;
+  --button-border-width: 0px;
+  color: var(--deck-text-accent);
+}
+/* Not in Figma (after Averlo Next's bare): an in-text action
+   such as "Use a different email". No pill, fill or padding; accent text.
+   Its states are opacity on the label instead of the state layer, which
+   would draw a pill around bare text. Focus keeps the shared ring. */
+.button[data-variant="bare"] {
+  padding: 0;
+  border: 0;
+  --button-border-width: 0px;
+  border-radius: var(--deck-radius-xs);
+  color: var(--deck-text-accent);
+  --state-color: transparent;
+  transition: opacity var(--deck-motion-fade);
+}
+@media (hover: hover) {
+  .button[data-variant="bare"]:hover:not(
+      :disabled,
+      [aria-disabled="true"],
+      [data-loading]
+    ),
+  .button[data-variant="bare"][data-preview-state="hover"] {
+    opacity: 0.7;
+  }
+}
+.button[data-variant="bare"]:active:not(
+    :disabled,
+    [aria-disabled="true"],
+    [data-loading]
+  ),
+.button[data-variant="bare"][data-preview-state="pressed"] {
+  opacity: 0.5;
+  transition-duration: 0s;
+}
+/* A full-width lg Button with its label at the
+   start, inset by the size's own padding (space/24); no separate start padding. */
+.button[data-align="start"] {
+  justify-content: flex-start;
+  text-align: start;
+}
+/* Loading keeps its variant's fill and
+   border; only a truly disabled button takes the Disabled look. */
+.button:disabled:not([data-loading]),
+.button[aria-disabled="true"]:not([data-loading]) {
+  border-color: transparent;
+  --button-fill: var(--deck-action-disabled-bg);
+  color: var(--deck-action-disabled-text);
+  cursor: default;
+}
+.button[data-variant="bare"]:disabled:not([data-loading]),
+.button[data-variant="bare"][aria-disabled="true"]:not([data-loading]) {
+  --button-fill: transparent;
+}
+.button:focus-visible:not(:disabled):not([aria-disabled="true"]),
+.button[data-preview-state="focus"]:not(:disabled):not([aria-disabled="true"]) {
+  outline: 2px solid var(--deck-border-focus);
+  outline-offset: 2px;
+}
+.content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+/* Each icon slot carries its own gap, so the gap grows and shrinks with the
+   icon instead of snapping (Button owns icon motion). */
+.iconSlot {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  overflow: hidden;
+}
+.iconSlot[data-side="leading"] > .icon {
+  margin-inline-end: var(--button-gap);
+}
+.iconSlot[data-side="trailing"] > .icon {
+  margin-inline-start: var(--button-gap);
+}
+.icon {
+  /* Button sizes the Icon it is given (Figma: sm 12, md 14, lg 20). */
+  --icon-slot-size: var(--button-icon-size);
+  display: inline-flex;
+  flex: 0 0 var(--button-icon-size);
+  width: var(--button-icon-size);
+  height: var(--button-icon-size);
+  align-items: center;
+  justify-content: center;
+}
+.icon > svg,
+.icon > img {
+  width: 100%;
+  height: 100%;
+}
+
+/* Step pill, progress: 31px, 14px icon, 6px
+   gap, Body/XS. A status change never resizes the pill. Every
+   status has the same 1px border (transparent unless drawn), padding and
+   Body/XS line box, and the label reserves its bold width. Figma's current
+   pill sits 1px wider each side and the others 2-4px narrower. */
+.button[data-size="step"] {
+  padding: calc(var(--deck-space-6) - 1px) calc(var(--deck-space-12) - 1px);
+  --button-fill: var(--deck-action-disabled-bg);
+  /* Not in Figma: steps sit over scrolling content under the
+     fixed bar, so they take the Glass/Control blur. */
+  backdrop-filter: var(--deck-glass-control-backdrop);
+  color: var(--deck-text-tertiary);
+  font: var(--deck-font-body-xs);
+  letter-spacing: var(--deck-type-body-xs-tracking);
+  font-optical-sizing: none;
+  white-space: nowrap;
+  /* Callers staggering a row of steps set --button-fade-delay; it delays the
+     fade in only, never colour changes (fade-only stagger). */
+  transition:
+    opacity var(--deck-motion-fade) var(--button-fade-delay, 0s),
+    background-color var(--deck-motion-fade),
+    border-color var(--deck-motion-fade),
+    color var(--deck-motion-fade);
+  --button-icon-size: var(--deck-size-icon-sm);
+  --button-gap: var(--deck-space-6);
+}
+.stepLabel {
+  display: inline-grid;
+}
+.stepLabel > * {
+  grid-area: 1 / 1;
+  justify-self: center;
+  font-optical-sizing: none;
+}
+/* Crossfade the weight: the label draws both weights in
+   one cell, both the wider; the current step fades the strong in on fade
+   and the regular out on exit, each on itself. */
+.stepLabel > :first-child {
+  font: var(--deck-font-body-xs);
+  letter-spacing: var(--deck-type-body-xs-tracking);
+  transition: opacity var(--deck-motion-fade);
+}
+.strong {
+  font: var(--deck-font-label-m-strong);
+  line-height: var(--deck-type-body-xs-line-height);
+  letter-spacing: var(--deck-type-label-m-strong-tracking);
+  opacity: 0;
+  transition: opacity var(--deck-motion-exit);
+}
+.button[data-status="current"] .stepLabel > :first-child {
+  opacity: 0;
+  transition: opacity var(--deck-motion-exit);
+}
+.button[data-status="current"] .strong {
+  opacity: 1;
+  transition: opacity var(--deck-motion-fade);
+}
+/* Current: action/secondary/border fill, border/strong, Label/M
+   Strong on the shared Body/XS line box. */
+.button[data-status="current"] {
+  border-color: var(--deck-border-strong);
+  --button-fill: var(--deck-action-secondary-border);
+  color: var(--deck-text-primary);
+  font: var(--deck-font-label-m-strong);
+  line-height: var(--deck-type-body-xs-line-height);
+  letter-spacing: var(--deck-type-label-m-strong-tracking);
+  font-optical-sizing: none;
+}
+/* Done: ✓ in status/success/fg, text/secondary. */
+.button[data-status="done"] {
+  color: var(--deck-text-secondary);
+}
+.button[data-status="done"] .icon {
+  color: var(--deck-status-success-fg);
+}
+/* Not in Figma. Skipped: upcoming's pill, ↷ in icon/muted. */
+.button[data-status="skipped"] .icon {
+  color: var(--deck-icon-muted);
+}
+/* Error: danger tint and stroke, icon and label in status/danger/fg. */
+.button[data-status="error"] {
+  border-color: var(--deck-status-danger-border);
+  --button-fill: var(--deck-status-danger-bg);
+  color: var(--deck-status-danger-fg);
+}
+
+.button[data-loading="true"] {
+  cursor: progress;
+}
+/* A button's loading: the label fades out under the spinner on
+   exit and back on fade when loading ends. */
+.content {
+  transition: opacity var(--deck-motion-fade);
+}
+.button[data-loading="true"] .content {
+  opacity: 0;
+  transition: opacity var(--deck-motion-exit);
+}
+/* Both labels stand in one place while they crossfade. */
+.labels {
+  display: inline-grid;
+}
+.labels > * {
+  grid-area: 1 / 1;
+  justify-self: start;
+}
+.loader {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+/* A loading label stays, and the spinner sits at the end,
+   inset by the button's own padding. */
+.button[data-loading-label] .content {
+  opacity: 1;
+}
+.loader[data-end] {
+  place-items: center end;
+  padding-inline: inherit;
+}
+
+/* Button.Skeleton. The real button sits hidden and sizes
+   the slot; the skeleton fills it. Primary takes the tint. */
+.skeleton {
+  position: relative;
+  display: inline-grid;
+  max-width: 100%;
+  vertical-align: middle;
+}
+.skeleton > * {
+  grid-area: 1 / 1;
+}
+.skeleton > .button {
+  visibility: hidden;
+}
+.skeleton > .skeletonTint[data-skeleton] {
+  background: var(--deck-action-tint-bg);
+}

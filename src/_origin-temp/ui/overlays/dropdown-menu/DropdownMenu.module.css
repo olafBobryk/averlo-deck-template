@@ -1,0 +1,183 @@
+/* Panel and rows
+   copy Avatar menu and Menu item (the menu page).
+   Tones, submenus and
+   separators sit on the same recipe. */
+/* Radix's menu element: positioning, focus and inertness only. */
+.root {
+  z-index: 40;
+  outline: none;
+}
+/* The panel: 340 wide, padding 8, radius 24 on Elevation's Modal glass, which
+   its render and effects measure as: Surface/Glass, Border/Glass and
+   Glass/Modal's blur and 0/16/40 shadow. Light is that same recipe's Light. The
+   surface must not clip, or it clips the stroke drawn over its border. */
+.content {
+  composes: surface glass from "../../primitives/card/Card.module.css";
+  --menu-inset: var(--deck-space-8);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 340px;
+  max-width: calc(100vw - 32px);
+  max-height: var(--radix-dropdown-menu-content-available-height);
+  border-radius: var(--deck-radius-2xl);
+  color: var(--deck-text-primary);
+  transform-origin: var(--radix-dropdown-menu-content-transform-origin);
+}
+/* The panel's rows scroll inside its surface, owning its padding and fading
+   under its edge (Inner scroll edges); the surface keeps its border. Rows sit
+   a uniform space/8 from the panel edge and space/2 apart. */
+.scroll {
+  composes: scrollEdges from "../../foundations/ScrollEdges.module.css";
+  --scroll-edge: var(--menu-inset);
+  display: flex;
+  flex-direction: column;
+  gap: var(--deck-space-2);
+  min-height: 0;
+  overflow: auto;
+  border-radius: calc(
+    var(--deck-radius-2xl) - var(--deck-border-glass-width)
+  );
+  padding-inline: var(--menu-inset);
+}
+/* Non-item content (`Custom`): the caller draws it; it keeps its height when the
+   panel scrolls. */
+.custom {
+  flex: none;
+  min-width: 0;
+}
+/* A `custom` Item or RadioItem: the caller draws it. The ring is the menu's, and
+   sits outside it: a custom row may be a pill or a word in a line of text. */
+.customItem {
+  cursor: default;
+  outline: none;
+}
+[data-keys] .customItem[data-highlighted] {
+  outline: 2px solid var(--deck-border-focus);
+  outline-offset: 2px;
+}
+/* Row (Menu item): 44 tall, gap 12, padding 10/12. Radius:
+   Figma's 10 has no token and sits between radius/xs and radius/sm; radius/sm
+   is the nearer to concentric with the panel (24 - 8 - 1 = 15). */
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--deck-space-12);
+  min-width: 0;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: var(--deck-space-10) var(--deck-space-12);
+  border-radius: var(--deck-radius-sm);
+  color: inherit;
+  text-decoration: none;
+  cursor: default;
+  outline: none;
+}
+/* A 24px glyph in the primary icon colour, accent when selected. */
+.icon {
+  flex: none;
+  color: var(--deck-icon-default);
+}
+/* Label over description, 1px apart; each truncates to one line. */
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+/* Label/M over Caption (Text); each truncates to one line. */
+.label,
+.description {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* The right-hand Meta: Caption in #969fb2, whose nearest token
+   here is text/secondary (Text); our text/tertiary is much darker. */
+.meta {
+  flex: none;
+  white-space: nowrap;
+}
+/* A 16px chevron in the Meta colour, only on submenu parents. */
+.caret {
+  flex: none;
+  color: var(--deck-text-secondary);
+}
+/* A non-glyph leading mark (a provider logo) in the icon's 24px box. */
+.leading {
+  display: inline-flex;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+}
+.leading > img {
+  max-width: 100%;
+  max-height: 100%;
+}
+/* A RadioItem's trailing check, in the icon's accent:
+   it stays mounted and enters and leaves by the swap recipe. */
+.check {
+  composes: swap from "../../foundations/swap.module.css";
+  display: inline-flex;
+  flex: none;
+  color: var(--deck-text-accent);
+}
+/* The current page and a checked choice: State=Selected. */
+.item[data-state="checked"],
+.item[aria-current="page"] {
+  background: var(--deck-action-tint-bg);
+}
+.item[data-state="checked"] .icon,
+.item[aria-current="page"] .icon {
+  color: var(--deck-icon-accent);
+}
+/* Pointer and keyboard both highlight with State=Hover, on toned rows
+   too; keys also get the ring (tracked by the menu, since Radix
+   focuses rows programmatically on hover). */
+.item[data-highlighted],
+.item[data-state="open"] {
+  background: var(--deck-surface-highlight);
+}
+[data-keys] .item[data-highlighted] {
+  outline: 2px solid var(--deck-border-focus);
+  outline-offset: -2px;
+}
+/* Tones reuse Card's tone colours, on the icon and label: Tone=Danger
+   is action/danger/text, as the Danger Button. */
+.warning {
+  composes: toneWarning from "../../primitives/card/Card.module.css";
+}
+.danger {
+  composes: toneDanger strong from "../../primitives/card/Card.module.css";
+}
+.item[data-tone],
+.item[data-tone] .icon,
+.item[data-tone] .caret {
+  color: var(--card-tone-fg);
+}
+/* A row switched off with its frame (Item's `opens`) keeps its own colours:
+   mute.css fades it, as a mock-fed row. */
+.item[data-disabled]:not([data-frame-off]):not([data-out-of-release]),
+.item[data-disabled]:not([data-frame-off]):not([data-out-of-release]) .icon,
+.item[data-disabled]:not([data-frame-off]):not([data-out-of-release]) .caret,
+.item[data-disabled]:not([data-frame-off]):not([data-out-of-release])
+  .description,
+.item[data-disabled]:not([data-frame-off]):not([data-out-of-release]) .meta {
+  color: var(--deck-action-disabled-text);
+  background: transparent;
+  outline: none;
+  pointer-events: none;
+}
+/* Separator: a 1px border/subtle rule as wide as the rows, or across
+   the panel for `full`. */
+.separator {
+  flex: none;
+  height: 1px;
+  background: var(--deck-border-subtle);
+}
+.separator[data-variant="full"] {
+  margin-inline: calc(-1 * var(--menu-inset));
+}

@@ -1,0 +1,603 @@
+/* Resolved from a variable snapshot; selected Figma collections only.
+   The Theme colours match the design file's theme colours, including
+   its text/tertiary and text/hint in Dark and text/hint and
+   status/live/fg in Light. */
+:root {
+  /* Core base/white, the Toggle knob. */
+  --deck-base-white: rgb(255 255 255 / 1);
+  /* Legacy v1 color/icon/accent, as the frames resolve it in both themes:
+     the selected icon of a sidebar. */
+  --deck-color-icon-accent: rgb(42 77 133 / 1);
+  --deck-space-0: 0px;
+  --deck-space-2: 2px;
+  --deck-space-4: 4px;
+  --deck-space-6: 6px;
+  --deck-space-8: 8px;
+  --deck-space-10: 10px;
+  --deck-space-12: 12px;
+  --deck-space-14: 14px;
+  --deck-space-16: 16px;
+  --deck-space-20: 20px;
+  --deck-space-22: 22px;
+  --deck-space-24: 24px;
+  --deck-space-32: 32px;
+  --deck-space-40: 40px;
+  --deck-space-48: 48px;
+  --deck-space-64: 64px;
+  --deck-space-96: 96px;
+  --deck-radius-xs: 8px;
+  --deck-radius-sm: 12px;
+  --deck-radius-md: 14px;
+  --deck-radius-lg: 16px;
+  --deck-radius-xl: 20px;
+  --deck-radius-2xl: 24px;
+  --deck-radius-pill: 999px;
+  /* Not in Figma; the focused field submit (FieldSubmit). */
+  --deck-size-control-xs: 28px;
+  --deck-size-control-sm: 32px;
+  --deck-size-control-md: 39px;
+  --deck-size-control-lg: 48px;
+  --deck-size-icon-button: 34px;
+  --deck-size-avatar-sm: 22px;
+  --deck-size-avatar-md: 39px;
+  --deck-size-avatar-lg: 44px;
+  --deck-size-icon-xs: 12px;
+  --deck-size-icon-sm: 14px;
+  --deck-size-icon-md: 16px;
+  --deck-size-icon-lg: 20px;
+  --deck-size-icon-xl: 24px;
+  --deck-blur-glass: 30px;
+  --deck-blur-modal: 72px;
+  --deck-blur-glow: 120px;
+  --deck-layout-page: 1440px;
+  --deck-layout-gutter: 40px;
+  --deck-layout-content: 944px;
+  --deck-layout-modal-lg: 820px;
+  --deck-layout-modal-md: 620px;
+  --deck-layout-modal-sm: 440px;
+  --deck-layout-panel: 360px;
+  --deck-type-size-display: 56px;
+  --deck-type-size-title-l: 20px;
+  --deck-type-size-title-m: 17px;
+  --deck-type-size-title-s: 15px;
+  --deck-type-size-body-l: 16px;
+  --deck-type-size-body-m: 15px;
+  --deck-type-size-body-s: 14px;
+  --deck-type-size-body-xs: 13px;
+  --deck-type-size-label-l: 14px;
+  --deck-type-size-label-m: 13px;
+  --deck-type-size-label-s: 12px;
+  --deck-type-size-meta: 12px;
+  --deck-type-size-caption: 11px;
+  --deck-type-size-overline: 10px;
+  --deck-type-size-display-m: 40px;
+  --deck-type-size-title-xl: 24px;
+  --deck-type-size-title-18: 18px;
+  --deck-type-size-title-16: 16px;
+  --deck-type-size-body-xl: 20px;
+  --deck-type-size-body-l-strong: 16px;
+  --deck-type-size-body-m-strong: 15px;
+  --deck-type-size-label-l-strong: 14px;
+  --deck-type-size-label-m-strong: 13px;
+  --deck-type-size-label-s-strong: 12px;
+  --deck-type-size-canvas-label: 28px;
+  --deck-type-display-weight: 600;
+  --deck-type-display-line-height: 1.2;
+  --deck-type-display-tracking: -0.02em;
+  --deck-type-title-l-weight: 600;
+  --deck-type-title-l-line-height: 1.3;
+  --deck-type-title-l-tracking: 0em;
+  --deck-type-title-m-weight: 600;
+  --deck-type-title-m-line-height: 1.3;
+  --deck-type-title-m-tracking: 0em;
+  --deck-type-title-s-weight: 600;
+  --deck-type-title-s-line-height: 1.3;
+  --deck-type-title-s-tracking: 0em;
+  --deck-type-body-l-weight: 400;
+  --deck-type-body-l-line-height: 1.45;
+  --deck-type-body-l-tracking: 0em;
+  --deck-type-body-m-weight: 400;
+  --deck-type-body-m-line-height: 1.45;
+  --deck-type-body-m-tracking: 0em;
+  --deck-type-body-s-weight: 400;
+  --deck-type-body-s-line-height: 1.45;
+  --deck-type-body-s-tracking: 0em;
+  --deck-type-body-xs-weight: 400;
+  --deck-type-body-xs-line-height: 1.45;
+  --deck-type-body-xs-tracking: 0em;
+  --deck-type-label-l-weight: 500;
+  --deck-type-label-l-line-height: 1.3;
+  --deck-type-label-l-tracking: 0em;
+  --deck-type-label-m-weight: 500;
+  --deck-type-label-m-line-height: 1.3;
+  --deck-type-label-m-tracking: 0em;
+  --deck-type-label-s-weight: 500;
+  --deck-type-label-s-line-height: 1.3;
+  --deck-type-label-s-tracking: 0em;
+  --deck-type-meta-weight: 400;
+  --deck-type-meta-line-height: 1.3;
+  --deck-type-meta-tracking: 0em;
+  --deck-type-caption-weight: 400;
+  --deck-type-caption-line-height: 1.3;
+  --deck-type-caption-tracking: 0em;
+  --deck-type-overline-weight: 600;
+  --deck-type-overline-line-height: 1.3;
+  --deck-type-overline-tracking: 0.04em;
+  --deck-type-display-m-weight: 400;
+  --deck-type-display-m-line-height: 1.2;
+  --deck-type-display-m-tracking: -0.01em;
+  --deck-type-title-xl-weight: 600;
+  --deck-type-title-xl-line-height: 1.25;
+  --deck-type-title-xl-tracking: -0.01em;
+  --deck-type-title-18-weight: 600;
+  --deck-type-title-18-line-height: 1.3;
+  --deck-type-title-18-tracking: 0em;
+  --deck-type-title-16-weight: 600;
+  --deck-type-title-16-line-height: 1.3;
+  --deck-type-title-16-tracking: 0em;
+  --deck-type-body-xl-weight: 400;
+  --deck-type-body-xl-line-height: 1.4;
+  --deck-type-body-xl-tracking: 0em;
+  --deck-type-body-l-strong-weight: 500;
+  --deck-type-body-l-strong-line-height: 1.45;
+  --deck-type-body-l-strong-tracking: 0em;
+  --deck-type-body-m-strong-weight: 500;
+  --deck-type-body-m-strong-line-height: 1.45;
+  --deck-type-body-m-strong-tracking: 0em;
+  --deck-type-label-l-strong-weight: 600;
+  --deck-type-label-l-strong-line-height: 1.3;
+  --deck-type-label-l-strong-tracking: 0em;
+  --deck-type-label-m-strong-weight: 600;
+  --deck-type-label-m-strong-line-height: 1.3;
+  --deck-type-label-m-strong-tracking: 0em;
+  --deck-type-label-s-strong-weight: 600;
+  --deck-type-label-s-strong-line-height: 1.3;
+  --deck-type-label-s-strong-tracking: 0em;
+  --deck-type-canvas-label-weight: 500;
+  --deck-type-canvas-label-line-height: 1.2;
+  --deck-type-canvas-label-tracking: 0em;
+  /* Figma styles (not variables). */
+  /* Text styles: every Deck text style is Inter; tracking stays in the -tracking tokens because the font shorthand cannot carry letter-spacing. The font shorthand also resets font-optical-sizing, so an element using --deck-font-* above 14px must restate font-optical-sizing: none (base.css). */
+  --deck-font-family: "Inter", sans-serif;
+  --deck-type-overline-case: uppercase;
+  --deck-font-display: var(--deck-type-display-weight)
+    var(--deck-type-size-display) / var(--deck-type-display-line-height)
+    var(--deck-font-family);
+  --deck-font-display-m: var(--deck-type-display-m-weight)
+    var(--deck-type-size-display-m) / var(--deck-type-display-m-line-height)
+    var(--deck-font-family);
+  --deck-font-title-xl: var(--deck-type-title-xl-weight)
+    var(--deck-type-size-title-xl) / var(--deck-type-title-xl-line-height)
+    var(--deck-font-family);
+  --deck-font-title-l: var(--deck-type-title-l-weight)
+    var(--deck-type-size-title-l) / var(--deck-type-title-l-line-height)
+    var(--deck-font-family);
+  --deck-font-title-18: var(--deck-type-title-18-weight)
+    var(--deck-type-size-title-18) / var(--deck-type-title-18-line-height)
+    var(--deck-font-family);
+  --deck-font-title-m: var(--deck-type-title-m-weight)
+    var(--deck-type-size-title-m) / var(--deck-type-title-m-line-height)
+    var(--deck-font-family);
+  --deck-font-title-16: var(--deck-type-title-16-weight)
+    var(--deck-type-size-title-16) / var(--deck-type-title-16-line-height)
+    var(--deck-font-family);
+  --deck-font-title-s: var(--deck-type-title-s-weight)
+    var(--deck-type-size-title-s) / var(--deck-type-title-s-line-height)
+    var(--deck-font-family);
+  --deck-font-body-xl: var(--deck-type-body-xl-weight)
+    var(--deck-type-size-body-xl) / var(--deck-type-body-xl-line-height)
+    var(--deck-font-family);
+  --deck-font-body-l: var(--deck-type-body-l-weight)
+    var(--deck-type-size-body-l) / var(--deck-type-body-l-line-height)
+    var(--deck-font-family);
+  --deck-font-body-l-strong: var(--deck-type-body-l-strong-weight)
+    var(--deck-type-size-body-l-strong) /
+    var(--deck-type-body-l-strong-line-height) var(--deck-font-family);
+  --deck-font-body-m: var(--deck-type-body-m-weight)
+    var(--deck-type-size-body-m) / var(--deck-type-body-m-line-height)
+    var(--deck-font-family);
+  --deck-font-body-m-strong: var(--deck-type-body-m-strong-weight)
+    var(--deck-type-size-body-m-strong) /
+    var(--deck-type-body-m-strong-line-height) var(--deck-font-family);
+  --deck-font-body-s: var(--deck-type-body-s-weight)
+    var(--deck-type-size-body-s) / var(--deck-type-body-s-line-height)
+    var(--deck-font-family);
+  --deck-font-body-xs: var(--deck-type-body-xs-weight)
+    var(--deck-type-size-body-xs) / var(--deck-type-body-xs-line-height)
+    var(--deck-font-family);
+  --deck-font-label-l: var(--deck-type-label-l-weight)
+    var(--deck-type-size-label-l) / var(--deck-type-label-l-line-height)
+    var(--deck-font-family);
+  --deck-font-label-l-strong: var(--deck-type-label-l-strong-weight)
+    var(--deck-type-size-label-l-strong) /
+    var(--deck-type-label-l-strong-line-height) var(--deck-font-family);
+  --deck-font-label-m: var(--deck-type-label-m-weight)
+    var(--deck-type-size-label-m) / var(--deck-type-label-m-line-height)
+    var(--deck-font-family);
+  --deck-font-label-m-strong: var(--deck-type-label-m-strong-weight)
+    var(--deck-type-size-label-m-strong) /
+    var(--deck-type-label-m-strong-line-height) var(--deck-font-family);
+  --deck-font-label-s: var(--deck-type-label-s-weight)
+    var(--deck-type-size-label-s) / var(--deck-type-label-s-line-height)
+    var(--deck-font-family);
+  --deck-font-label-s-strong: var(--deck-type-label-s-strong-weight)
+    var(--deck-type-size-label-s-strong) /
+    var(--deck-type-label-s-strong-line-height) var(--deck-font-family);
+  --deck-font-meta: var(--deck-type-meta-weight) var(--deck-type-size-meta) /
+    var(--deck-type-meta-line-height) var(--deck-font-family);
+  --deck-font-caption: var(--deck-type-caption-weight)
+    var(--deck-type-size-caption) / var(--deck-type-caption-line-height)
+    var(--deck-font-family);
+  --deck-font-overline: var(--deck-type-overline-weight)
+    var(--deck-type-size-overline) / var(--deck-type-overline-line-height)
+    var(--deck-font-family);
+  --deck-font-canvas-label: var(--deck-type-canvas-label-weight)
+    var(--deck-type-size-canvas-label) /
+    var(--deck-type-canvas-label-line-height) var(--deck-font-family);
+  /* Border/Glass stroke weight (1px, align INSIDE) on every glass surface. */
+  --deck-border-glass-width: 1px;
+  /* The one place Figma blur radii become CSS blur() lengths: the best-matching measured value, rounded to a system number. The --deck-blur-* Figma radius variables above stay untouched. */
+  /* Glass/Card BACKGROUND_BLUR 30 → 16px, measured */
+  --deck-glass-card-backdrop: blur(16px);
+  --deck-glass-control-backdrop: blur(16px);
+  --deck-glass-modal-backdrop: blur(32px);
+  --deck-glow-horizon-filter: blur(60px);
+}
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --deck-bg-canvas-top: rgb(247 249 254 / 1);
+  --deck-bg-canvas-mid: rgb(238 243 252 / 1);
+  --deck-bg-canvas-horizon: rgb(223 232 251 / 1);
+  --deck-bg-canvas-bottom: rgb(211 225 251 / 1);
+  --deck-bg-glow: rgb(143 178 255 / 0.35);
+  --deck-surface-glass-top: rgb(255 255 255 / 0.92);
+  --deck-surface-glass-bottom: rgb(255 255 255 / 0.7);
+  --deck-surface-card-top: rgb(255 255 255 / 0.85);
+  --deck-surface-card-bottom: rgb(255 255 255 / 0.65);
+  --deck-surface-subtle: rgb(13 22 48 / 0.04);
+  --deck-surface-raised: rgb(255 255 255 / 1);
+  --deck-surface-highlight: rgb(43 79 168 / 0.08);
+  --deck-surface-popover: rgb(255 255 255 / 1);
+  --deck-surface-scrim: rgb(10 26 68 / 0.35);
+  --deck-border-glass-top: rgb(13 22 48 / 0.1);
+  --deck-border-glass-bottom: rgb(13 22 48 / 0.04);
+  --deck-border-default: rgb(13 22 48 / 0.1);
+  --deck-border-subtle: rgb(13 22 48 / 0.06);
+  --deck-border-strong: rgb(27 50 112 / 0.3);
+  --deck-border-highlight: rgb(43 79 168 / 0.25);
+  --deck-border-focus: rgb(43 79 168 / 1);
+  --deck-text-primary: rgb(13 22 48 / 1);
+  --deck-text-heading-top: rgb(11 20 48 / 1);
+  --deck-text-heading-bottom: rgb(43 79 168 / 1);
+  --deck-text-secondary: rgb(60 72 102 / 1);
+  --deck-text-tertiary: rgb(86 98 127 / 1);
+  --deck-text-hint: rgb(92 101 126 / 1);
+  --deck-text-accent: rgb(43 79 168 / 1);
+  --deck-text-on-primary: rgb(255 255 255 / 1);
+  --deck-action-primary-top: rgb(27 50 112 / 1);
+  --deck-action-primary-bottom: rgb(11 22 51 / 1);
+  --deck-action-primary-glow: rgb(27 58 138 / 0.35);
+  --deck-action-secondary-bg: rgb(255 255 255 / 0.85);
+  --deck-action-secondary-border: rgb(13 22 48 / 0.1);
+  --deck-action-secondary-active-bg: rgb(
+    255 255 255 / 1
+  );
+  --deck-action-secondary-active-border: rgb(
+    27 50 112 / 0.3
+  );
+  --deck-action-tint-bg: rgb(43 79 168 / 0.08);
+  --deck-action-tint-border: rgb(43 79 168 / 0.35);
+  --deck-action-danger-bg: rgb(180 35 24 / 0.08);
+  --deck-action-danger-border: rgb(180 35 24 / 0.4);
+  --deck-action-danger-text: rgb(180 35 24 / 1);
+  --deck-action-disabled-bg: rgb(13 22 48 / 0.05);
+  --deck-action-disabled-text: rgb(122 132 156 / 1);
+  --deck-status-success-fg: rgb(31 122 77 / 1);
+  --deck-status-success-bg: rgb(31 122 77 / 0.08);
+  --deck-status-success-border: rgb(31 122 77 / 0.3);
+  --deck-status-warning-fg: rgb(138 83 0 / 1);
+  --deck-status-warning-bg: rgb(245 165 36 / 0.14);
+  --deck-status-warning-border: rgb(245 165 36 / 0.4);
+  --deck-status-danger-fg: rgb(180 35 24 / 1);
+  --deck-status-danger-bg: rgb(180 35 24 / 0.08);
+  --deck-status-danger-border: rgb(180 35 24 / 0.35);
+  --deck-status-info-fg: rgb(43 79 168 / 1);
+  --deck-status-info-bg: rgb(43 79 168 / 0.08);
+  --deck-status-info-border: rgb(43 79 168 / 0.25);
+  --deck-status-live-fg: rgb(12 106 87 / 1);
+  --deck-status-live-bg: rgb(15 122 100 / 0.1);
+  --deck-icon-default: rgb(13 22 48 / 1);
+  --deck-icon-muted: rgb(86 98 127 / 1);
+  --deck-icon-accent: rgb(43 79 168 / 1);
+  --deck-icon-on-primary: rgb(255 255 255 / 1);
+  --deck-effect-shadow-ambient: rgb(27 58 138 / 0.1);
+  --deck-effect-shadow-soft: rgb(27 58 138 / 0.08);
+  --deck-effect-shadow-glow: rgb(27 58 138 / 0.14);
+  --deck-text-title: rgb(13 22 48 / 1);
+  --deck-text-accent-soft: rgb(27 50 112 / 1);
+  --deck-status-warning-soft: rgb(138 83 0 / 1);
+  --deck-status-insight-fg: rgb(107 70 193 / 1);
+  --deck-status-insight-bg: rgb(107 70 193 / 0.1);
+  --deck-status-insight-border: rgb(
+    107 70 193 / 0.3
+  );
+  --deck-surface-accent-strong: rgb(
+    43 79 168 / 0.14
+  );
+  --deck-status-neutral-bg: rgb(13 22 48 / 0.07);
+  /* Per-theme colours: a colour Figma binds
+     that fails in one theme, as one token declared in every theme block. */
+  /* The neutral status chip. Status chip Neutral binds surface/raised,
+     white in Light, so on a white card it has no fill; status/neutral/bg reads. */
+  --deck-chip-neutral-bg: var(--deck-status-neutral-bg);
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --deck-bg-canvas-top: rgb(0 0 2 / 1);
+  --deck-bg-canvas-mid: rgb(3 10 31 / 1);
+  --deck-bg-canvas-horizon: rgb(11 42 120 / 1);
+  --deck-bg-canvas-bottom: rgb(79 132 234 / 1);
+  --deck-bg-glow: rgb(156 188 255 / 0.5);
+  --deck-surface-glass-top: rgb(255 255 255 / 0.14);
+  --deck-surface-glass-bottom: rgb(
+    255 255 255 / 0.05
+  );
+  --deck-surface-card-top: rgb(255 255 255 / 0.09);
+  --deck-surface-card-bottom: rgb(255 255 255 / 0.03);
+  --deck-surface-subtle: rgb(255 255 255 / 0.04);
+  --deck-surface-raised: rgb(255 255 255 / 0.08);
+  --deck-surface-highlight: rgb(75 134 255 / 0.12);
+  --deck-surface-popover: rgb(14 23 48 / 1);
+  --deck-surface-scrim: rgb(0 0 0 / 0.6);
+  --deck-border-glass-top: rgb(255 255 255 / 0.32);
+  --deck-border-glass-bottom: rgb(255 255 255 / 0.06);
+  --deck-border-default: rgb(255 255 255 / 0.16);
+  --deck-border-subtle: rgb(255 255 255 / 0.1);
+  --deck-border-strong: rgb(255 255 255 / 0.36);
+  --deck-border-highlight: rgb(143 182 255 / 0.25);
+  --deck-border-focus: rgb(143 182 255 / 1);
+  --deck-text-primary: rgb(244 246 251 / 1);
+  --deck-text-heading-top: rgb(255 255 255 / 1);
+  --deck-text-heading-bottom: rgb(201 214 242 / 1);
+  --deck-text-secondary: rgb(163 174 198 / 1);
+  --deck-text-tertiary: rgb(150 159 178 / 1);
+  --deck-text-hint: rgb(147 156 176 / 1);
+  --deck-text-accent: rgb(143 182 255 / 1);
+  --deck-text-on-primary: rgb(10 26 68 / 1);
+  --deck-action-primary-top: rgb(233 240 255 / 1);
+  --deck-action-primary-bottom: rgb(185 207 252 / 1);
+  --deck-action-primary-glow: rgb(75 134 255 / 0.45);
+  --deck-action-secondary-bg: rgb(255 255 255 / 0.08);
+  --deck-action-secondary-border: rgb(
+    255 255 255 / 0.18
+  );
+  --deck-action-secondary-active-bg: rgb(
+    255 255 255 / 0.18
+  );
+  --deck-action-secondary-active-border: rgb(
+    255 255 255 / 0.36
+  );
+  --deck-action-tint-bg: rgb(143 182 255 / 0.1);
+  --deck-action-tint-border: rgb(143 182 255 / 0.5);
+  --deck-action-danger-bg: rgb(255 159 159 / 0.14);
+  --deck-action-danger-border: rgb(255 159 159 / 0.5);
+  --deck-action-danger-text: rgb(255 159 159 / 1);
+  --deck-action-disabled-bg: rgb(255 255 255 / 0.06);
+  --deck-action-disabled-text: rgb(113 125 151 / 1);
+  --deck-status-success-fg: rgb(143 227 176 / 1);
+  --deck-status-success-bg: rgb(143 227 176 / 0.08);
+  --deck-status-success-border: rgb(
+    143 227 176 / 0.4
+  );
+  --deck-status-warning-fg: rgb(255 196 107 / 1);
+  --deck-status-warning-bg: rgb(255 196 107 / 0.08);
+  --deck-status-warning-border: rgb(
+    255 196 107 / 0.3
+  );
+  --deck-status-danger-fg: rgb(255 159 159 / 1);
+  --deck-status-danger-bg: rgb(255 159 159 / 0.08);
+  --deck-status-danger-border: rgb(
+    255 159 159 / 0.45
+  );
+  --deck-status-info-fg: rgb(143 182 255 / 1);
+  --deck-status-info-bg: rgb(75 134 255 / 0.12);
+  --deck-status-info-border: rgb(143 182 255 / 0.25);
+  --deck-status-live-fg: rgb(127 240 208 / 1);
+  --deck-status-live-bg: rgb(127 240 208 / 0.12);
+  --deck-icon-default: rgb(244 246 251 / 1);
+  --deck-icon-muted: rgb(163 174 198 / 1);
+  --deck-icon-accent: rgb(143 182 255 / 1);
+  --deck-icon-on-primary: rgb(10 26 68 / 1);
+  --deck-effect-shadow-ambient: rgb(0 0 0 / 0);
+  --deck-effect-shadow-soft: rgb(0 0 0 / 0);
+  --deck-effect-shadow-glow: rgb(75 134 255 / 0.4);
+  --deck-text-title: rgb(216 224 242 / 1);
+  --deck-text-accent-soft: rgb(185 209 255 / 1);
+  --deck-status-warning-soft: rgb(233 211 166 / 1);
+  --deck-status-insight-fg: rgb(198 167 255 / 1);
+  --deck-status-insight-bg: rgb(198 167 255 / 0.14);
+  --deck-status-insight-border: rgb(
+    198 167 255 / 0.3
+  );
+  --deck-surface-accent-strong: rgb(
+    75 134 255 / 0.3
+  );
+  --deck-status-neutral-bg: rgb(163 174 198 / 0.14);
+  /* Per-theme colours. The neutral status chip keeps Dark's look,
+     status/neutral/bg, where the chip binds surface/raised. */
+  --deck-chip-neutral-bg: var(--deck-status-neutral-bg);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --deck-bg-canvas-top: rgb(0 0 2 / 1);
+    --deck-bg-canvas-mid: rgb(3 10 31 / 1);
+    --deck-bg-canvas-horizon: rgb(11 42 120 / 1);
+    --deck-bg-canvas-bottom: rgb(79 132 234 / 1);
+    --deck-bg-glow: rgb(156 188 255 / 0.5);
+    --deck-surface-glass-top: rgb(255 255 255 / 0.14);
+    --deck-surface-glass-bottom: rgb(
+      255 255 255 / 0.05
+    );
+    --deck-surface-card-top: rgb(255 255 255 / 0.09);
+    --deck-surface-card-bottom: rgb(
+      255 255 255 / 0.03
+    );
+    --deck-surface-subtle: rgb(255 255 255 / 0.04);
+    --deck-surface-raised: rgb(255 255 255 / 0.08);
+    --deck-surface-highlight: rgb(75 134 255 / 0.12);
+    --deck-surface-popover: rgb(14 23 48 / 1);
+    --deck-surface-scrim: rgb(0 0 0 / 0.6);
+    --deck-border-glass-top: rgb(255 255 255 / 0.32);
+    --deck-border-glass-bottom: rgb(
+      255 255 255 / 0.06
+    );
+    --deck-border-default: rgb(255 255 255 / 0.16);
+    --deck-border-subtle: rgb(255 255 255 / 0.1);
+    --deck-border-strong: rgb(255 255 255 / 0.36);
+    --deck-border-highlight: rgb(143 182 255 / 0.25);
+    --deck-border-focus: rgb(143 182 255 / 1);
+    --deck-text-primary: rgb(244 246 251 / 1);
+    --deck-text-heading-top: rgb(255 255 255 / 1);
+    --deck-text-heading-bottom: rgb(201 214 242 / 1);
+    --deck-text-secondary: rgb(163 174 198 / 1);
+    --deck-text-tertiary: rgb(150 159 178 / 1);
+    --deck-text-hint: rgb(147 156 176 / 1);
+    --deck-text-accent: rgb(143 182 255 / 1);
+    --deck-text-on-primary: rgb(10 26 68 / 1);
+    --deck-action-primary-top: rgb(233 240 255 / 1);
+    --deck-action-primary-bottom: rgb(
+      185 207 252 / 1
+    );
+    --deck-action-primary-glow: rgb(
+      75 134 255 / 0.45
+    );
+    --deck-action-secondary-bg: rgb(
+      255 255 255 / 0.08
+    );
+    --deck-action-secondary-border: rgb(
+      255 255 255 / 0.18
+    );
+    --deck-action-secondary-active-bg: rgb(
+      255 255 255 / 0.18
+    );
+    --deck-action-secondary-active-border: rgb(
+      255 255 255 / 0.36
+    );
+    --deck-action-tint-bg: rgb(143 182 255 / 0.1);
+    --deck-action-tint-border: rgb(143 182 255 / 0.5);
+    --deck-action-danger-bg: rgb(255 159 159 / 0.14);
+    --deck-action-danger-border: rgb(
+      255 159 159 / 0.5
+    );
+    --deck-action-danger-text: rgb(255 159 159 / 1);
+    --deck-action-disabled-bg: rgb(
+      255 255 255 / 0.06
+    );
+    --deck-action-disabled-text: rgb(113 125 151 / 1);
+    --deck-status-success-fg: rgb(143 227 176 / 1);
+    --deck-status-success-bg: rgb(143 227 176 / 0.08);
+    --deck-status-success-border: rgb(
+      143 227 176 / 0.4
+    );
+    --deck-status-warning-fg: rgb(255 196 107 / 1);
+    --deck-status-warning-bg: rgb(255 196 107 / 0.08);
+    --deck-status-warning-border: rgb(
+      255 196 107 / 0.3
+    );
+    --deck-status-danger-fg: rgb(255 159 159 / 1);
+    --deck-status-danger-bg: rgb(255 159 159 / 0.08);
+    --deck-status-danger-border: rgb(
+      255 159 159 / 0.45
+    );
+    --deck-status-info-fg: rgb(143 182 255 / 1);
+    --deck-status-info-bg: rgb(75 134 255 / 0.12);
+    --deck-status-info-border: rgb(
+      143 182 255 / 0.25
+    );
+    --deck-status-live-fg: rgb(127 240 208 / 1);
+    --deck-status-live-bg: rgb(127 240 208 / 0.12);
+    --deck-icon-default: rgb(244 246 251 / 1);
+    --deck-icon-muted: rgb(163 174 198 / 1);
+    --deck-icon-accent: rgb(143 182 255 / 1);
+    --deck-icon-on-primary: rgb(10 26 68 / 1);
+    --deck-effect-shadow-ambient: rgb(0 0 0 / 0);
+    --deck-effect-shadow-soft: rgb(0 0 0 / 0);
+    --deck-effect-shadow-glow: rgb(75 134 255 / 0.4);
+    --deck-text-title: rgb(216 224 242 / 1);
+    --deck-text-accent-soft: rgb(185 209 255 / 1);
+    --deck-status-warning-soft: rgb(233 211 166 / 1);
+    --deck-status-insight-fg: rgb(198 167 255 / 1);
+    --deck-status-insight-bg: rgb(
+      198 167 255 / 0.14
+    );
+    --deck-status-insight-border: rgb(
+      198 167 255 / 0.3
+    );
+    --deck-surface-accent-strong: rgb(
+      75 134 255 / 0.3
+    );
+    --deck-status-neutral-bg: rgb(
+      163 174 198 / 0.14
+    );
+    /* Per-theme colours, as [data-theme="dark"]. */
+    --deck-chip-neutral-bg: var(--deck-status-neutral-bg);
+    color-scheme: dark;
+  }
+}
+
+/* Figma paint and effect styles. Their stops and colours are Theme variables, so the
+   composites are declared on :root and again on every [data-theme] element: a nested
+   Dark or Light section re-resolves them with its own variables. */
+:root,
+[data-theme] {
+  --deck-canvas: linear-gradient(
+    180deg,
+    var(--deck-bg-canvas-top) 10%,
+    var(--deck-bg-canvas-mid) 77%,
+    var(--deck-bg-canvas-horizon) 91%,
+    var(--deck-bg-canvas-bottom) 100%
+  );
+  /* Card inset ("Inset", the same on all setup frames):
+     a canvas gradient whose stops are bound to bg/canvas/top·mid·horizon·bottom
+     (the first, at 6%, is an unbound copy of canvas/top). No paint style; angle
+     and stops are the CSS conversion of its gradient transform at 596×716.
+     Card's `inset` surface. */
+  --deck-canvas-inset: linear-gradient(
+    150.27deg,
+    var(--deck-bg-canvas-top) 14.112%,
+    var(--deck-bg-canvas-top) 17.991%,
+    var(--deck-bg-canvas-mid) 83.469%,
+    var(--deck-bg-canvas-horizon) 98.281%,
+    var(--deck-bg-canvas-bottom) 105.471%
+  );
+  --deck-surface-glass: linear-gradient(
+    180deg,
+    var(--deck-surface-glass-top),
+    var(--deck-surface-glass-bottom)
+  );
+  --deck-surface-card: linear-gradient(
+    180deg,
+    var(--deck-surface-card-top),
+    var(--deck-surface-card-bottom)
+  );
+  --deck-border-glass: linear-gradient(
+    180deg,
+    var(--deck-border-glass-top),
+    var(--deck-border-glass-bottom)
+  );
+  --deck-action-primary: linear-gradient(
+    180deg,
+    var(--deck-action-primary-top),
+    var(--deck-action-primary-bottom)
+  );
+  --deck-text-heading: linear-gradient(
+    180deg,
+    var(--deck-text-heading-top),
+    var(--deck-text-heading-bottom)
+  );
+  --deck-glass-card-shadow: 0 6px 18px 0 var(--deck-effect-shadow-ambient);
+  --deck-glass-control-shadow: 0 2px 8px 0 var(--deck-effect-shadow-soft);
+  --deck-glass-modal-shadow: 0 16px 40px 0 var(--deck-effect-shadow-ambient);
+  --deck-glow-primary-shadow: 0 0 24px 0 var(--deck-action-primary-glow);
+}

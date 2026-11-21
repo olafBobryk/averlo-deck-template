@@ -1,0 +1,6 @@
+/* Not inline: an inline wrapper sits its glyph on the text
+   baseline, 2 px above the centre of its slot, and ignores the swap's scale and
+   turn. :where, so a caller's own display (the top bar's slot) wins. */
+:where(.swap) {
+  display: inline-flex;
+}
