@@ -86,29 +86,29 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 
 ## Phase P3: Averlo ports and brand config (branch `p3-averlo`, base `p1-carry`)
 
-- [ ] T020 [US2] Tests first, recorded failing:
+- [x] T020 [US2] Tests first, recorded failing:
   - `scripts/check-ports.mjs` (the drift test, FR-009; research R3a step 9), with a fixture test where an edited port is named;
   - a test that fails while `src/_origin-temp/` exists;
   - 4.5:1 contrast and visible-focus assertions in the a11y spec.
-- [ ] T021 [US2] `scripts/ports.manifest.json` (the entries of research R3 for averlo-web-transition @ `cfa3d61` and averlo-next-template @ `dc3b01d`), `scripts/port-averlo.mjs` implementing R3a, and the port procedure written to `process/workflows.md#port-the-design-system`. The script writes `docs/design-source.md`.
-- [ ] T022 [US2] Run the port script, and add every recorded package by the precedence in research R2. Licence rows: the ports are MIT under this repository (owner); the Averlo `Logo` is a brand asset (data-model value). Done when `check:ports` passes at 100% (SC-002).
-- [ ] T023 [US2] Template-owned styles:
+- [x] T021 [US2] `scripts/ports.manifest.json` (the entries of research R3 for averlo-web-transition @ `cfa3d61` and averlo-next-template @ `dc3b01d`), `scripts/port-averlo.mjs` implementing R3a, and the port procedure written to `process/workflows.md#port-the-design-system`. The script writes `docs/design-source.md`.
+- [x] T022 [US2] Run the port script, and add every recorded package by the precedence in research R2. Licence rows: the ports are MIT under this repository (owner); the Averlo `Logo` is a brand asset (data-model value). Done when `check:ports` passes at 100% (SC-002).
+- [x] T023 [US2] Template-owned styles:
   - `src/app/globals.css` imports `library.css`, then `src/styles/fonts.css`, then `src/styles/tokens.css` (research R6, R7). Tailwind is not imported a second time.
   - The postcss config as in averlo-web-transition.
   - Apply the ported font's variable on `<html>`.
   - The token mapping table goes in `docs/design-source.md`.
-- [ ] T024 [US3] `src/brand/config.ts` (data-model: brand, deckTitle, accent), defaulting to Averlo. Add Averlo-mark app icons for the manifest, with brand-asset licence rows.
-- [ ] T025 [US2] Apply the disposition table in `.local/origin-inventory.md` to every temporary file:
+- [x] T024 [US3] `src/brand/config.ts` (data-model: brand, deckTitle, accent), defaulting to Averlo. Add Averlo-mark app icons for the manifest, with brand-asset licence rows.
+- [x] T025 [US2] Apply the disposition table in `.local/origin-inventory.md` to every temporary file:
   - compose the Averlo ports in their place;
   - detach ShimmerRoot and the theme bootstrap from `src/app/layout.tsx`;
   - wrap the app in the ported MotionProvider, and set `class="dark"` on `<html>`.
 
   All changes are listed rows, and the icon mapping table goes in `docs/carried/deck.md`.
-- [ ] T026 Delete `src/_origin-temp/` and `docs/carried/temp.md`. Remove the origin's `@radix-ui/react-dropdown-menu`, `@radix-ui/react-radio-group` and `@material-symbols/svg-400` if nothing imports them. Keep the Material Symbols licence row for the lock glyph, and update `docs/licences.md`.
-- [ ] T026a [US2] Owner addition (spec, "During P3"). Tests first: the popup's slide list shows every slide as the same ghost button; slides under a section are indented under its row; the section row has a chevron with `aria-expanded` that opens and closes its slides; only the current slide's section is open when the menu opens; keys and visible focus work; the expanded overview is unchanged.
-- [ ] T026b [US2] Port the Averlo `Collapse` primitive through the manifest, and build the popup's slide list from ghost `Button`s, the chevron `Icon` and `Collapse` (compose rows in `docs/carried/deck.md`). A section is a `divider` slide; its children are the following slides with the same `section`.
-- [ ] T026c [US2] Size the Averlo menu button and controls row to the origin's boxes with template-owned classes, so the menu-open and menu-close strips keep their baseline (owner: "Keep origin geometry").
-- [ ] T026d [US1] Below about 480 px, Previous, Next and Fullscreen in the menu footer are icon-only, keeping their accessible names (owner: "Icon-only on phones").
+- [x] T026 Delete `src/_origin-temp/` and `docs/carried/temp.md`. Remove the origin's `@radix-ui/react-dropdown-menu`, `@radix-ui/react-radio-group` and `@material-symbols/svg-400` if nothing imports them. Keep the Material Symbols licence row for the lock glyph, and update `docs/licences.md`.
+- [x] T026a [US2] Owner addition (spec, "During P3"). Tests first: the popup's slide list shows every slide as the same ghost button; slides under a section are indented under its row; the section row has a chevron with `aria-expanded` that opens and closes its slides; only the current slide's section is open when the menu opens; keys and visible focus work; the expanded overview is unchanged.
+- [x] T026b [US2] Port the Averlo `Collapse` primitive through the manifest, and build the popup's slide list from ghost `Button`s, the chevron `Icon` and `Collapse` (compose rows in `docs/carried/deck.md`). A section is a `divider` slide; its children are the following slides with the same `section`.
+- [x] T026c [US2] Size the Averlo menu button and controls row to the origin's boxes with template-owned classes, so the menu-open and menu-close strips keep their baseline (owner: "Keep origin geometry").
+- [x] T026d [US1] Below about 480 px, Previous, Next and Fullscreen in the menu footer are icon-only, keeping their accessible names (owner: "Icon-only on phones").
 - [x] T026e The strip diff re-runs a failing strip once; a pass on retry is reported as flaky in the gate report (owner: "Retry once, report it").
 - **Gate P3:** `npm run gate`, every check run.
 
