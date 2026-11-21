@@ -13,3 +13,4 @@ Project-wide decisions, one line each, linking to where the owner gave the answe
 - 2026-11-21 — MIT licence; the Averlo name and mark are excluded as brand assets — [spec 001](../../specs/001-deck-template/spec.md#session-2026-11-21-grilling-with-the-owner)
 - 2026-11-21 — The agent pushes the setup commits to `main` once; everything after arrives through PRs the owner merges — [spec 001](../../specs/001-deck-template/spec.md#session-2026-11-21-grilling-with-the-owner)
 - 2026-11-21 — The template is deployed on Vercel (team averloco) and its production link, averlo-deck-template.vercel.app, stays public; later deploys are previews unless the owner says otherwise — owner in session ("Yes, Vercel preview", then "Keep it public")
+- 2026-11-21 — The agent merged the questionnaire rename PR (#79, merge commit `756be64`) with a merge commit, on the owner's explicit permission for that one merge; the port pins to it — owner in session ("You merge it")
