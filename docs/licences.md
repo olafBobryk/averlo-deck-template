@@ -18,7 +18,7 @@ A deck made from the template adds a row for each asset, package or port it adds
 
 Ported files are whole, unchanged copies (the [port procedure](../process/workflows.md#port-the-design-system)), so any licence notice a source file carries is kept, and the drift test (`npm run check:ports`) proves the copy is byte for byte. Every ported file is listed in [`docs/design-source.md`](design-source.md).
 
-**Notices kept:** at the pinned commits, no ported file carries a licence or copyright notice. All 31 files in `scripts/ports.lock.json` (30 from averlo-web-transition at `cfa3d61`, 1 from averlo-next-template at `dc3b01d`) were searched for "licence", "license", "copyright" and "SPDX", with no match. When a re-pin brings in a file with a notice, list it here.
+**Notices kept:** at the pinned commits, no ported file carries a licence or copyright notice. All 42 files in `scripts/ports.lock.json` (30 from averlo-web-transition at `cfa3d61`, 1 from averlo-next-template at `dc3b01d`, 11 from averlo-questionnaire-template at `756be64`) were searched for "licence", "license", "copyright" and "SPDX", with no match. When a re-pin brings in a file with a notice, list it here.
 
 | File, package or port                                         | Source                                                                                                                                                                                                                | Licence                      | Redistributable                                     |
 | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- | --------------------------------------------------- |
@@ -42,7 +42,7 @@ The Averlo name and mark are brand assets. They are the default placeholder bran
 
 | File, package or port                 | Source                                                                                                                                                             | Licence    | Redistributable |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | --------------- |
-| `src/brand/placeholder/your-logo.svg` | own work: the neutral "your logo" placeholder mark shown in the intro and on the hard-load screen (T013)                                                           | MIT        | yes             |
+| `src/brand/placeholder/your-logo.svg` | own work: the neutral "your logo" placeholder mark shown in the intro, on the hard-load screen and in the top bar's brand slot (T013)                              | MIT        | yes             |
 | `src/gate/AnimatedLock.tsx`           | The Material Symbols Rounded `lock` glyph by Google (`@material-symbols/svg-400` 0.48.2), drawn as an SVG path inside the carried intro lock (T013); kept after P3 | Apache-2.0 | yes             |
 | `specs/*/references/screens/**`       | own work: screenshots of template builds only                                                                                                                      | MIT        | yes             |
 

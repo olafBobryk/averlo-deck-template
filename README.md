@@ -39,25 +39,33 @@ For a production build, `npm run build` builds the site and renders the PDFs int
 | Overview       | O                                                                     |
 | Close          | Esc                                                                   |
 
-The PDF downloads from the menu. Links keep their place:
+The top bar's step track jumps to a slide when pressed or dragged. On phones (under about 480 px wide or 500 px tall) the bar is hidden, the slides take the whole stage, and the footer keeps its progress bar. In the menu's slide list, a section's row opens and closes its slides; on phones, its Previous, Next and Fullscreen buttons show only their icons.
+
+The PDF downloads from the menu, one per language, named `<slug>-<lang>.pdf` after the deck title (`deck-en.pdf` for the placeholder deck). Links keep their place:
 
 - `?s=<position>` opens a slide; a refresh or a shared link opens on the same one.
-- `?lang=<code>` picks a language, with two or more languages.
+- `?lang=<code>` picks a language, with two or more languages. The first language is left out of the link.
 - `?intro=off` skips the intro. It is also skipped under reduced motion and after it has played once in a browser session.
 
 ## Brand and languages
 
 A deck changes only these files ([the contract](specs/001-deck-template/contracts/deck-config.md)). Everything else is the engine, the motion or the ports.
 
-| What                  | Where                                | Notes                                                                                                                                   |
-| --------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Slides and their text | `src/deck/slides.ts`                 | Each `Text` has a string for every language.                                                                                            |
-| Languages             | `langs` in `src/deck/langs.ts`       | The first is the default. Two or more show the language switcher in the menu.                                                           |
-| Brand                 | `src/brand/config.ts`                | `averlo` (the default) or `owner`, with its `name`, `logo` and `mark`. Assets go in `public/brand/`, each listed in `docs/licences.md`. |
-| Deck title            | `deckTitle` in `src/brand/config.ts` | Shown in the top bar and used in the PDF file name.                                                                                     |
-| Top-bar accent        | `accent` in `src/brand/config.ts`    | Default `#ff3200`. Text on it must keep 4.5:1 contrast.                                                                                 |
+| What                  | Where                                | Notes                                                                                                                                    |
+| --------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Slides and their text | `src/deck/slides.ts`                 | Each `Text` has a string for every language.                                                                                             |
+| Languages             | `langs` in `src/deck/langs.ts`       | The first is the default. Each needs its name in `langNames`. Two or more show the language switcher in the menu.                        |
+| Brand                 | `src/brand/config.ts`                | `averlo` (the default) or `owner`, with its `name`, `logo` and `mark`. Assets go in `public/brand/`, each listed in `docs/licences.md`.  |
+| Deck title            | `deckTitle` in `src/brand/config.ts` | Shown in the top bar, and used in the PDF file name: lowercased, each run of characters other than a–z and 0–9 replaced by `-`.          |
+| Top-bar accent        | `accent` in `src/brand/config.ts`    | Default `#ff3200`. It sets the bar's `--aq-*` accent variables; the bar picks black or white text on it, which must keep 4.5:1 contrast. |
 
-With brand `owner` and no `mark`, the intro and the hard-load screen show a "your logo" placeholder. The procedures are [Change the brand](process/workflows.md#change-the-brand) and [Add a language](process/workflows.md#add-a-language).
+Where the brand shows:
+
+- **The top bar's brand slot:** the Averlo mark, or the owner's `logo`. Without a `logo`, the "your logo" placeholder and the brand's name as text. The deck title follows it.
+- **The intro and the hard-load screen:** the Averlo mark, or the owner's `mark`. Without a `mark`, the "your logo" placeholder.
+- **The footer wordmark:** the brand's name as text.
+
+The procedures are [Change the brand](process/workflows.md#change-the-brand) and [Add a language](process/workflows.md#add-a-language).
 
 ## Write your deck
 
@@ -65,7 +73,7 @@ Hand your material (notes, documents, transcripts) to an agent and follow [Draft
 
 ## The drift test
 
-The template is built on Averlo design-system files ported unchanged at a pinned commit. `npm run check:ports` checks every port, byte for byte, against its source. It needs clones of the sources in the folder named by `PORT_SOURCES_DIR`; without them it reports "not run".
+The template is built on Averlo design-system files ported unchanged at a pinned commit: averlo-web-transition at `cfa3d61`, averlo-next-template at `dc3b01d`, and the top bar from averlo-questionnaire-template at `756be64`. Font files whose licence forbids redistribution are listed under `exclude` and never copied. `npm run check:ports` checks every port, byte for byte, against its source. It needs clones of the sources in the folder named by `PORT_SOURCES_DIR`; without them it reports "not run".
 
 A deck made from the template may change its look and its ports. In `scripts/ports.manifest.json`:
 
@@ -79,9 +87,9 @@ The steps are in the [port procedure](process/workflows.md#port-the-design-syste
 
 `npm run scan:public` fails when a blocked term appears in the repository's files, history, commit messages or branch names, or when a font, image, package or port has no row in [`docs/licences.md`](docs/licences.md). Its output never prints a term. Run it before every push.
 
-- **Your own blocked-term list:** put one term per line (names of people, clients or products that must not be published) in `.local/public-scan-terms.txt`. `.local/` is ignored, so the list is never committed. To keep it elsewhere, set `SCAN_TERMS_FILE` to its path. Without a list, the scan fails and scans nothing.
+- **Your own blocked-term list:** put one term per line (names of people, clients or products that must not be published) in `.local/public-scan-terms.txt`. `.local/` is ignored, so the list is never committed. To keep it elsewhere, set `SCAN_TERMS_FILE` to its path, in the environment (the gate also reads it from `.local/env`). Without a list, the scan fails and scans nothing.
 - **Check a text before posting it:** `npm run scan:public -- --text <file>`.
-- **Turn it off:** there is no switch. For a deck that will never be public, remove the `scan` check from `buildChecks` and the report's own scan from `main()` in `scripts/gate.mjs`.
+- **Turn it off:** there is no switch. For a deck that will never be public, edit `scripts/gate.mjs`: remove the `scan` check from `buildChecks`, and the scan of the report from `main()`. The port script (`scripts/port-averlo.mjs`) still needs a list with at least one term, because it checks every pulled file against it.
 
 ## The gate
 
@@ -102,7 +110,7 @@ Each check is reported as:
 - **failed**: it ran and failed, or could not start, so the gate fails;
 - **not run**: it could not run, with the reason (for example, the drift test without its source clones).
 
-A check that did not run is never reported as passed. The report is printed and written to `gate-results/gate-report.md`.
+A check that did not run is never reported as passed. A failing motion strip is re-run once; a pass on the retry counts as passed and is listed as flaky. The report is printed and written to `gate-results/gate-report.md`, and each check's output to `gate-results/logs/<check>.log`.
 
 The gate reads machine settings from the ignored `.local/env` (`KEY=value` lines): `TARGET_URL`, where it serves the build for the strip diff; `LD_LIBRARY_PATH`, if Chromium needs it; `PORT_SOURCES_DIR` and `SCAN_TERMS_FILE`, as above. The tests need Chromium (`npx playwright install chromium`). The motion baselines were recorded on the template's own machine, so on another machine a strip may drift. Details: [Run the gate](process/workflows.md#run-the-gate).
 

@@ -34,7 +34,7 @@ A subagent knows only its brief. Every brief states:
 
 - At most 2 implementers run at once. The gate machine has 8 GB of memory, and each implementer's production build and Playwright runs need a large share of it.
 - Researchers and reviewers are read only and light, so they may run beside the implementers, as long as they start no server or build.
-- Parallel subagents use different ports (`SMOKE_PORT`, `PDF_PORT`), keep their test runs to their own specs, and stop every server they start, by its process id. Unless its brief says otherwise, a subagent does not run `npm run gate`; the owner thread does.
+- Parallel subagents use different ports (`SMOKE_PORT`, `PDF_PORT`), keep their test runs to their own specs, and stop every server they start, by its process id. The gate uses the defaults (`SMOKE_PORT` 3198, `PDF_PORT` 3199) and `TARGET_URL`, so a subagent running beside it picks other ports. Unless its brief says otherwise, a subagent does not run `npm run gate`; the owner thread does.
 
 ## Verifying a report
 
