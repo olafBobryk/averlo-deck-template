@@ -105,6 +105,11 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 
   All changes are listed rows, and the icon mapping table goes in `docs/carried/deck.md`.
 - [ ] T026 Delete `src/_origin-temp/` and `docs/carried/temp.md`. Remove the origin's `@radix-ui/react-dropdown-menu`, `@radix-ui/react-radio-group` and `@material-symbols/svg-400` if nothing imports them. Keep the Material Symbols licence row for the lock glyph, and update `docs/licences.md`.
+- [ ] T026a [US2] Owner addition (spec, "During P3"). Tests first: the popup's slide list shows every slide as the same ghost button; slides under a section are indented under its row; the section row has a chevron with `aria-expanded` that opens and closes its slides; only the current slide's section is open when the menu opens; keys and visible focus work; the expanded overview is unchanged.
+- [ ] T026b [US2] Port the Averlo `Collapse` primitive through the manifest, and build the popup's slide list from ghost `Button`s, the chevron `Icon` and `Collapse` (compose rows in `docs/carried/deck.md`). A section is a `divider` slide; its children are the following slides with the same `section`.
+- [ ] T026c [US2] Size the Averlo menu button and controls row to the origin's boxes with template-owned classes, so the menu-open and menu-close strips keep their baseline (owner: "Keep origin geometry").
+- [ ] T026d [US1] Below about 480 px, Previous, Next and Fullscreen in the menu footer are icon-only, keeping their accessible names (owner: "Icon-only on phones").
+- [ ] T026e The strip diff re-runs a failing strip once; a pass on retry is reported as flaky in the gate report (owner: "Retry once, report it").
 - **Gate P3:** `npm run gate`, every check run.
 
 ## Phase P4: Top bar (branch `p4-topbar`, base `p3-averlo`) [parallel with P5]
