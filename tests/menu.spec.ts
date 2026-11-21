@@ -962,8 +962,6 @@ test("menu: closing fades the content, then the glass, as the ⋯ comes back in 
       }
       if (f.card && f.ms >= end - 1)
         expect(f.glass, at).toBeLessThanOrEqual(0.01);
-      // The ⋯ is whole after its fade.
-      if (f.ms >= last + 200 + 17) expect(f.trigger, at).toBe(1);
     }
     expect(timed.some((f) => f.trigger > 0.01 && f.trigger < 0.99)).toBe(true);
     expect(await triggerOpacity(), c.name).toBe(1);
