@@ -1,0 +1,45 @@
+/* The menu popup's slide list (slide-list.tsx). Template-owned; the rows
+   also keep the carried `.slideItem` and `.number` (menu.module.css). */
+
+/* Every row and chevron is the Averlo ghost Button without its resting
+   fill: only the current row is filled (its `!bg-background-hover`). The
+   ghost's hover fill stays. Unlayered, so it outranks the ghost's
+   `bg-background` utility. */
+.row.row:not([aria-current="true"]),
+.chevron.chevron {
+  background-color: transparent;
+}
+@media (hover: hover) {
+  .row.row:not([aria-current="true"]):hover,
+  .chevron.chevron:hover {
+    background-color: var(--color-background-hover);
+  }
+}
+
+/* A section's row: the slide's row, then its chevron, on one line. */
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--deck-space-4);
+}
+.head > .row.row {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+}
+/* As tall as a row, so the chevron's hover fill is the row's. */
+.chevron.chevron {
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  color: var(--deck-text-secondary);
+}
+
+/* A section's slides, indented under its row. */
+.children {
+  margin: 0;
+  padding: 0 0 0 var(--deck-space-16);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}

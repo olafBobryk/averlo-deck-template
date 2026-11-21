@@ -1,7 +1,7 @@
 // The slides' content types. Each slide's content is kept in a map keyed by
 // slide id (the template's is in slides.ts) and read through `slideContent`.
 
-import type { IconName } from "@/_origin-temp/ui/primitives/icon/Icon";
+import type { IconName } from "@/components/ui/icons/Icon";
 import type { Text } from "./model";
 import { content } from "./slides";
 

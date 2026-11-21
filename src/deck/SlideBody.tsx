@@ -1,7 +1,7 @@
-import { cardSurface } from "@/_origin-temp/ui/primitives/card/Card";
-import { Icon, type IconName } from "@/_origin-temp/ui/primitives/icon/Icon";
-import { Text as Type } from "@/_origin-temp/ui/primitives/text/Text";
-import type { ReactNode } from "react";
+import { Icon, type IconName } from "@/components/ui/icons/Icon";
+import { Panel } from "@/components/ui/primitives/Panel";
+import { Text as Type } from "./text";
+import type { HTMLAttributes, ReactNode } from "react";
 import { type Block, type Mark } from "./content";
 import type { Lang } from "./langs";
 import type { Text } from "./model";
@@ -35,8 +35,50 @@ export function rich(text: Text, lang: Lang): ReactNode {
   );
 }
 
-const glass = cardSurface({ surface: "glass", shape: "lg" });
-const pill = cardSurface({ surface: "glass", shape: "pill" });
+/** A card is the Averlo Panel; a pill is one rounded fully, as wide as its
+ *  content. Each keeps a backdrop blur, so the carried fades (`holdsGlass`,
+ *  route-transition's `fade="glass"`) still find each card on its own glass.
+ *  Without a surface, the plain element. */
+type Surface = "card" | "pill";
+function Card({
+  as,
+  surface,
+  className,
+  children,
+  ...rest
+}: {
+  as: "li" | "div" | "dl";
+  surface?: Surface;
+  className?: string;
+  children: ReactNode;
+} & HTMLAttributes<HTMLElement>) {
+  if (!surface) {
+    const Tag = as;
+    return (
+      <Tag className={className} {...rest}>
+        {children}
+      </Tag>
+    );
+  }
+  return (
+    <Panel
+      as={as}
+      background="surface"
+      padding="none"
+      gap="none"
+      className={[
+        "backdrop-blur-lg",
+        surface === "pill" && "!w-auto rounded-pill",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      {...rest}
+    >
+      {children}
+    </Panel>
+  );
+}
 
 /** A block that holds glass cards fades each card on its own glass, never
  *  through a fading wrapper. */
@@ -64,7 +106,7 @@ function Glyph({ name }: { name?: IconName }) {
   if (!name) return null;
   return (
     <span className={styles.glyph}>
-      <Icon name={name} />
+      <Icon name={name} className="size-[var(--icon-slot-size)]" />
     </span>
   );
 }
@@ -114,7 +156,8 @@ export function BlockView({
       );
     case "points": {
       const style = block.style ?? "cards";
-      const surface = style === "cards" ? glass : style === "chips" ? pill : "";
+      const surface: Surface | undefined =
+        style === "cards" ? "card" : style === "chips" ? "pill" : undefined;
       return (
         <ol
           className={styles.points}
@@ -122,7 +165,12 @@ export function BlockView({
           data-style={style}
         >
           {block.items.map((p, i) => (
-            <li key={p.label.en} className={`${surface} ${styles.point}`}>
+            <Card
+              as="li"
+              key={p.label.en}
+              surface={surface}
+              className={styles.point}
+            >
               {style === "numbered" && (
                 <span className={styles.numeral} aria-hidden="true">
                   {String(i + 1).padStart(2, "0")}
@@ -131,7 +179,7 @@ export function BlockView({
               {style !== "numbered" && <Glyph name={p.icon} />}
               <Label text={p.label} lang={lang} />
               <Body text={p.text} lang={lang} />
-            </li>
+            </Card>
           ))}
         </ol>
       );
@@ -194,7 +242,7 @@ export function BlockView({
       );
     case "facts":
       return (
-        <dl className={`${glass} ${styles.facts}`}>
+        <Card as="dl" surface="card" className={styles.facts}>
           {block.items.map((f) => (
             <div key={f.label.en} className={styles.fact}>
               <Type
@@ -215,27 +263,27 @@ export function BlockView({
               </Type>
             </div>
           ))}
-        </dl>
+        </Card>
       );
     case "org":
     case "fork":
       return (
         <div className={styles[block.type]}>
-          <div className={`${glass} ${styles.root}`}>
+          <Card as="div" surface="card" className={styles.root}>
             <Glyph name={block.root.icon} />
             <Label text={block.root.label} lang={lang} />
             <Body text={block.root.text} lang={lang} />
-          </div>
+          </Card>
           <ul className={styles.branches}>
             {/* The item holds the connector; the glass card sits inside it,
                 so neither's pseudo-elements meet. */}
             {block.items.map((p) => (
               <li key={p.label.en} className={styles.branch}>
-                <div className={`${glass} ${styles.branchCard}`}>
+                <Card as="div" surface="card" className={styles.branchCard}>
                   <Glyph name={p.icon} />
                   <Label text={p.label} lang={lang} />
                   <Body text={p.text} lang={lang} />
-                </div>
+                </Card>
               </li>
             ))}
           </ul>
@@ -247,9 +295,11 @@ export function BlockView({
           {block.days.map((day) => {
             const item = block.items.find((d) => d.day.en === day.en);
             return (
-              <li
+              <Card
+                as="li"
                 key={day.en}
-                className={`${item ? glass : ""} ${styles.day}`}
+                surface={item ? "card" : undefined}
+                className={styles.day}
                 data-empty={item ? undefined : ""}
               >
                 <Type
@@ -267,7 +317,7 @@ export function BlockView({
                     <Body text={item.text} lang={lang} />
                   </>
                 )}
-              </li>
+              </Card>
             );
           })}
         </ol>

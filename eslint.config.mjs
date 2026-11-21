@@ -18,6 +18,13 @@ export default defineConfig([
     "next-env.d.ts",
     // Carried as is; changes listed in docs/carried.
     "src/motion/**",
-    "src/_origin-temp/**",
+    // Ported unchanged from the Averlo sources (scripts/ports.lock.json);
+    // never linted or fixed (process/workflows.md#port-the-design-system).
+    "src/components/**",
+    "src/config/**",
+    "src/font/**",
+    "src/hooks/**",
+    "src/lib/**",
+    "src/questionnaire/**",
   ]),
 ]);

@@ -1,7 +1,7 @@
 "use client";
 import type { CSSProperties, ReactNode } from "react";
 import { HeadingText } from "@/motion/page-header/heading-text";
-import { Text } from "@/_origin-temp/ui/primitives/text/Text";
+import { Text } from "./text";
 import type { Lang } from "./langs";
 import { sectionLabel } from "./model";
 import { useDeck } from "./version";

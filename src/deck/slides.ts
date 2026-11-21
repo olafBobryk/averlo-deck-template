@@ -21,6 +21,7 @@ export const slides: Slide[] = [
   { id: "statement", kind: "slide", section: text, title },
   { id: "module", kind: "slide", section: text, title },
   { id: "fork", kind: "slide", section: text, title },
+  { id: "divider-2", kind: "divider", section: text, title },
   { id: "week", kind: "slide", section: text, title },
   { id: "plan", kind: "slide", section: text, title },
   { id: "closing", kind: "closing", title },
@@ -106,6 +107,7 @@ export const content: Record<string, SlideContent> = {
       },
     ],
   },
+  "divider-2": { blocks: [] },
   week: {
     headline: { text },
     blocks: [

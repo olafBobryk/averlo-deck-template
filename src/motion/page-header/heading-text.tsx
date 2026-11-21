@@ -14,7 +14,7 @@ import {
   Text,
   type TextTone,
   type TextVariant,
-} from "@/_origin-temp/ui/primitives/text/Text";
+} from "@/deck/text";
 import styles from "./PageHeader.module.css";
 
 /** A heading's wordings, longest first; one string is one wording. */

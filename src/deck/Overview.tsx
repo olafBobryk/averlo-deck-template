@@ -4,9 +4,9 @@ import {
   staggerDelay,
   useMotionTokens,
 } from "@/motion/motion";
-import { Button } from "@/_origin-temp/ui/primitives/button/Button";
-import { Icon } from "@/_origin-temp/ui/primitives/icon/Icon";
-import { DropdownMenu } from "@/_origin-temp/ui/overlays/dropdown-menu/DropdownMenu";
+import { Button } from "@/components/ui/primitives/Button";
+import { DeckIcon } from "./icon";
+import { MenuDropdown } from "./menu-dropdown";
 import { SlideView } from "./SlideView";
 import { langs, type Lang } from "./langs";
 import { pdfHref, ui } from "./model";
@@ -62,41 +62,55 @@ export function Overview({
   );
 }
 
-/** One Download control, in the card's footer, opening the DropdownMenu
- *  with one PDF per language. A row is a link with
- *  `download`, so choosing it saves the file and Next does not navigate. */
+/** One Download control, in the card's footer, opening a dropdown
+ *  (MenuDropdown) with one PDF per language. Each item is a link to its PDF;
+ *  choosing it saves the file and Next does not navigate. */
 export function Downloads({
   lang,
   align = "start",
-  side = "bottom",
 }: {
   lang: Lang;
   align?: "start" | "end";
-  side?: "top" | "bottom";
 }) {
   return (
     <div className={styles.downloads}>
-      <DropdownMenu>
-        <DropdownMenu.Trigger asChild>
-          <Button size="sm" leadingIcon={<Icon name="download" />}>
+      <MenuDropdown
+        kind="menu"
+        align={align}
+        options={langs.map((option) => ({
+          key: option,
+          value: option,
+          href: pdfHref(option),
+          content: (
+            <>
+              {ui.pdf[lang]} ·{" "}
+              {option === "en" ? ui.english[lang] : ui.french[lang]}
+            </>
+          ),
+        }))}
+        onChoose={(option, event) => {
+          // Saved as a file, as a link with `download` would be.
+          event.preventDefault();
+          const link = document.createElement("a");
+          link.href = pdfHref(option.value);
+          link.download = "";
+          link.click();
+        }}
+        trigger={({ isOpen, toggleMenu, ref }) => (
+          <Button
+            ref={ref}
+            variant="outline"
+            size="sm"
+            leadingIcon={<DeckIcon name="download" />}
+            aria-haspopup="menu"
+            aria-expanded={isOpen}
+            onClick={toggleMenu}
+          >
             {/* A narrow footer keeps the icon; the name is still read out. */}
             <span className={styles.downloadLabel}>{ui.download[lang]}</span>
           </Button>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content align={align} side={side} data-menu-downloads="">
-          {langs.map((option) => (
-            <DropdownMenu.Item
-              key={option}
-              href={pdfHref(option)}
-              // Passed on to the link: save the file, and no prefetch of it.
-              {...({ download: "", prefetch: false } as object)}
-            >
-              {ui.pdf[lang]} ·{" "}
-              {option === "en" ? ui.english[lang] : ui.french[lang]}
-            </DropdownMenu.Item>
-          ))}
-        </DropdownMenu.Content>
-      </DropdownMenu>
+        )}
+      />
     </div>
   );
 }

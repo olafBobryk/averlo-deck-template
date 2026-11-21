@@ -19,13 +19,27 @@ specs/
 
 # Carried as is; changes listed in docs/carried.
 src/motion/
-src/_origin-temp/
 src/app/
 src/deck/*
 !src/deck/slides.ts
 !src/deck/langs.ts
+!src/deck/icon.tsx
+!src/deck/menu-dropdown.tsx
+!src/deck/text.tsx
+!src/deck/slide-list.tsx
+!src/deck/slide-list.module.css
+!src/deck/menu-controls.module.css
 !src/deck/OverflowReport.tsx
 src/gate/
 src/boot/
 scripts/render-pdf.mjs
+
+# Ported unchanged from the Averlo sources (scripts/ports.lock.json); never
+# reformatted (process/workflows.md#port-the-design-system).
+src/components/
+src/config/
+src/font/
+src/hooks/
+src/lib/
+src/questionnaire/
 gate-results/

@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { RouteDirectionTracker } from "@/motion/route-transition";
-import { ShimmerRoot } from "@/_origin-temp/ui/foundations/ShimmerRoot";
-import { ThemeProvider } from "@/_origin-temp/ui/foundations/theme";
-import { themeBootstrap } from "@/_origin-temp/ui/foundations/theme-bootstrap";
+import { MotionProvider } from "@/components/ui/foundations/MotionProvider";
+import { inter } from "@/font";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,33 +23,27 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-// The deck is dark only: store Dark before the unchanged theme bootstrap
-// runs, so it and ThemeProvider both resolve Dark.
-const forceDark = `try{localStorage.setItem("deck.theme","dark")}catch{};document.documentElement.dataset.theme="dark";document.documentElement.style.colorScheme="dark"`;
-
 // The root layout, without the origin's data, notices, orb and conversation
-// hosts. BootLoader is in the deck's own layout.
+// hosts. BootLoader is in the deck's own layout. The deck is dark only:
+// Averlo's library.css defines its dark tokens under `.dark`.
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-arriving="" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`dark ${inter.variable}`}
+      data-arriving=""
+      suppressHydrationWarning
+    >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: forceDark }} />
-        <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
-        <link
-          rel="preload"
-          href="/fonts/inter/4.1/InterVariable.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin=""
-        />
+        {/* The first frame waits until the hard-load screen is parsed, so
+            it is there from the first paint. */}
+        <link rel="expect" href="#deck-boot" {...{ blocking: "render" }} />
       </head>
       <body>
         <RouteDirectionTracker />
-        <ThemeProvider>
-          <ShimmerRoot>{children}</ShimmerRoot>
-        </ThemeProvider>
+        <MotionProvider>{children}</MotionProvider>
       </body>
     </html>
   );
