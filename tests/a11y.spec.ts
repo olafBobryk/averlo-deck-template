@@ -556,3 +556,139 @@ test.describe("contrast as painted: 4.5:1, large text 3:1", () => {
     expect(low(await contrast(page), true), "expanded").toEqual([]);
   });
 });
+
+/** Every control the keyboard can reach inside `scope` (visible, enabled,
+ *  not inert or hidden from assistive technology, with a tab index of 0 or
+ *  more), tagged with `data-focus-probe`. Tab is then pressed until every
+ *  tagged control has been a stop, or the stops have gone round twice: each
+ *  control must be reached, with :focus-visible and a visible indicator. */
+async function everyControl(page: Page, scope: string) {
+  const controls = await page.evaluate((scope) => {
+    const root = document.querySelector(scope);
+    if (!root) return [];
+    const reachable = (el: HTMLElement) => {
+      if (el.tabIndex < 0) return false;
+      if (el.matches("a:not([href]):not([tabindex])")) return false;
+      if (el.matches(":disabled")) return false;
+      if (el.closest("[inert], [aria-hidden='true']")) return false;
+      // A composite widget's container (a radio group, a menu) hands focus
+      // to its current item, which is probed itself.
+      if (
+        /^(radiogroup|menu|menubar|listbox|tablist|toolbar|tree|grid)$/.test(
+          el.getAttribute("role") ?? "",
+        )
+      )
+        return false;
+      const box = el.getBoundingClientRect();
+      const style = getComputedStyle(el);
+      return box.width > 0 && box.height > 0 && style.visibility === "visible";
+    };
+    const found = [root, ...root.querySelectorAll("*")].filter(
+      (el): el is HTMLElement => el instanceof HTMLElement && reachable(el),
+    );
+    return found.map((el, i) => {
+      el.dataset.focusProbe = String(i);
+      return (
+        el.getAttribute("aria-label") ??
+        el.textContent?.trim().replace(/\s+/g, " ") ??
+        el.tagName.toLowerCase()
+      );
+    });
+  }, scope);
+  expect(controls.length, `controls in ${scope}`).toBeGreaterThan(0);
+  const reached = new Map<string, Stop>();
+  let first: string | null = null;
+  let rounds = 0;
+  for (let i = 0; i < (controls.length + 8) * 2; i++) {
+    await page.keyboard.press("Tab");
+    const stop = await focused(page);
+    const probe = await page.evaluate(
+      () => (document.activeElement as HTMLElement | null)?.dataset.focusProbe,
+    );
+    if (!stop || !probe) continue;
+    if (probe === first && ++rounds === 2) break;
+    first ??= probe;
+    reached.set(probe, stop);
+    if (reached.size === controls.length) break;
+  }
+  await page.evaluate(() =>
+    document
+      .querySelectorAll<HTMLElement>("[data-focus-probe]")
+      .forEach((el) => delete el.dataset.focusProbe),
+  );
+  const missed = controls.filter((_, i) => !reached.has(String(i)));
+  expect(missed, `controls in ${scope} that Tab never reaches`).toEqual([]);
+  for (const stop of reached.values()) {
+    expect(stop.visible, `${stop.name}: :focus-visible`).toBe(true);
+    expect(stop.indicator, `${stop.name}: visible focus indicator`).toBe(true);
+  }
+  return [...reached.values()];
+}
+
+test.describe("visible focus: every control reached by Tab draws its indicator", () => {
+  test("deck: every slide's controls", async ({ page }) => {
+    for (let slide = 1; slide <= slides.length; slide++) {
+      await openDeck(page, slide);
+      await everyControl(page, "body");
+    }
+  });
+
+  test("menu popup and expanded, and the downloads dropdown by arrows", async ({
+    page,
+  }) => {
+    await openDeck(page, 3);
+    await page.keyboard.press("m");
+    const card = page.locator("[data-menu-card]");
+    await expect(card).toHaveAttribute("data-view", "popup");
+    await everyControl(page, "[data-menu-card]");
+    await page.keyboard.press("o");
+    await expect(card).toHaveAttribute("data-view", "expanded");
+    await expect(page.locator("[data-thumb]")).toHaveCount(slides.length);
+    await everyControl(page, "[data-menu-card]");
+    // The dropdown's items take focus by arrow keys, not Tab.
+    await card.getByRole("button", { name: "Download" }).focus();
+    await page.keyboard.press("Enter");
+    const items = page.getByRole("menuitem");
+    await expect(items).toHaveCount(langs.length);
+    for (let i = 0; i < langs.length; i++) {
+      if (i > 0) await page.keyboard.press("ArrowDown");
+      const stop = await focused(page);
+      expect(stop?.role, `item ${i + 1} has focus`).toBe("menuitem");
+      expect(stop?.indicator, `${stop?.name}: visible focus indicator`).toBe(
+        true,
+      );
+    }
+  });
+});
+
+test.describe("axe color-contrast: every slide and the open menu", () => {
+  /** Every color-contrast finding, whatever its impact. */
+  const contrastFindings = async (page: Page) =>
+    (
+      await new AxeBuilder({ page }).withRules(["color-contrast"]).analyze()
+    ).violations.flatMap((v) =>
+      v.nodes.map((node) => `${node.target.join(" ")}: ${node.failureSummary}`),
+    );
+
+  test("deck: every slide", async ({ page }) => {
+    for (let slide = 1; slide <= slides.length; slide++) {
+      await openDeck(page, slide);
+      expect(await contrastFindings(page), `slide ${slide}`).toEqual([]);
+    }
+  });
+
+  test("menu: popup, expanded and the downloads dropdown", async ({ page }) => {
+    await openDeck(page, 1);
+    await page.keyboard.press("m");
+    const card = page.locator("[data-menu-card]");
+    await expect(card).toHaveAttribute("data-view", "popup");
+    expect(await contrastFindings(page), "popup").toEqual([]);
+    await page.keyboard.press("o");
+    await expect(card).toHaveAttribute("data-view", "expanded");
+    await expect(page.locator("[data-thumb]")).toHaveCount(slides.length);
+    expect(await contrastFindings(page), "expanded").toEqual([]);
+    await card.getByRole("button", { name: "Download" }).click();
+    await expect(page.getByRole("menuitem")).toHaveCount(langs.length);
+    expect(await contrastFindings(page), "dropdown").toEqual([]);
+  });
+});
