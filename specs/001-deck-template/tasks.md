@@ -109,7 +109,7 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 - [ ] T026b [US2] Port the Averlo `Collapse` primitive through the manifest, and build the popup's slide list from ghost `Button`s, the chevron `Icon` and `Collapse` (compose rows in `docs/carried/deck.md`). A section is a `divider` slide; its children are the following slides with the same `section`.
 - [ ] T026c [US2] Size the Averlo menu button and controls row to the origin's boxes with template-owned classes, so the menu-open and menu-close strips keep their baseline (owner: "Keep origin geometry").
 - [ ] T026d [US1] Below about 480 px, Previous, Next and Fullscreen in the menu footer are icon-only, keeping their accessible names (owner: "Icon-only on phones").
-- [ ] T026e The strip diff re-runs a failing strip once; a pass on retry is reported as flaky in the gate report (owner: "Retry once, report it").
+- [x] T026e The strip diff re-runs a failing strip once; a pass on retry is reported as flaky in the gate report (owner: "Retry once, report it").
 - **Gate P3:** `npm run gate`, every check run.
 
 ## Phase P4: Top bar (branch `p4-topbar`, base `p3-averlo`) [parallel with P5]
