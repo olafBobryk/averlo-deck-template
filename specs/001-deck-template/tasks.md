@@ -26,26 +26,26 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 
 ## Before P0 (owner thread, after approval)
 
-- [ ] T000 Fast-forward local `main` to the approved tip of `feat/001-deck-template`, and cut `p0-baseline` from it (plan.md, setup).
+- [x] T000 Fast-forward local `main` to the approved tip of `feat/001-deck-template`, and cut `p0-baseline` from it (plan.md, setup).
 
 ## Phase P0: Baseline, tooling and public safety (branch `p0-baseline`, base `main`)
 
-- [ ] T001 Tooling:
+- [x] T001 Tooling:
   - `package.json` with the origin's exact pins and the scripts `dev`, `build`, `pdf`, `check`, `test:smoke`, `test:strips`, `check:ports`, `scan:public`, `gate`.
   - `.nvmrc`, tsconfig (alias `@/*` → `./src/*`), eslint and prettier.
   - The Playwright config, carried from the origin, with its row in `docs/carried/tests.md`.
   - Check that `.local/env` holds the five values of rule 10.
 
   Done when `npm ci` and `npm run check` run.
-- [ ] T002 `docs/decisions/decisions.md` (entries as `- YYYY-MM-DD — decision — link to the spec Session bullet`; linked, never copied, nothing from the origin) and an empty `docs/decisions/open-questions.md`. Both are written only by the owner thread.
-- [ ] T003 Licences and scan. Tests first, recorded failing: fixture tests for a missing list, an empty list, and a term in a file, in history, in a commit message and in a branch name, plus an unlisted image, an unlisted dependency and `--text` input. Then:
+- [x] T002 `docs/decisions/decisions.md` (entries as `- YYYY-MM-DD — decision — link to the spec Session bullet`; linked, never copied, nothing from the origin) and an empty `docs/decisions/open-questions.md`. Both are written only by the owner thread.
+- [x] T003 Licences and scan. Tests first, recorded failing: fixture tests for a missing list, an empty list, and a term in a file, in history, in a commit message and in a branch name, plus an unlisted image, an unlisted dependency and `--text` input. Then:
   - `LICENSE`: MIT, with a notice that the Averlo name and mark are excluded as brand assets (FR-020).
   - `docs/licences.md`: the tooling packages, and the screenshots row (data-model).
   - `scripts/scan-public.mjs` (research R5), with `--text`.
   - Prove `.local/` is ignored with `git check-ignore`.
-- [ ] T004 `scripts/gate.mjs` (`npm run gate`). Tests first, recorded failing: a fixture that exercises "not run" reporting. It loads `.local/env`, starts and stops the origin scratch server at `ORIGIN_URL` and the template's production server at `TARGET_URL` as each check needs, runs every check, and reports each as passed, failed or not run (FR-021).
-- [ ] T005 A minimal `docs/orchestration.md`: roles, the delegation brief, at most 2 parallel implementers, and the park rule. It is completed in T039.
-- [ ] T006 [US2] Build the unchanged origin in its scratch folder (`.local/origin.md`). Done when it serves at `ORIGIN_URL`.
+- [x] T004 `scripts/gate.mjs` (`npm run gate`). Tests first, recorded failing: a fixture that exercises "not run" reporting. It loads `.local/env`, starts and stops the origin scratch server at `ORIGIN_URL` and the template's production server at `TARGET_URL` as each check needs, runs every check, and reports each as passed, failed or not run (FR-021).
+- [x] T005 A minimal `docs/orchestration.md`: roles, the delegation brief, at most 2 parallel implementers, and the park rule. It is completed in T039.
+- [x] T006 [US2] Build the unchanged origin in its scratch folder (`.local/origin.md`). Done when it serves at `ORIGIN_URL`.
 - [ ] T007 [US2] `tests/baseline/record.spec.ts`. It records the strips of research R8 against `ORIGIN_URL`, with the origin's own per-frame sampling approach and its `tests/evidence.ts`. That file is carried, renamed, redacted and rerouted to `specs/001-deck-template/references/strips/`, with rows in `docs/carried/tests.md`.
 - [ ] T008 [US2] Record 3 runs at 390 and 1440, resampled on the 16.7 ms grid, and write the strips with their tolerances (R8). Also write `references/strips/constants.json`: the origin's `motionTokens`, `reducedMotionTokens` and the swipe, intro and boot constants named in `.local/origin-inventory.md`, as numbers only. Done when they contain numbers and generic names only and `scan:public` passes.
 - [ ] T009 [US2] `tests/motion/strips.spec.ts`. It replays the strips against `TARGET_URL`, diffs them against the baseline (FR-015), and covers reduced motion (no intermediate frames). Done when it passes with `TARGET_URL` pointed at the origin build (the regression exception to rule 8).
