@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf 'This repository'\\''s constitution (loaded by .claude/settings.json; it binds every change):\\n\\n'; cat \"$CLAUDE_PROJECT_DIR/.specify/memory/constitution.md\""
+          }
+        ]
+      }
+    ]
+  }
+}
