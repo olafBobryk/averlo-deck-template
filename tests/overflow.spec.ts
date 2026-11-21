@@ -41,12 +41,12 @@ async function waitFor(url: string, ms: number) {
 test.beforeAll(async ({}, info) => {
   if (awaitingOwner || info.project.name !== "desktop") return;
   test.setTimeout(300_000);
-  const env = { ...process.env };
+  const env: Record<string, string | undefined> = { ...process.env };
   delete env.NODE_ENV;
   server = spawn(
     "npx",
     ["next", "dev", "--hostname", "127.0.0.1", "--port", String(port)],
-    { detached: true, stdio: "ignore", env },
+    { detached: true, stdio: "ignore", env: env as NodeJS.ProcessEnv },
   );
   // The first request compiles the deck's page.
   await waitFor(`${dev}/?intro=off`, 240_000);

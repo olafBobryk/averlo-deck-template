@@ -22,6 +22,17 @@ function watchConsole(page: Page) {
   return errors;
 }
 
+/** Waits until the hard-load screen is done, so the first key lands. */
+async function ready(page: Page) {
+  await page.waitForFunction(
+    () =>
+      document.getElementById("deck-boot")?.dataset.state === "done" &&
+      !document.documentElement.hasAttribute("data-arriving"),
+    undefined,
+    { timeout: 10_000 },
+  );
+}
+
 async function unlock(page: Page) {
   // No key: mark the intro as played this session, so the
   // deck opens straight away as on a repeat visit.
@@ -63,6 +74,7 @@ test("keys move slides and keep the URL in step", async ({ page }) => {
   const errors = watchConsole(page);
   await unlock(page);
   await page.goto("/?s=1");
+  await ready(page);
   await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/s=2/);
   await page.keyboard.press("End");
@@ -100,6 +112,7 @@ test("overview shows every slide and jumps to one", async ({ page }) => {
   const errors = watchConsole(page);
   await unlock(page);
   await page.goto("/?s=1");
+  await ready(page);
   await page.keyboard.press("o");
   const overview = page.getByRole("dialog", { name: "Overview" });
   await expect(overview).toBeVisible();

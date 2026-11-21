@@ -433,7 +433,7 @@ test.describe("keyboard", () => {
     await page.keyboard.press("Escape");
     await expect(page.getByRole("menu")).toHaveCount(0);
     await expect(card).toHaveAttribute("data-view", "expanded");
-    expect((await focused(page))?.name).toBe("Download");
+    await expect.poll(async () => (await focused(page))?.name).toBe("Download");
     // Each thumbnail is named by its label line, number and title apart.
     const T = Math.min(N, 7);
     await expect(

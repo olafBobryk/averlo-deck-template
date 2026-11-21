@@ -220,9 +220,14 @@ test.describe("phone: overview thumbnails stay 16:9", () => {
           .filter((el) => el.closest("[data-kind]"))
           .map((el) => {
             const r = el.getBoundingClientRect();
+            // Centred text is compared by its centre: its left moves with
+            // glyph rounding at thumbnail scale.
+            const centred = getComputedStyle(el).textAlign === "center";
             return {
               size: unit(parseFloat(getComputedStyle(el).fontSize)),
-              left: unit(r.left - stage.left),
+              left: unit(
+                (centred ? r.left + r.width / 2 : r.left) - stage.left,
+              ),
               top: unit(r.top - stage.top),
               width: unit(r.width),
             };
