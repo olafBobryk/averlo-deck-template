@@ -24,6 +24,7 @@ src/app/
 src/deck/*
 !src/deck/slides.ts
 !src/deck/langs.ts
+!src/deck/OverflowReport.tsx
 src/gate/
 src/boot/
 scripts/render-pdf.mjs
