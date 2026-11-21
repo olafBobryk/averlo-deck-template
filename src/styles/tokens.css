@@ -1,0 +1,73 @@
+/* The bridge from the carried deck CSS's --deck-* variables to Averlo's
+   tokens (research R7): each non-motion variable the carried CSS reads is
+   defined here from a token of the ported library.css or of the Tailwind
+   theme it builds on. The deck is dark only (class="dark" on <html>), so the
+   colours resolve to Averlo's dark tokens. The motion variables are not
+   here: they keep their carried values in src/motion/motion.css. The
+   mapping table is in docs/design-source.md. */
+:root {
+  /* Colour: text */
+  --deck-text-primary: var(--color-foreground);
+  --deck-text-secondary: var(--color-muted);
+  --deck-text-tertiary: color-mix(
+    in srgb,
+    var(--color-foreground) 60%,
+    var(--color-background)
+  );
+  --deck-text-accent: var(--color-accent);
+  --deck-base-white: var(--color-foreground);
+
+  /* Colour: surfaces and the canvas */
+  --deck-canvas: var(--color-background);
+  --deck-bg-canvas-top: var(--color-background);
+  --deck-bg-canvas-mid: var(--color-background);
+  --deck-surface-card-top: var(--color-surface);
+  --deck-surface-card-bottom: var(--color-surface);
+  --deck-surface-subtle: color-mix(
+    in srgb,
+    var(--color-foreground) 5%,
+    transparent
+  );
+  --deck-surface-highlight: var(--color-background-hover);
+
+  /* Colour: borders and focus */
+  --deck-border-subtle: var(--color-border);
+  --deck-border-glass-top: var(--color-border);
+  --deck-border-strong: color-mix(
+    in srgb,
+    var(--color-foreground) 35%,
+    transparent
+  );
+  --deck-border-focus: color-mix(
+    in srgb,
+    var(--color-primary) 40%,
+    transparent
+  );
+  --deck-action-secondary-bg: transparent;
+  --deck-action-secondary-border: var(--color-border);
+
+  /* Glass: the blur keeps the carried fades on the same elements; the
+     surfaces under it are Averlo's opaque ones. */
+  --deck-glass-card-backdrop: blur(var(--blur-lg));
+  --deck-glass-modal-backdrop: blur(var(--blur-xl));
+  --deck-glass-modal-shadow: var(--shadow-xl);
+
+  /* Space: Tailwind's spacing scale (4 px a step) */
+  --deck-space-2: calc(var(--spacing) * 0.5);
+  --deck-space-4: calc(var(--spacing) * 1);
+  --deck-space-8: calc(var(--spacing) * 2);
+  --deck-space-12: calc(var(--spacing) * 3);
+  --deck-space-16: calc(var(--spacing) * 4);
+  --deck-space-24: calc(var(--spacing) * 6);
+  --deck-space-32: calc(var(--spacing) * 8);
+
+  /* Radius and size */
+  --deck-radius-md: var(--radius-xl);
+  --deck-radius-lg: var(--radius-2xl);
+  --deck-radius-xl: var(--radius-3xl);
+  --deck-size-icon-button: calc(var(--spacing) * 7);
+
+  /* Type */
+  --deck-type-title-l-weight: var(--font-weight-semibold);
+  --deck-type-size-label-m: var(--text-sm);
+}

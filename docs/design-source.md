@@ -8,7 +8,43 @@ The template is built on the Averlo design system itself (constitution, Principl
 
 ## Packages added outside the closure
 
-- `@tailwindcss/postcss` 4.3.0, averlo-web-transition's lockfile version: the PostCSS plugin that builds the ported `library.css`, which imports `tailwindcss`. The postcss config that uses it is template-owned and copies averlo-web-transition's (T023).
+- `@tailwindcss/postcss` 4.3.0, averlo-web-transition's lockfile version: the PostCSS plugin that builds the ported `library.css`, which imports `tailwindcss`. The postcss config that uses it, `postcss.config.mjs`, is template-owned and copies averlo-web-transition's (T023).
+
+## Styles: font and token bridge
+
+`src/app/globals.css` (template-owned, T023) imports, in order, the ported `library.css` (which imports Tailwind, so Tailwind is not imported again), `src/styles/fonts.css`, `src/styles/tokens.css`, then the carried motion stylesheets `src/motion/motion.css` and `src/motion/route-transition.css`. `postcss.config.mjs` is averlo-web-transition's (`@tailwindcss/postcss`). `<html>` carries `class="dark"`, under which `library.css` defines its dark tokens, and the ported font's variable class (`--font-inter`).
+
+- **Font** (research R6): `src/styles/fonts.css` sets `--font-body` and `--font-heading` on `body` to `var(--font-inter), var(--font-sans-fallback)`, in place of `library.css`'s `--font-sf-pro`, whose files are excluded.
+- **Tokens** (research R7): `src/styles/tokens.css` defines every non-motion `--deck-*` variable the carried CSS reads from an Averlo token (`library.css`) or a Tailwind theme token it builds on. The motion variables (`--deck-motion-*`) are not bridged: they keep their carried values in `src/motion/motion.css`.
+
+| `--deck-*` variable                                             | Averlo or Tailwind token                                                                                        | Read by                                                 |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `--deck-text-primary`                                           | `--color-foreground`                                                                                            | deck, menu, content                                     |
+| `--deck-text-secondary`                                         | `--color-muted`                                                                                                 | deck, menu, content                                     |
+| `--deck-text-tertiary`                                          | `--color-foreground` 60% over `--color-background` (`color-mix`, as `library.css` mixes `--color-muted` at 75%) | menu                                                    |
+| `--deck-text-accent`                                            | `--color-accent` (`#ff3200`)                                                                                    | content                                                 |
+| `--deck-base-white`                                             | `--color-foreground` (white under `.dark`)                                                                      | menu                                                    |
+| `--deck-canvas`, `--deck-bg-canvas-top`, `--deck-bg-canvas-mid` | `--color-background`                                                                                            | intro, hard-load screen, print page, content (dot fill) |
+| `--deck-surface-card-top`, `--deck-surface-card-bottom`         | `--color-surface`                                                                                               | menu card                                               |
+| `--deck-surface-subtle`                                         | `--color-foreground` at 5% (Averlo's `foreground/5` hover fill)                                                 | deck (progress track), menu, content                    |
+| `--deck-surface-highlight`                                      | `--color-background-hover`                                                                                      | menu                                                    |
+| `--deck-border-subtle`, `--deck-border-glass-top`               | `--color-border`                                                                                                | deck, menu, content                                     |
+| `--deck-border-strong`                                          | `--color-foreground` at 35% (Averlo's `foreground/35` outline hover border)                                     | menu, content                                           |
+| `--deck-border-focus`                                           | `--color-primary` at 40% (Averlo's `ring-primary/40` focus ring)                                                | menu, content                                           |
+| `--deck-action-secondary-bg`                                    | `transparent` (Averlo's outline button)                                                                         | menu                                                    |
+| `--deck-action-secondary-border`                                | `--color-border` (Averlo's outline button)                                                                      | menu                                                    |
+| `--deck-glass-card-backdrop`                                    | `blur(var(--blur-lg))`                                                                                          | menu                                                    |
+| `--deck-glass-modal-backdrop`                                   | `blur(var(--blur-xl))`                                                                                          | menu card                                               |
+| `--deck-glass-modal-shadow`                                     | `--shadow-xl`                                                                                                   | menu card                                               |
+| `--deck-space-2` … `--deck-space-32`                            | `--spacing` × n/4 (2, 4, 8, 12, 16, 24, 32 px)                                                                  | deck, menu                                              |
+| `--deck-radius-md`, `-lg`, `-xl`                                | `--radius-xl`, `--radius-2xl`, `--radius-3xl`                                                                   | menu, content                                           |
+| `--deck-size-icon-button`                                       | `--spacing` × 7 (the Averlo `Button` size `icon-sm`)                                                            | menu                                                    |
+| `--deck-type-title-l-weight`                                    | `--font-weight-semibold`                                                                                        | content                                                 |
+| `--deck-type-size-label-m`                                      | `--text-sm`                                                                                                     | menu                                                    |
+
+Under `prefers-reduced-motion: reduce`, `globals.css` sets Averlo's `--motion-*-duration` variables to 0 ms (important, over the values `MotionProvider` sets inline on `<html>`), so the ported controls' own transitions respect reduced motion as the deck's motion does.
+
+The blurs are kept so the carried fades (the page step's `fade="glass"`, the menu's `fadeItems`) still find the same elements; the surfaces under them are Averlo's opaque ones.
 
 <!-- ports:begin -->
 

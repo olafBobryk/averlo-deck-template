@@ -1,6 +1,13 @@
-@import "../_origin-temp/ui/foundations/base.css";
+/* Template-owned (T023). The ported Averlo library (it imports Tailwind,
+   so Tailwind is not imported again), then the deck's font and its token
+   bridge, then the carried motion module's stylesheets. */
+@import "../components/ui/foundations/library.css";
+@import "../styles/fonts.css";
+@import "../styles/tokens.css";
+@import "../motion/motion.css";
+@import "../motion/route-transition.css";
 
-/* Deck utility (not in base.css): hidden but read aloud. */
+/* Hidden but read aloud. */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -8,4 +15,25 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* Reduced motion: the Averlo controls' own transitions (their durations
+   come from MotionProvider, set inline on <html>) run instantly, as the
+   deck's motion does. Important, so it wins over those inline values. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-feedback-duration: 0ms !important;
+    --motion-interaction-duration: 0ms !important;
+    --motion-disclosure-duration: 0ms !important;
+    --motion-overlay-duration: 0ms !important;
+    --motion-reveal-duration: 0ms !important;
+    --motion-ambient-duration: 0ms !important;
+    --motion-scroll-duration: 0ms !important;
+    --motion-micro-duration: 0ms !important;
+    --motion-interactive-duration: 0ms !important;
+    --motion-component-duration: 0ms !important;
+    --motion-macro-duration: 0ms !important;
+    --motion-grand-duration: 0ms !important;
+    --motion-decorative-duration: 0ms !important;
+  }
 }
