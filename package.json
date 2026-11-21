@@ -24,8 +24,12 @@
     "gate": "node scripts/gate.mjs"
   },
   "dependencies": {
+    "@phosphor-icons/react": "2.1.10",
     "@radix-ui/react-dropdown-menu": "2.2.1",
     "@radix-ui/react-radio-group": "1.5.1",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "lucide-react": "1.18.0",
     "motion": "14.7.1",
     "next": "16.4.5",
     "react": "19.3.1",
@@ -36,6 +40,7 @@
     "@material-symbols/svg-400": "0.48.2",
     "@playwright/test": "1.64.1",
     "@sparticuz/chromium": "153.0.0",
+    "@tailwindcss/postcss": "4.3.0",
     "@types/node": "24.19.2",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
@@ -43,6 +48,7 @@
     "eslint-config-next": "16.4.5",
     "playwright-core": "1.64.1",
     "prettier": "3.9.10",
+    "tailwindcss": "4.3.0",
     "typescript": "5.9.3"
   }
 }

@@ -27,4 +27,13 @@ src/deck/*
 src/gate/
 src/boot/
 scripts/render-pdf.mjs
+
+# Ported unchanged from the Averlo sources (scripts/ports.lock.json); never
+# reformatted (process/workflows.md#port-the-design-system).
+src/components/
+src/config/
+src/font/
+src/hooks/
+src/lib/
+src/questionnaire/
 gate-results/

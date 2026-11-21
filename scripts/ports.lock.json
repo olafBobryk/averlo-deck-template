@@ -1,0 +1,218 @@
+{
+  "$comment": "Written by scripts/port-averlo.mjs from scripts/ports.manifest.json; read by scripts/check-ports.mjs. Do not edit: change the manifest and run the port script.",
+  "sources": [
+    {
+      "repo": "averlo-web-transition",
+      "commit": "cfa3d61",
+      "resolved": "cfa3d617555b316b781c8d49864fbe8c79db9118",
+      "entries": [
+        "src/components/ui/foundations/focus.ts",
+        "src/components/ui/foundations/library.css",
+        "src/components/ui/foundations/iconAnimations.css",
+        "src/components/ui/foundations/motionTiming.ts",
+        "src/components/ui/foundations/spring.ts",
+        "src/components/ui/foundations/motionDisableOverride.ts",
+        "src/components/ui/foundations/settingsContext.tsx",
+        "src/components/ui/foundations/appearance.ts",
+        "src/components/ui/foundations/MotionProvider.tsx",
+        "src/components/ui/foundations/motionDriverContext.tsx",
+        "src/components/ui/primitives/Button.tsx",
+        "src/components/ui/primitives/Text.tsx",
+        "src/components/ui/primitives/Panel.tsx",
+        "src/components/ui/primitives/Dropdown.tsx",
+        "src/components/ui/primitives/Listbox.tsx",
+        "src/components/ui/primitives/dropdownStyles.ts",
+        "src/components/ui/overlays/Portal.tsx",
+        "src/components/ui/icons/Icon.tsx",
+        "src/components/ui/helpers/IconSwap.tsx",
+        "src/components/branding/Logo.tsx"
+      ],
+      "files": [
+        {
+          "source": "src/components/branding/Logo.tsx",
+          "target": "src/components/branding/Logo.tsx"
+        },
+        {
+          "source": "src/components/ui/foundations/MotionProvider.tsx",
+          "target": "src/components/ui/foundations/MotionProvider.tsx"
+        },
+        {
+          "source": "src/components/ui/foundations/appearance.ts",
+          "target": "src/components/ui/foundations/appearance.ts"
+        },
+        {
+          "source": "src/components/ui/foundations/focus.ts",
+          "target": "src/components/ui/foundations/focus.ts"
+        },
+        {
+          "source": "src/components/ui/foundations/iconAnimations.css",
+          "target": "src/components/ui/foundations/iconAnimations.css"
+        },
+        {
+          "source": "src/components/ui/foundations/library.css",
+          "target": "src/components/ui/foundations/library.css"
+        },
+        {
+          "source": "src/components/ui/foundations/motionDisableOverride.ts",
+          "target": "src/components/ui/foundations/motionDisableOverride.ts"
+        },
+        {
+          "source": "src/components/ui/foundations/motionDriverContext.tsx",
+          "target": "src/components/ui/foundations/motionDriverContext.tsx"
+        },
+        {
+          "source": "src/components/ui/foundations/motionTiming.ts",
+          "target": "src/components/ui/foundations/motionTiming.ts"
+        },
+        {
+          "source": "src/components/ui/foundations/settingsContext.tsx",
+          "target": "src/components/ui/foundations/settingsContext.tsx"
+        },
+        {
+          "source": "src/components/ui/foundations/spring.ts",
+          "target": "src/components/ui/foundations/spring.ts"
+        },
+        {
+          "source": "src/components/ui/helpers/IconSwap.tsx",
+          "target": "src/components/ui/helpers/IconSwap.tsx"
+        },
+        {
+          "source": "src/components/ui/icons/Icon.tsx",
+          "target": "src/components/ui/icons/Icon.tsx"
+        },
+        {
+          "source": "src/components/ui/motion/source/scheduler/GlobalMotionScheduler.tsx",
+          "target": "src/components/ui/motion/source/scheduler/GlobalMotionScheduler.tsx"
+        },
+        {
+          "source": "src/components/ui/motion/source/scheduler/context.ts",
+          "target": "src/components/ui/motion/source/scheduler/context.ts"
+        },
+        {
+          "source": "src/components/ui/overlays/Portal.tsx",
+          "target": "src/components/ui/overlays/Portal.tsx"
+        },
+        {
+          "source": "src/components/ui/primitives/Button.tsx",
+          "target": "src/components/ui/primitives/Button.tsx"
+        },
+        {
+          "source": "src/components/ui/primitives/Dropdown.tsx",
+          "target": "src/components/ui/primitives/Dropdown.tsx"
+        },
+        {
+          "source": "src/components/ui/primitives/Listbox.tsx",
+          "target": "src/components/ui/primitives/Listbox.tsx"
+        },
+        {
+          "source": "src/components/ui/primitives/LoadingSpinner.tsx",
+          "target": "src/components/ui/primitives/LoadingSpinner.tsx"
+        },
+        {
+          "source": "src/components/ui/primitives/Panel.tsx",
+          "target": "src/components/ui/primitives/Panel.tsx"
+        },
+        {
+          "source": "src/components/ui/primitives/Text.tsx",
+          "target": "src/components/ui/primitives/Text.tsx"
+        },
+        {
+          "source": "src/components/ui/primitives/dropdownStyles.ts",
+          "target": "src/components/ui/primitives/dropdownStyles.ts"
+        },
+        {
+          "source": "src/config/motionConfig.ts",
+          "target": "src/config/motionConfig.ts"
+        },
+        {
+          "source": "src/config/scrollConfig.ts",
+          "target": "src/config/scrollConfig.ts"
+        },
+        {
+          "source": "src/hooks/useMotionAllowed.ts",
+          "target": "src/hooks/useMotionAllowed.ts"
+        },
+        {
+          "source": "src/lib/i18n/config.ts",
+          "target": "src/lib/i18n/config.ts"
+        },
+        {
+          "source": "src/lib/i18n/routing.ts",
+          "target": "src/lib/i18n/routing.ts"
+        },
+        {
+          "source": "src/lib/i18n/usePublicPathname.ts",
+          "target": "src/lib/i18n/usePublicPathname.ts"
+        }
+      ],
+      "excluded": [],
+      "packages": [
+        {
+          "name": "@phosphor-icons/react",
+          "version": "2.1.10",
+          "importedBy": 1
+        },
+        {
+          "name": "class-variance-authority",
+          "version": "0.7.1",
+          "importedBy": 3
+        },
+        {
+          "name": "clsx",
+          "version": "2.1.1",
+          "importedBy": 8
+        },
+        {
+          "name": "lucide-react",
+          "version": "1.18.0",
+          "importedBy": 2
+        },
+        {
+          "name": "motion",
+          "version": "12.38.0",
+          "importedBy": 3
+        },
+        {
+          "name": "next",
+          "version": "16.2.6",
+          "importedBy": 3
+        },
+        {
+          "name": "react",
+          "version": "19.2.6",
+          "importedBy": 17
+        },
+        {
+          "name": "react-dom",
+          "version": "19.2.6",
+          "importedBy": 1
+        },
+        {
+          "name": "tailwindcss",
+          "version": "4.3.0",
+          "importedBy": 1
+        }
+      ]
+    },
+    {
+      "repo": "averlo-next-template",
+      "commit": "dc3b01d",
+      "resolved": "dc3b01d128193a53a3474e0f27ff14be46289dda",
+      "entries": ["src/font/index.ts"],
+      "files": [
+        {
+          "source": "src/font/index.ts",
+          "target": "src/font/index.ts"
+        }
+      ],
+      "excluded": [],
+      "packages": [
+        {
+          "name": "next",
+          "version": "16.4.3",
+          "importedBy": 1
+        }
+      ]
+    }
+  ]
+}
