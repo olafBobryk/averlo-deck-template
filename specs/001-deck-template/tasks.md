@@ -138,6 +138,7 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
   - the brand slot shows the brand's logo, or the placeholder mark plus the name as text;
   - pass the deck's copy through the wording context, and make `onNavigate` jump to a slide.
 - [ ] T031 [US1] Put the stage below the bar, remove the footer divider, and make the footer wordmark follow the brand config (compose rows in `docs/carried/deck.md`).
+- [ ] T031a [US2] Owner additions (spec, "During P4"): hide the bar on phones (under about 480 px wide or 500 px tall) with the slides taking the full stage, and adapt the bar tests to it; leave out the Review button and remove it from the parity reference; SC-005 checks visible content; keep `utilities.css` and `foundations.css` ported but not imported, with the reason in `docs/design-source.md`.
 - **Gate P4:** `npm run gate`; every placeholder slide fits at 390 and 1440 (SC-005).
 
 ## Phase P5: Intro and hard-load screen (branch `p5-brand`, base `p3-averlo`) [parallel with P4]
