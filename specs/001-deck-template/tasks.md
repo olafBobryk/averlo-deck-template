@@ -142,11 +142,11 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 
 ## Phase P5: Intro and hard-load screen (branch `p5-brand`, base `p3-averlo`) [parallel with P4]
 
-- [ ] T032 [US3] Tests first, in `tests/brand.spec.ts`:
+- [x] T032 [US3] Tests first, in `tests/brand.spec.ts`:
   - the Averlo mark shows by default in the intro and on the hard-load screen;
   - brand `owner` without a mark shows the "your logo" placeholder;
   - the hard-load screen keeps its 400 ms minimum and 3 s cap (FR-004a, FR-005).
-- [ ] T033 [US3] The intro and the hard-load screen compose the brand mark in the placeholder's box (as an `<img>` on the hard-load screen): the ported Averlo `Logo` variant `mark`, or the owner's mark. Every timing value is kept (R9). Rows go in `docs/carried/{gate,boot}.md`.
+- [x] T033 [US3] The intro and the hard-load screen compose the brand mark in the placeholder's box (as an `<img>` on the hard-load screen): the ported Averlo `Logo` variant `mark`, or the owner's mark. Every timing value is kept (R9). Rows go in `docs/carried/{gate,boot}.md`.
 - **Gate P5:** `npm run gate`, including the intro strips and constants.
 
 ## Phase P6: Slides and languages (branch `p6-slides`, as in plan.md)
