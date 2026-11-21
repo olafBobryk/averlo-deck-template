@@ -114,31 +114,31 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 
 ## Phase P4: Top bar (branch `p4-topbar`, base `p3-averlo`) [parallel with P5]
 
-- [ ] T027 Upstream rename (research R4). In the questionnaire's clone under `PORT_SOURCES_DIR`, on branch `rename-client-names`:
+- [x] T027 Upstream rename (research R4). In the questionnaire's clone under `PORT_SOURCES_DIR`, on branch `rename-client-names`:
   - rename every blocked term across the whole repository (file names, identifiers, comments, every importer) to neutral names, with no other change;
   - its own build and tests must pass;
   - open a PR there whose text passes `scan:public --text`.
 
   Raise it with the owner (rule 4) and wait for the merge. Then pin the manifest to the merged commit.
-- [ ] T028 [US2] Tests first, in `tests/topbar.spec.ts`:
+- [x] T028 [US2] Tests first, in `tests/topbar.spec.ts`:
   - the bar spans the full width on every slide;
   - pressing or dragging the navigator jumps slides;
   - the footer shows its progress indicator and no divider (FR-012, FR-013);
   - the brand slot and the footer wordmark follow the brand config (FR-005);
   - the bar's computed font is Inter;
   - a DOM and screenshot parity test of the bar against the questionnaire's own top, rendered with the same font override, at 390 and 1440.
-- [ ] T029 [US2] Port the top bar:
+- [x] T029 [US2] Port the top bar:
   - first, a quick check that `next build` accepts a stylesheet whose excluded `url()`s are unresolved, using template-owned build settings if needed (R3a step 6). If nothing works, raise it.
   - add the questionnaire's header, progress navigator, progress model, wording modules, logo and shell CSS (with the utility and foundation CSS of their closure) to the manifest, and list its non-redistributable font files as exclusions (owner: "Exclude the font files only").
   - run the port script, and list the shell CSS's unscoped rules in `docs/design-source.md`.
   - licence rows: the questionnaire's logo mark is a brand asset.
-- [ ] T030 [US2] `src/deck/TopBar.tsx`:
+- [x] T030 [US2] `src/deck/TopBar.tsx`:
   - wrap in `.aq`, and set the `--aq-*` variables from `src/brand/config.ts` plus `--font-sf-pro: var(--font-inter)` inline (R4);
   - reproduce only the composition lines of the questionnaire's `react.tsx`, recorded by line range in `docs/design-source.md`, without the save chip and the Review button;
   - the brand slot shows the brand's logo, or the placeholder mark plus the name as text;
   - pass the deck's copy through the wording context, and make `onNavigate` jump to a slide.
-- [ ] T031 [US1] Put the stage below the bar, remove the footer divider, and make the footer wordmark follow the brand config (compose rows in `docs/carried/deck.md`).
-- [ ] T031a [US2] Owner additions (spec, "During P4"): hide the bar on phones (under about 480 px wide or 500 px tall) with the slides taking the full stage, and adapt the bar tests to it; leave out the Review button and remove it from the parity reference; SC-005 checks visible content; keep `utilities.css` and `foundations.css` ported but not imported, with the reason in `docs/design-source.md`.
+- [x] T031 [US1] Put the stage below the bar, remove the footer divider, and make the footer wordmark follow the brand config (compose rows in `docs/carried/deck.md`).
+- [x] T031a [US2] Owner additions (spec, "During P4"): hide the bar on phones (under about 480 px wide or 500 px tall) with the slides taking the full stage, and adapt the bar tests to it; leave out the Review button and remove it from the parity reference; SC-005 checks visible content; keep `utilities.css` and `foundations.css` ported but not imported, with the reason in `docs/design-source.md`.
 - **Gate P4:** `npm run gate`; every placeholder slide fits at 390 and 1440 (SC-005).
 
 ## Phase P5: Intro and hard-load screen (branch `p5-brand`, base `p3-averlo`) [parallel with P4]
