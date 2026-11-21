@@ -30,6 +30,8 @@ import { Downloads, Overview } from "./Overview";
 import { langs, type Lang } from "./langs";
 import { ui } from "./model";
 import styles from "./menu.module.css";
+import controls from "./menu-controls.module.css";
+import { SlideList } from "./slide-list";
 import { useDeck } from "./version";
 
 /** Contract between the deck and the menu: the props and the html
@@ -244,7 +246,7 @@ export function MenuCard({
         aria-label={ui.menu[lang]}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className={styles.trigger}
+        className={`${styles.trigger} ${controls.trigger}`}
         // Out of sight while the card it opens is up; the card fades it back
         // in as it closes.
         data-covered={present || undefined}
@@ -577,7 +579,10 @@ function Card({
             than the popup's: while the row travels out of the button at the
             button's width, its controls stand where they will rest and the
             card's edge clips them. */}
-        <div className={styles.line} style={{ minWidth: line }}>
+        <div
+          className={`${styles.line} ${controls.line}`}
+          style={{ minWidth: line }}
+        >
           {/* At an end, a control keeps its look at a muted opacity instead
             of Button's disabled fill. */}
           <Button
@@ -585,7 +590,11 @@ function Card({
             size="sm"
             leadingIcon={<DeckIcon name="chevron-left" />}
             aria-disabled={index === 0 || undefined}
-            className={index === 0 ? `${styles.unavailable} !shrink` : "!shrink"}
+            className={
+              index === 0
+                ? `${styles.unavailable} ${controls.iconOnly} !shrink`
+                : `${controls.iconOnly} !shrink`
+            }
             onClick={() => index > 0 && onGo(index - 1)}
           >
             {ui.previous[lang]}
@@ -597,8 +606,8 @@ function Card({
             aria-disabled={index === slides.length - 1 || undefined}
             className={
               index === slides.length - 1
-                ? `${styles.unavailable} !shrink`
-                : "!shrink"
+                ? `${styles.unavailable} ${controls.iconOnly} !shrink`
+                : `${controls.iconOnly} !shrink`
             }
             onClick={() => index < slides.length - 1 && onGo(index + 1)}
           >
@@ -609,6 +618,10 @@ function Card({
               variant="outline"
               size="sm"
               aria-pressed={fullscreen}
+              leadingIcon={
+                <DeckIcon name="fullscreen" className={controls.phoneIcon} />
+              }
+              className={controls.iconOnly}
               onClick={onFullscreen}
             >
               {ui.fullscreen[lang]} <kbd className={styles.key}>F</kbd>
@@ -753,34 +766,6 @@ function Menu({
 }) {
   const { slides } = useDeck();
   return (
-    <ol
-      data-menu-slides=""
-      className={styles.list}
-      aria-label={ui.slides[lang]}
-    >
-      {slides.map((slide, i) => (
-        <li key={slide.id}>
-          <Button
-            variant="ghost"
-            align="between"
-            size="sm"
-            hitArea="none"
-            className={
-              i === index
-                ? `${styles.slideItem} !bg-background-hover`
-                : styles.slideItem
-            }
-            data-sub={slide.parent ? "" : undefined}
-            aria-current={i === index || undefined}
-            onClick={() => onChoose(i)}
-          >
-            <span className={styles.number}>
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            {slide.title[lang]}
-          </Button>
-        </li>
-      ))}
-    </ol>
+    <SlideList slides={slides} index={index} lang={lang} onChoose={onChoose} />
   );
 }
