@@ -1,10 +1,12 @@
-// Renders the deck to one PDF per language (public/pdf/deck-deck-<lang>.pdf),
+// Renders the deck to one PDF per language (public/pdf/<slug>-<lang>.pdf),
 // 1920×1080 per page, from the built app's /print view. Runs after
 // `next build` (npm run build), locally and on Vercel.
 import { spawn } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import { setTimeout as sleep } from "node:timers/promises";
+import { config } from "../src/brand/config.ts";
 import { langs } from "../src/deck/langs.ts";
+import { pdfName } from "../src/deck/pdf-name.ts";
 
 const root = new URL("..", import.meta.url);
 const port = Number(process.env.PDF_PORT ?? 3199);
@@ -76,7 +78,8 @@ try {
         [...document.images].map((img) => img.decode().catch(() => {})),
       );
     });
-    const path = new URL(`deck-deck-${lang}.pdf`, outDir);
+    const name = pdfName(config.deckTitle, lang);
+    const path = new URL(name, outDir);
     await page.pdf({
       path: path.pathname,
       width: "1920px",
@@ -84,7 +87,7 @@ try {
       printBackground: true,
       preferCSSPageSize: true,
     });
-    console.log(`render-pdf: wrote public/pdf/deck-deck-${lang}.pdf`);
+    console.log(`render-pdf: wrote public/pdf/${name}`);
   }
   await browser.close();
 } catch (error) {
