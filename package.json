@@ -25,8 +25,6 @@
   },
   "dependencies": {
     "@phosphor-icons/react": "2.1.10",
-    "@radix-ui/react-dropdown-menu": "2.2.1",
-    "@radix-ui/react-radio-group": "1.5.1",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "lucide-react": "1.18.0",
@@ -37,7 +35,6 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
-    "@material-symbols/svg-400": "0.48.2",
     "@playwright/test": "1.64.1",
     "@sparticuz/chromium": "153.0.0",
     "@tailwindcss/postcss": "4.3.0",

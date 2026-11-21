@@ -19,11 +19,13 @@ specs/
 
 # Carried as is; changes listed in docs/carried.
 src/motion/
-src/_origin-temp/
 src/app/
 src/deck/*
 !src/deck/slides.ts
 !src/deck/langs.ts
+!src/deck/icon.tsx
+!src/deck/menu-dropdown.tsx
+!src/deck/text.tsx
 src/gate/
 src/boot/
 scripts/render-pdf.mjs
