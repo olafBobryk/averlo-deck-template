@@ -1,6 +1,9 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { config } from "../src/brand/config";
+import { brandName } from "../src/brand/name";
 import { langs } from "../src/deck/langs";
+import { ui } from "../src/deck/model";
 import { slides } from "../src/deck/slides";
 
 // Every control is reachable by keyboard
@@ -363,6 +366,15 @@ test.describe("keyboard", () => {
     const N = slides.length;
     const pad = (n: number) => String(n).padStart(2, "0");
     await openDeck(page, 3);
+    // The top bar comes first, where it shows (it is hidden on phones): its
+    // brand link and its step label.
+    if (await page.locator(".aq header.top").isVisible()) {
+      const [brand, step] = await tabThrough(page, 2);
+      expect(brand.name).toBe(
+        `${brandName(config.brand)}: ${ui.firstSlide[langs[0]]}`,
+      );
+      expect(step.name).toBe(ui.goSlide[langs[0]].replace("{count}", "3"));
+    }
     const [button] = await tabThrough(page, 1);
     expect(button.name).toBe("Menu");
     await page.keyboard.press("Enter");

@@ -72,6 +72,15 @@ async function sampleStep(page: Page, key: string, ms = 900) {
     };
     w.__frames = [];
     w.__sampled = false;
+    // The top bar's resting opacities, before the step: its surface waits
+    // for a scroll and its mound's label for a hover, at 0. Holding them is
+    // not dimming; changing them during the step would be.
+    const rest = new Map(
+      [...document.querySelectorAll<HTMLElement>(".aq *")].map((element) => [
+        element,
+        getComputedStyle(element).opacity,
+      ]),
+    );
     let t0 = -1;
     addEventListener("keydown", () => (t0 = performance.now()), {
       capture: true,
@@ -119,7 +128,8 @@ async function sampleStep(page: Page, key: string, ms = 900) {
         if (
           Number(own.opacity) < 1 &&
           !(entering && entering.contains(element)) &&
-          own.visibility !== "hidden"
+          own.visibility !== "hidden" &&
+          rest.get(element) !== own.opacity
         )
           dimmed.push(`${element.tagName}.${element.className}`);
       }

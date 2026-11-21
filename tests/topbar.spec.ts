@@ -14,6 +14,9 @@ import {
 
 // The top bar (User Story 2, scenario 3; FR-005, FR-012, FR-013; T028).
 // Runs at 390 and 1440 (the two projects) against the local production build.
+// On phones (390) the bar is hidden and the slides take the whole stage
+// (owner, spec "During P4"): there only that and the footer are checked; the
+// bar's own checks and its parity run at 1440.
 //
 // The bar is the questionnaire's whole top, ported as it is (research R4):
 // its header band (`header.top[data-site-header]`: brand on the left,
@@ -42,6 +45,16 @@ import {
 
 const TOTAL = slides.length;
 const reference = findReference();
+
+/** On phones the bar is hidden: under about 480 px wide or 500 px tall
+ *  (owner, spec "During P4": "on small screens its not neccesary can be
+ *  removed"). The bar's own checks run where it shows, at 1440. */
+const phone = ({
+  viewport,
+}: {
+  viewport: { width: number; height: number } | null;
+}) => !viewport || viewport.width <= 480 || viewport.height <= 500;
+const onPhones = "the top bar is hidden on phones (spec, During P4)";
 
 /** Open the deck at `query` with the intro already played this session, and
  *  wait until the hard-load screen has lifted and the page has arrived. */
@@ -126,98 +139,143 @@ async function dragTrack(page: Page, from: number, to: number, total: number) {
   await cdp.detach();
 }
 
-// ---------------------------------------------------------------- the bar ---
+test.describe("where the bar shows", () => {
+  test.skip(phone, onPhones);
 
-test("the bar spans the full width at the top of every slide, with the stage below it", async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await openDeck(page, "s=1");
-  for (let n = 1; n <= TOTAL; n++) {
-    if (n > 1) await page.keyboard.press("ArrowRight");
-    await expectSlide(page, n);
-    const header = page.locator(bar.header);
-    await expect(header, `slide ${n}: the header band`).toHaveCount(1);
-    await expect(header).toBeVisible();
-    const layout = await page.evaluate((selectors) => {
-      const header = document.querySelector(selectors.header)!;
-      const wrapper = header.closest(".aq");
-      const track = document.querySelector(selectors.track);
-      const slide = document.querySelector("main:not([aria-hidden])")!;
-      const h = header.getBoundingClientRect();
-      const t = track?.getBoundingClientRect();
-      const hit = document.elementFromPoint(innerWidth / 2, h.top + 2);
-      return {
-        viewport: innerWidth,
-        wrapped: !!wrapper,
-        header: { left: h.left, top: h.top, width: h.width, bottom: h.bottom },
-        trackBottom: t ? t.bottom : null,
-        slideTop: slide.getBoundingClientRect().top,
-        onTop: !!hit && !!wrapper?.contains(hit),
-      };
-    }, bar);
-    expect(layout.wrapped, `slide ${n}: the bar is inside .aq`).toBe(true);
-    expect(layout.header.left, `slide ${n}: left edge`).toBeCloseTo(0, 0);
-    expect(layout.header.top, `slide ${n}: top edge`).toBeCloseTo(0, 0);
-    expect(layout.header.width, `slide ${n}: full width`).toBeCloseTo(
-      layout.viewport,
-      0,
-    );
-    expect(layout.onTop, `slide ${n}: nothing covers the bar`).toBe(true);
-    expect(layout.trackBottom, `slide ${n}: the navigator`).not.toBeNull();
-    const bottom = Math.max(layout.header.bottom, layout.trackBottom!);
-    expect(
-      layout.slideTop,
-      `slide ${n}: the stage starts below the bar (${bottom} px)`,
-    ).toBeGreaterThanOrEqual(bottom - 0.5);
-  }
-});
+  // ---------------------------------------------------------------- the bar ---
 
-// ---------------------------------------------------------- the navigator ---
-
-test("pressing the navigator's step track jumps to that slide, and ?s= follows", async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await openDeck(page, "s=1");
-  const forward = Math.ceil(TOTAL / 2) + 1;
-  const back = 2;
-  await pressTrack(page, forward, TOTAL);
-  await expectSlide(page, forward);
-  await pressTrack(page, back, TOTAL);
-  await expectSlide(page, back);
-});
-
-test.describe("on a touch screen", () => {
-  test.use({ hasTouch: true });
-
-  test("dragging the navigator's step track jumps to the slide where it lets go, and ?s= follows", async ({
+  test("the bar spans the full width at the top of every slide, with the stage below it", async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await openDeck(page, "s=1");
-    const to = TOTAL - 1;
-    await dragTrack(page, 2, to, TOTAL);
+    for (let n = 1; n <= TOTAL; n++) {
+      if (n > 1) await page.keyboard.press("ArrowRight");
+      await expectSlide(page, n);
+      const header = page.locator(bar.header);
+      await expect(header, `slide ${n}: the header band`).toHaveCount(1);
+      await expect(header).toBeVisible();
+      const layout = await page.evaluate((selectors) => {
+        const header = document.querySelector(selectors.header)!;
+        const wrapper = header.closest(".aq");
+        const track = document.querySelector(selectors.track);
+        const slide = document.querySelector("main:not([aria-hidden])")!;
+        const h = header.getBoundingClientRect();
+        const t = track?.getBoundingClientRect();
+        const hit = document.elementFromPoint(innerWidth / 2, h.top + 2);
+        return {
+          viewport: innerWidth,
+          wrapped: !!wrapper,
+          header: {
+            left: h.left,
+            top: h.top,
+            width: h.width,
+            bottom: h.bottom,
+          },
+          trackBottom: t ? t.bottom : null,
+          slideTop: slide.getBoundingClientRect().top,
+          onTop: !!hit && !!wrapper?.contains(hit),
+        };
+      }, bar);
+      expect(layout.wrapped, `slide ${n}: the bar is inside .aq`).toBe(true);
+      expect(layout.header.left, `slide ${n}: left edge`).toBeCloseTo(0, 0);
+      expect(layout.header.top, `slide ${n}: top edge`).toBeCloseTo(0, 0);
+      expect(layout.header.width, `slide ${n}: full width`).toBeCloseTo(
+        layout.viewport,
+        0,
+      );
+      expect(layout.onTop, `slide ${n}: nothing covers the bar`).toBe(true);
+      expect(layout.trackBottom, `slide ${n}: the navigator`).not.toBeNull();
+      const bottom = Math.max(layout.header.bottom, layout.trackBottom!);
+      expect(
+        layout.slideTop,
+        `slide ${n}: the stage starts below the bar (${bottom} px)`,
+      ).toBeGreaterThanOrEqual(bottom - 0.5);
+    }
+  });
+
+  // ---------------------------------------------------------- the navigator ---
+
+  test("pressing the navigator's step track jumps to that slide, and ?s= follows", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openDeck(page, "s=1");
+    const forward = Math.ceil(TOTAL / 2) + 1;
+    const back = 2;
+    await pressTrack(page, forward, TOTAL);
+    await expectSlide(page, forward);
+    await pressTrack(page, back, TOTAL);
+    await expectSlide(page, back);
+  });
+
+  test.describe("on a touch screen", () => {
+    test.use({ hasTouch: true });
+
+    test("dragging the navigator's step track jumps to the slide where it lets go, and ?s= follows", async ({
+      page,
+    }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await openDeck(page, "s=1");
+      const to = TOTAL - 1;
+      await dragTrack(page, 2, to, TOTAL);
+      await expectSlide(page, to);
+      await dragTrack(page, to, 3, TOTAL);
+      await expectSlide(page, 3);
+    });
+  });
+
+  test("the step label takes a slide number and jumps to it", async ({
+    page,
+  }) => {
+    await openDeck(page, "s=1");
+    const to = TOTAL - 2;
+    const button = page.locator(`${bar.label} .step-jump-button`);
+    await expect(button, "the step label's button").toBeVisible();
+    await button.click();
+    const input = page.locator(`${bar.label} .step-jump-input`);
+    await expect(input).toBeFocused();
+    await input.fill(String(to));
+    await input.press("Enter");
     await expectSlide(page, to);
-    await dragTrack(page, to, 3, TOTAL);
-    await expectSlide(page, 3);
+    await expect(page.locator(bar.label)).toHaveText(`${to} / ${TOTAL}`);
   });
 });
 
-test("the step label takes a slide number and jumps to it", async ({
+// ------------------------------------------------------------- on a phone ---
+
+test("on a phone the bar is hidden and the slides take the whole stage", async ({
   page,
-}) => {
-  await openDeck(page, "s=1");
-  const to = TOTAL - 2;
-  const button = page.locator(`${bar.label} .step-jump-button`);
-  await expect(button, "the step label's button").toBeVisible();
-  await button.click();
-  const input = page.locator(`${bar.label} .step-jump-input`);
-  await expect(input).toBeFocused();
-  await input.fill(String(to));
-  await input.press("Enter");
-  await expectSlide(page, to);
-  await expect(page.locator(bar.label)).toHaveText(`${to} / ${TOTAL}`);
+}, info) => {
+  test.skip(
+    !phone({ viewport: info.project.use.viewport ?? null }),
+    "the bar shows here",
+  );
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await openDeck(page, "s=2");
+  const check = async (at: string) => {
+    await expect(page.locator(".aq"), `${at}: the wrapper`).toHaveCount(1);
+    await expect(
+      page.locator(bar.header),
+      `${at}: the header band`,
+    ).toBeHidden();
+    await expect(
+      page.locator(bar.navigator),
+      `${at}: the navigator`,
+    ).toBeHidden();
+    const top = await page
+      .locator("main:not([aria-hidden])")
+      .evaluate((main) => main.getBoundingClientRect().top);
+    expect(top, `${at}: the stage starts at the top`).toBeCloseTo(0, 0);
+    await expect(
+      page.locator("footer [data-progress]"),
+      `${at}: the footer's progress bar`,
+    ).toBeVisible();
+  };
+  await check("portrait");
+  // A phone on its side: under about 500 px tall.
+  await page.setViewportSize({ width: 844, height: 390 });
+  await check("844×390");
 });
 
 // ------------------------------------------------------------- the footer ---
@@ -312,9 +370,10 @@ test("the footer keeps its progress indicator and parts, with no divider line", 
 
 // -------------------------------------------------- brand slot and wordmark ---
 
-test("the brand slot shows the Averlo logo and the footer wordmark reads Averlo (default brand, FR-005)", async ({
+test("the brand slot shows the Averlo logo (default brand, FR-005)", async ({
   page,
 }, info) => {
+  test.skip(phone({ viewport: info.project.use.viewport ?? null }), onPhones);
   await openDeck(page, "s=1");
   const brand = page.locator(`${bar.header} .brand`);
   await expect(brand).toHaveCount(1);
@@ -324,7 +383,12 @@ test("the brand slot shows the Averlo logo and the footer wordmark reads Averlo 
   await expect(logo.locator("svg[viewBox='0 0 40 42'] path")).toHaveCount(1);
   // Not the "your logo" placeholder.
   await expect(brand.locator("img[src*='your-logo']")).toHaveCount(0);
+});
 
+test("the footer wordmark reads Averlo (default brand, FR-005)", async ({
+  page,
+}, info) => {
+  await openDeck(page, "s=1");
   const footer = page.locator("footer:has([data-progress])");
   const wordmark = footer.getByText("Averlo", { exact: true });
   await expect(wordmark).toHaveCount(1);
@@ -357,7 +421,8 @@ test.fixme("brand owner without a logo: placeholder mark plus the name as text (
 
 test("the bar's text is set in Inter, through the wrapper's font override", async ({
   page,
-}) => {
+}, info) => {
+  test.skip(phone({ viewport: info.project.use.viewport ?? null }), onPhones);
   await openDeck(page, "s=1");
   await expect(page.locator(bar.header)).toHaveCount(1);
   const font = await page.evaluate(async (selectors) => {
@@ -511,6 +576,19 @@ async function openReference(browser: Browser, info: TestInfo, url: string) {
   return page;
 }
 
+/** The deck has no Review (owner: "Remove it, adjust parity"): its button
+ *  and caption are removed from the reference's step row before boxes and
+ *  pixels are compared, so both sides lay out without them. */
+async function dropReview(ref: Page) {
+  await ref.evaluate(() =>
+    document
+      .querySelectorAll(
+        ".aq .topline [data-progress-review-action], .aq .progress-caption-review",
+      )
+      .forEach((element) => element.remove()),
+  );
+}
+
 async function measure(page: Page) {
   return page.evaluate(
     ({ boxes, variables, header }) => {
@@ -575,6 +653,7 @@ async function pixelDifference(page: Page, a: Buffer, b: Buffer) {
 }
 
 test.describe("parity with the questionnaire's own top", () => {
+  test.skip(phone, onPhones);
   test.skip(
     !reference.available,
     `not run — ${reference.available ? "" : reference.reason}`,
@@ -648,6 +727,7 @@ test.describe("parity with the questionnaire's own top", () => {
     browser,
   }, info) => {
     const ref = await openReference(browser, info, url);
+    await dropReview(ref);
     await page.emulateMedia({ reducedMotion: "reduce" });
     await openDeck(page, "s=1");
     const [deck, theirs] = [await measure(page), await measure(ref)];
@@ -670,6 +750,7 @@ test.describe("parity with the questionnaire's own top", () => {
     browser,
   }, info) => {
     const ref = await openReference(browser, info, url);
+    await dropReview(ref);
     await page.emulateMedia({ reducedMotion: "reduce" });
     await openDeck(page, "s=1");
     await expect(page.locator(bar.track)).toHaveCount(1);
