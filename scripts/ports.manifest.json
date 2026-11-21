@@ -1,0 +1,126 @@
+{
+  "$comment": [
+    "The Averlo ports (research R3; the procedure is process/workflows.md, 'Port the design system').",
+    "scripts/port-averlo.mjs copies each entry with its whole import closure from <PORT_SOURCES_DIR>/<repo> at <commit>, unchanged, to the same path relative to src/ under targetRoot, and records it in scripts/ports.lock.json and docs/design-source.md.",
+    "exclude: files never copied even when the closure reaches them (licence forbids redistribution). templateOwned: paths a port may never write.",
+    "driftTest: false turns off npm run check:ports (for a deck that changes its ports)."
+  ],
+  "driftTest": true,
+  "templateOwned": [
+    "src/app/",
+    "src/deck/",
+    "src/gate/",
+    "src/boot/",
+    "src/motion/",
+    "src/brand/",
+    "src/styles/",
+    "src/_origin-temp/"
+  ],
+  "sources": [
+    {
+      "repo": "averlo-web-transition",
+      "commit": "cfa3d61",
+      "targetRoot": "src",
+      "entries": [
+        {
+          "source": "src/components/ui/foundations/focus.ts",
+          "target": "src/components/ui/foundations/focus.ts"
+        },
+        {
+          "source": "src/components/ui/foundations/library.css",
+          "target": "src/components/ui/foundations/library.css"
+        },
+        {
+          "source": "src/components/ui/foundations/iconAnimations.css",
+          "target": "src/components/ui/foundations/iconAnimations.css"
+        },
+        {
+          "source": "src/components/ui/foundations/motionTiming.ts",
+          "target": "src/components/ui/foundations/motionTiming.ts"
+        },
+        {
+          "source": "src/components/ui/foundations/spring.ts",
+          "target": "src/components/ui/foundations/spring.ts"
+        },
+        {
+          "source": "src/components/ui/foundations/motionDisableOverride.ts",
+          "target": "src/components/ui/foundations/motionDisableOverride.ts"
+        },
+        {
+          "source": "src/components/ui/foundations/settingsContext.tsx",
+          "target": "src/components/ui/foundations/settingsContext.tsx"
+        },
+        {
+          "source": "src/components/ui/foundations/appearance.ts",
+          "target": "src/components/ui/foundations/appearance.ts"
+        },
+        {
+          "source": "src/components/ui/foundations/MotionProvider.tsx",
+          "target": "src/components/ui/foundations/MotionProvider.tsx"
+        },
+        {
+          "source": "src/components/ui/foundations/motionDriverContext.tsx",
+          "target": "src/components/ui/foundations/motionDriverContext.tsx"
+        },
+        {
+          "source": "src/components/ui/primitives/Button.tsx",
+          "target": "src/components/ui/primitives/Button.tsx"
+        },
+        {
+          "source": "src/components/ui/primitives/Text.tsx",
+          "target": "src/components/ui/primitives/Text.tsx"
+        },
+        {
+          "source": "src/components/ui/primitives/Panel.tsx",
+          "target": "src/components/ui/primitives/Panel.tsx"
+        },
+        {
+          "source": "src/components/ui/primitives/Dropdown.tsx",
+          "target": "src/components/ui/primitives/Dropdown.tsx"
+        },
+        {
+          "source": "src/components/ui/primitives/Listbox.tsx",
+          "target": "src/components/ui/primitives/Listbox.tsx"
+        },
+        {
+          "source": "src/components/ui/primitives/dropdownStyles.ts",
+          "target": "src/components/ui/primitives/dropdownStyles.ts"
+        },
+        {
+          "source": "src/components/ui/overlays/Portal.tsx",
+          "target": "src/components/ui/overlays/Portal.tsx"
+        },
+        {
+          "source": "src/components/ui/icons/Icon.tsx",
+          "target": "src/components/ui/icons/Icon.tsx"
+        },
+        {
+          "source": "src/components/ui/helpers/IconSwap.tsx",
+          "target": "src/components/ui/helpers/IconSwap.tsx"
+        },
+        {
+          "source": "src/components/branding/Logo.tsx",
+          "target": "src/components/branding/Logo.tsx"
+        }
+      ],
+      "exclude": [
+        {
+          "path": "src/font/sf-pro-display/**",
+          "reason": "SF Pro Display font files: Apple's font licence does not allow redistribution"
+        }
+      ]
+    },
+    {
+      "repo": "averlo-next-template",
+      "commit": "dc3b01d",
+      "targetRoot": "src",
+      "entries": [
+        {
+          "source": "src/font/index.ts",
+          "target": "src/font/index.ts"
+        }
+      ],
+      "exclude": []
+    }
+  ]
+}
