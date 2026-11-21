@@ -53,6 +53,18 @@
 - Q: The licence of the ported code and of the Averlo mark? → A: "MIT; mark excluded". The ported code is published under this repository's MIT licence. The Averlo name and mark are brand assets, shown as the default placeholder but not licensed for reuse, and the LICENSE says so.
 - Q: How do the approved spec, plan and tasks reach `main`? → A: "In the setup push". They are part of the one-time setup push, and P0 branches from `main`.
 
+- During implementation, the owner answered the P1 open questions:
+  - Q: The origin has no slide overflow report in development. → A: "Add a dev reporter": a template-owned, development-only console warning naming the slide.
+  - Q: Four motion strips start earlier on the light placeholder deck. → A: "Ignore start latency": the strip diff compares each motion's shape and the stagger between a strip's parts, not the time from the input to the first frame.
+  - Q: The org block's ledger style, removed with the Ledger component? → A: drop it, as a visual style of the origin's.
+  - Q: The carried PDF script leaves its server running. → A: "Allow one-line fix", listed as a row.
+  - Q: The footer "divider" of FR-013? → A: "Nothing to remove": the carried footer has none; FR-013 is met.
+- During P3, the owner answered:
+  - Q: The Averlo menu button and controls change the menu morph's start box. → A: "Keep origin geometry": the Averlo buttons are sized to the origin's boxes by template-owned classes, so the menu strips keep their baseline.
+  - Q: The phone menu footer is cramped. → A: "Icon-only on phones": below about 480 px, Previous, Next and Fullscreen show only their icons, keeping their accessible names.
+  - Q: A strip lands just outside tolerance about one run in three. → A: "Retry once, report it": a failing strip is re-run once; a pass on retry counts as passed and is listed as flaky in the gate report.
+  - Q: The menu's slide list. → A: "I don't like the list": every slide is the same ghost button; a section's slides are indented under it, and the section's own row gets a chevron and doubles as an accordion. Only the current section is open when the menu opens. Only the popup's list changes; the expanded overview stays.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Start a new deck from the template (Priority: P1)

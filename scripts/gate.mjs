@@ -309,13 +309,31 @@ async function runCheck(check, { cwd, env, output, logDir }) {
       output,
       log,
     });
-    if (code === 0) return { ...base, status: "passed", reason: null };
+    if (code === 0)
+      return { ...base, status: "passed", reason: flakyReason(tail) };
     if (code === NOT_RUN_EXIT) return notRun(notRunReason(tail));
     return failed(`exit code ${code}`);
   } finally {
     for (const server of servers.reverse()) await server.stop();
     log?.end();
   }
+}
+
+/**
+ * Playwright's summary lists tests that passed only on a retry under
+ * "N flaky" (owner: "Retry once, report it"). Returns that as a note, or null.
+ */
+function flakyReason(tail) {
+  const at = tail.findIndex((line) => /^\s*\d+ flaky\s*$/.test(line));
+  if (at < 0) return null;
+  const count = tail[at].trim().split(" ")[0];
+  const names = [];
+  for (const line of tail.slice(at + 1)) {
+    const match = /^\s+(\[[^\]]+\]) › .*? › (.+?)\s*$/.exec(line);
+    if (!match) break;
+    names.push(`${match[1]} ${match[2]}`);
+  }
+  return `${count} flaky (passed on retry): ${names.join(", ")}`;
 }
 
 export function exitCode(results) {

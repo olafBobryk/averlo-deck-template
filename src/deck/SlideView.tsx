@@ -1,7 +1,7 @@
 "use client";
 import { HeadingText } from "@/motion/page-header/heading-text";
 import { PageSection } from "@/motion/route-transition";
-import { Text } from "@/_origin-temp/ui/primitives/text/Text";
+import { Text } from "./text";
 import { slideContent, type Headline } from "./content";
 import { BlockView, holdsGlass, say } from "./SlideBody";
 import type { Lang } from "./langs";

@@ -22,15 +22,16 @@ import {
   useMotionTokens,
   type MotionTokens,
 } from "@/motion/motion";
-import { Button } from "@/_origin-temp/ui/primitives/button/Button";
-import { Icon } from "@/_origin-temp/ui/primitives/icon/Icon";
-import { IconButton } from "@/_origin-temp/ui/primitives/icon-button/IconButton";
-import { SegmentedControl } from "@/_origin-temp/ui/primitives/segmented-control/SegmentedControl";
+import { Button } from "@/components/ui/primitives/Button";
+import { DeckIcon } from "./icon";
+import { MenuDropdown } from "./menu-dropdown";
 import { morph, type Box } from "@/motion/popup-motion";
 import { Downloads, Overview } from "./Overview";
 import { langs, type Lang } from "./langs";
 import { ui } from "./model";
 import styles from "./menu.module.css";
+import controls from "./menu-controls.module.css";
+import { SlideList } from "./slide-list";
 import { useDeck } from "./version";
 
 /** Contract between the deck and the menu: the props and the html
@@ -238,19 +239,21 @@ export function MenuCard({
 
   return (
     <>
-      <IconButton
+      <Button
         ref={button}
-        label={ui.menu[lang]}
+        variant="outline"
+        size="icon-sm"
+        aria-label={ui.menu[lang]}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className={styles.trigger}
+        className={`${styles.trigger} ${controls.trigger}`}
         // Out of sight while the card it opens is up; the card fades it back
         // in as it closes.
         data-covered={present || undefined}
         onClick={() => ask((current) => (current === null ? "popup" : null))}
       >
-        <Icon name="more_horiz" />
-      </IconButton>
+        <DeckIcon name="ellipsis" />
+      </Button>
       {present &&
         home &&
         createPortal(
@@ -486,30 +489,52 @@ function Card({
         wordings={expanded ? ui.overview[lang] : ui.menu[lang]}
         className={styles.title}
       />
-      {/* The language, as tall as the buttons beside it. */}
-      <div className={styles.headerLanguage}>
-        <SegmentedControl
-          aria-label={ui.language[lang]}
-          value={lang}
-          onValueChange={(value) => onLang(value as Lang)}
-        >
-          {langs.map((option) => (
-            <SegmentedControl.Item key={option} value={option}>
-              {option.toUpperCase()}
-            </SegmentedControl.Item>
-          ))}
-        </SegmentedControl>
-      </div>
-      <IconButton
-        label={expanded ? ui.minimize[lang] : ui.expand[lang]}
-        tone="default"
+      {/* The language, where the deck has more than one. */}
+      {langs.length > 1 && (
+        <div className={styles.headerLanguage}>
+          <MenuDropdown
+            kind="listbox"
+            align="end"
+            options={langs.map((option) => ({
+              key: option,
+              value: option,
+              selected: option === lang,
+              content: option.toUpperCase(),
+            }))}
+            onChoose={(option) => onLang(option.value)}
+            trigger={({ isOpen, toggleMenu, caretIcon, ref }) => (
+              <Button
+                ref={ref}
+                variant="outline"
+                size="sm"
+                aria-label={`${ui.language[lang]}: ${lang.toUpperCase()}`}
+                aria-haspopup="listbox"
+                aria-expanded={isOpen}
+                trailingIcon={caretIcon}
+                onClick={toggleMenu}
+              >
+                {lang.toUpperCase()}
+              </Button>
+            )}
+          />
+        </div>
+      )}
+      <Button
+        variant="outline"
+        size="icon-sm"
+        aria-label={expanded ? ui.minimize[lang] : ui.expand[lang]}
         onClick={() => onView(expanded ? "popup" : "expanded")}
       >
-        <Icon name={expanded ? "close_fullscreen" : "open_in_full"} size={16} />
-      </IconButton>
-      <IconButton label={ui.close[lang]} tone="default" onClick={onClose}>
-        <Icon name="close" size={16} />
-      </IconButton>
+        <DeckIcon name={expanded ? "minimize" : "maximize"} />
+      </Button>
+      <Button
+        variant="outline"
+        size="icon-sm"
+        aria-label={ui.close[lang]}
+        onClick={onClose}
+      >
+        <DeckIcon name="close" />
+      </Button>
     </header>
   );
 
@@ -554,35 +579,55 @@ function Card({
             than the popup's: while the row travels out of the button at the
             button's width, its controls stand where they will rest and the
             card's edge clips them. */}
-        <div className={styles.line} style={{ minWidth: line }}>
+        <div
+          className={`${styles.line} ${controls.line}`}
+          style={{ minWidth: line }}
+        >
           {/* At an end, a control keeps its look at a muted opacity instead
             of Button's disabled fill. */}
           <Button
+            variant="outline"
             size="sm"
-            leadingIcon={<Icon name="chevron_left" />}
+            leadingIcon={<DeckIcon name="chevron-left" />}
             aria-disabled={index === 0 || undefined}
-            className={index === 0 ? styles.unavailable : undefined}
+            className={
+              index === 0
+                ? `${styles.unavailable} ${controls.iconOnly} !shrink`
+                : `${controls.iconOnly} !shrink`
+            }
             onClick={() => index > 0 && onGo(index - 1)}
           >
             {ui.previous[lang]}
           </Button>
           <Button
+            variant="outline"
             size="sm"
-            trailingIcon={<Icon name="chevron_right" />}
+            trailingIcon={<DeckIcon name="chevron-right" />}
             aria-disabled={index === slides.length - 1 || undefined}
             className={
-              index === slides.length - 1 ? styles.unavailable : undefined
+              index === slides.length - 1
+                ? `${styles.unavailable} ${controls.iconOnly} !shrink`
+                : `${controls.iconOnly} !shrink`
             }
             onClick={() => index < slides.length - 1 && onGo(index + 1)}
           >
             {ui.next[lang]}
           </Button>
           {canFullscreen && (
-            <Button size="sm" aria-pressed={fullscreen} onClick={onFullscreen}>
+            <Button
+              variant="outline"
+              size="sm"
+              aria-pressed={fullscreen}
+              leadingIcon={
+                <DeckIcon name="fullscreen" className={controls.phoneIcon} />
+              }
+              className={controls.iconOnly}
+              onClick={onFullscreen}
+            >
               {ui.fullscreen[lang]} <kbd className={styles.key}>F</kbd>
             </Button>
           )}
-          <Downloads lang={lang} align="end" side="top" />
+          <Downloads lang={lang} align="end" />
         </div>
       </div>
     </motion.div>
@@ -721,29 +766,6 @@ function Menu({
 }) {
   const { slides } = useDeck();
   return (
-    <ol
-      data-menu-slides=""
-      className={styles.list}
-      aria-label={ui.slides[lang]}
-    >
-      {slides.map((slide, i) => (
-        <li key={slide.id}>
-          <Button
-            variant="ghost"
-            align="start"
-            size="sm"
-            className={styles.slideItem}
-            data-sub={slide.parent ? "" : undefined}
-            aria-current={i === index || undefined}
-            onClick={() => onChoose(i)}
-          >
-            <span className={styles.number}>
-              {String(i + 1).padStart(2, "0")}
-            </span>
-            {slide.title[lang]}
-          </Button>
-        </li>
-      ))}
-    </ol>
+    <SlideList slides={slides} index={index} lang={lang} onChoose={onChoose} />
   );
 }

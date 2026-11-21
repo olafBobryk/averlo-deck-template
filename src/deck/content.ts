@@ -1,7 +1,7 @@
 // The slides' content types. Each slide's content is kept in a map keyed by
 // slide id (the template's is in slides.ts) and read through `slideContent`.
 
-import type { IconName } from "@/_origin-temp/ui/primitives/icon/Icon";
+import type { IconName } from "@/components/ui/icons/Icon";
 import type { Text } from "./model";
 import { content } from "./slides";
 
@@ -43,9 +43,8 @@ export type Block =
   | { type: "steps"; items: Step[]; style?: "rail" | "nodes" }
   | { type: "facts"; items: Fact[] }
   | { type: "note"; item: Item }
-  /** One node over the roles that report to it; `ledger`: the team's name
-   *  over one row per role, what each owns as chips, a spine joining them. */
-  | { type: "org"; root: Point; items: Point[]; style?: "tree" | "ledger" }
+  /** One node over the roles that report to it. */
+  | { type: "org"; root: Point; items: Point[]; style?: "tree" }
   /** One stage branching into options. */
   | { type: "fork"; root: Point; items: Point[] }
   /** A working week with its fixed moments. */

@@ -12,10 +12,8 @@ import { slides } from "../src/deck/slides";
 // server on DEV_PORT (default 3196) beside the smoke suite's production
 // server, and stops it after. Desktop project only: one dev server per run.
 
-// Waiting on the owner: the origin deck has no slide overflow report, so
-// this check needs a new dev-only reporter (open question in the P1 PR).
-// Until it is answered, the development check is marked fixme.
-const awaitingOwner = true;
+// The development report is the template-owned `src/deck/OverflowReport.tsx`
+// (owner, 2026-11-21: "Add a dev reporter").
 
 const port = Number(process.env.DEV_PORT ?? 3196);
 const dev = `http://127.0.0.1:${port}`;
@@ -39,10 +37,20 @@ async function waitFor(url: string, ms: number) {
 }
 
 test.beforeAll(async ({}, info) => {
-  if (awaitingOwner || info.project.name !== "desktop") return;
+  if (info.project.name !== "desktop") return;
   test.setTimeout(300_000);
   const env: Record<string, string | undefined> = { ...process.env };
   delete env.NODE_ENV;
+  // When it detects an AI agent, `next dev` writes agent notes into the
+  // repository's AGENTS.md; the dev server here is a test fixture, not an
+  // agent's session.
+  for (const key of Object.keys(env))
+    if (
+      /^(AI_AGENT|CLAUDE|CODEX|CURSOR|GEMINI|COPILOT|GITHUB_COPILOT|AUGMENT|ANTIGRAVITY|OPENCODE|DEVIN|REPL|COWORK)/.test(
+        key,
+      )
+    )
+      delete env[key];
   server = spawn(
     "npx",
     ["next", "dev", "--hostname", "127.0.0.1", "--port", String(port)],
@@ -115,7 +123,6 @@ async function overfill(page: Page) {
 test("an over-long placeholder reports its overflow in development", async ({
   page,
 }, info) => {
-  test.fixme(awaitingOwner, "open question: the dev overflow report");
   test.skip(info.project.name !== "desktop", "one dev server, desktop only");
   test.setTimeout(120_000);
   expect(S, "a slide with a headline").toBeGreaterThan(0);

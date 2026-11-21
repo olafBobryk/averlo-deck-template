@@ -28,6 +28,7 @@ export const ui = {
   language: { en: "Language" },
   controls: { en: "Controls" },
   slides: { en: "Slides" },
+  sectionSlides: { en: "Slides in section" },
   downloads: { en: "Downloads" },
   download: { en: "Download" },
   previous: { en: "Previous" },

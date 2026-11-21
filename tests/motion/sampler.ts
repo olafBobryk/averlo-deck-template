@@ -935,6 +935,9 @@ export function diff(strip: Strip, baseline: Baseline, drawn: Run): string[] {
   const timing = (recorded: number) => round(recorded - base.ms + frame);
   const timingRule = (recorded: number) =>
     `± ${timing(recorded)} ms (spread ${round(recorded - base.ms)} + this run's frame ${frame})`;
+  let first:
+    | { name: string; latency: number; expected: number; recorded: number }
+    | undefined;
   for (const [name, group] of Object.entries(strip.groups)) {
     const keys = Object.keys(group.values);
     const onset = baseline.events[`onset.${name}`];
@@ -954,13 +957,23 @@ export function diff(strip: Strip, baseline: Baseline, drawn: Run): string[] {
         k in f.values ? f.values[k] : undefined,
       );
     const at = fit(run, group.values, reference, times, 0, span);
+    // The time from the input to a motion's first frame follows the deck's
+    // content, so it is not compared (owner, 2026-11-21). Each group's start
+    // relative to the strip's first group is: that keeps the stagger and the
+    // order between a strip's parts.
     const latency = round(at - drawn.zero);
     const expected = baseline.events[`latency.${name}`]!;
     const recorded = baseline.tolerance[`latency.${name}`];
-    if (round(Math.abs(latency - expected)) > timing(recorded))
-      failures.push(
-        `${where}: latency.${name} ${latency} ms, baseline ${expected} ${timingRule(recorded)}`,
-      );
+    if (!first) first = { name, latency, expected, recorded };
+    else {
+      const shift = round(latency - first.latency);
+      const want = round(expected - first.expected);
+      const allowed = round(timing(recorded) + (first.recorded - base.ms));
+      if (round(Math.abs(shift - want)) > allowed)
+        failures.push(
+          `${where}: ${name} starts ${shift} ms after ${first.name}, baseline ${want} ± ${allowed} ms`,
+        );
+    }
     const curve = resample(run, keys, times, 0, at, group.clock);
     for (const [k, unit] of Object.entries(group.values)) {
       const tolerance = baseline.tolerance[k];

@@ -1,0 +1,62 @@
+/* The menu button and the menu footer's controls row, at the origin deck's
+   boxes (owner: "Keep origin geometry"), so the menu's open and close keep
+   their recorded strips: the morph starts from the button's box, and the
+   controls row travels out of it. Template-owned classes on the composed
+   Averlo Buttons; unlayered, so they outrank the Button's size utilities.
+
+   The origin's boxes, measured in its build: the menu button 34 x 34; each
+   control 29.6 tall, 6 by 10 padding inside a 1 px border, a 12 px icon 6
+   from a 12 px / 1.3 label (weight 500), so at 1440 Previous, Next,
+   Fullscreen and Download are 93, 68, 98 and 100 wide. */
+.trigger.trigger {
+  width: 34px;
+  height: 34px;
+  /* Focus comes back to the button as the card closes. The browser's own
+     focus outline (drawn by no one: Button's focus-visible sets no outline
+     style) would change its colour, and Button's colour transition would
+     run on it from the close's first frame, under the button's own fade
+     back in. Pinned, nothing on the button moves but that fade. */
+  outline-color: currentColor;
+}
+
+.line button {
+  /* At least a label's line tall, so an icon alone (a phone) keeps the
+     row's height. */
+  height: auto;
+  min-height: calc(12px * 1.3 + 2 * 6px + 2px);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  --button-content-gap: 6px;
+}
+.line button svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* An icon only a phone draws (Fullscreen's). */
+.phoneIcon {
+  display: none;
+}
+
+/* On a phone, Previous, Next and Fullscreen show their icons alone (owner:
+   "Icon-only on phones"); their names stay, read from the hidden labels.
+   Download already keeps only its icon there (menu.module.css). No gap is
+   left beside a hidden label, so every control is its icon's pill. */
+@media (max-width: 480px) {
+  .line button {
+    --button-content-gap: 0px;
+  }
+  .phoneIcon {
+    display: block;
+  }
+  .iconOnly > span > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

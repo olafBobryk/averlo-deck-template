@@ -1,0 +1,8 @@
+/* The deck's type: Inter, loaded by next/font through the ported
+   src/font/index.ts, whose variable class sits on <html>. The ported
+   library.css points body at --font-sf-pro, whose files are not
+   redistributable; this sets both stacks to Inter instead (research R6). */
+body {
+  --font-body: var(--font-inter), var(--font-sans-fallback);
+  --font-heading: var(--font-inter), var(--font-sans-fallback);
+}

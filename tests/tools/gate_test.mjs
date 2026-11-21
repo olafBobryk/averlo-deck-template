@@ -149,6 +149,31 @@ describe("gate", () => {
     );
   });
 
+  test("a check that passes only on retry is reported as flaky", async () => {
+    const { dir, cleanup } = tempDir("gate-fixture-");
+    cleanups.push(cleanup);
+    const out = [
+      "  ✓  1 [mobile] › a.spec.ts:1:1 › one (1.0s)",
+      "  1 flaky",
+      "    [desktop] › tests/motion/strips.spec.ts:35:3 › intro keeps its baseline ",
+      "  39 passed (2.5m)",
+    ].join("\\n");
+    const results = await runGate(
+      [{ name: "strips", cmd: [node, "-e", `console.log("${out}")`] }],
+      { cwd: dir, output: quiet },
+    );
+    assert.equal(results[0].status, "passed");
+    const report = formatReport(results, {
+      date: "d",
+      branch: "b",
+      commit: "c",
+    });
+    assert.match(
+      report,
+      /\| strips +\| passed +\| 1 flaky \(passed on retry\): \[desktop\] intro keeps its baseline/,
+    );
+  });
+
   test("loadEnv fills missing values without overriding set ones and names the missing", () => {
     const { dir, cleanup } = tempDir("gate-env-");
     cleanups.push(cleanup);
