@@ -47,7 +47,7 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 - [ ] T005 A minimal `docs/orchestration.md`: roles, the delegation brief, at most 2 parallel implementers, and the park rule. It is completed in T039.
 - [ ] T006 [US2] Build the unchanged origin in its scratch folder (`.local/origin.md`). Done when it serves at `ORIGIN_URL`.
 - [ ] T007 [US2] `tests/baseline/record.spec.ts`. It records the strips of research R8 against `ORIGIN_URL`, with the origin's own per-frame sampling approach and its `tests/evidence.ts`. That file is carried, renamed, redacted and rerouted to `specs/001-deck-template/references/strips/`, with rows in `docs/carried/tests.md`.
-- [ ] T008 [US2] Record 3 runs at 390 and 1440, resampled on the 16.7 ms grid, and write the strips with their tolerances (R8). Done when they contain numbers and generic names only and `scan:public` passes.
+- [ ] T008 [US2] Record 3 runs at 390 and 1440, resampled on the 16.7 ms grid, and write the strips with their tolerances (R8). Also write `references/strips/constants.json`: the origin's `motionTokens`, `reducedMotionTokens` and the swipe, intro and boot constants named in `.local/origin-inventory.md`, as numbers only. Done when they contain numbers and generic names only and `scan:public` passes.
 - [ ] T009 [US2] `tests/motion/strips.spec.ts`. It replays the strips against `TARGET_URL`, diffs them against the baseline (FR-015), and covers reduced motion (no intermediate frames). Done when it passes with `TARGET_URL` pointed at the origin build (the regression exception to rule 8).
 - [ ] T010 Run `npm run gate`.
   - The strip diff runs against the origin build as a self-check.
@@ -61,12 +61,13 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
   - an over-long placeholder triggers the dev overflow report;
   - the menu's PDF download returns a file;
   - every placeholder slide fits its stage at 390 and 1440 (SC-005);
-  - `tests/motion/constants.spec.ts`: `motionTokens` and `reducedMotionTokens` deep-equal the origin's file at its pinned commit; the swipe, intro and boot constants named in `.local/origin-inventory.md` equal the origin's; no file imports the product's screen-switch, registry or config code.
+  - `tests/motion/constants.spec.ts`: the motion module's `motionTokens` and `reducedMotionTokens`, and the swipe, intro and boot constants, deep-equal `references/strips/constants.json` (T008); no file imports the product's screen-switch, registry or config code.
 
   Record them failing.
 - [ ] T013 [US1] Carry the files marked "Carry" in `.local/origin-inventory.md` into their listed paths:
   - the boot loader goes into `src/boot/`, and the origin's `slides.ts` into `src/deck/model.ts`;
-  - apply exactly the listed removals, keeping FR-001 intact;
+  - apply exactly the listed removals, keeping FR-001 intact, including the second-language detach and the import re-pointing listed in the inventory;
+  - `src/app/globals.css` is carried temporarily, importing `src/_origin-temp/base.css`, until T023;
   - rename every product identifier, CSS variables included (`--deck-*`), and redact comments (rule 2);
   - detach the product orb from the intro and the hard-load screen, and compose the template-owned placeholder mark (`src/brand/placeholder/`) in its box and role, rendered as an `<img>` so the boot wait holds (research R9). Copy no orb image or video;
   - carry `scripts/render-pdf.mjs`, wired into `npm run build` and `npm run pdf` (FR-003);
@@ -79,8 +80,8 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
   - include the selection indicator only if a file kept after T013 imports it.
 
   Copy nothing from the origin's `lib/`. Rows go in `docs/carried/motion.md`.
-- [ ] T015 [US1] Copy the files listed under "Temporary design files" into `src/_origin-temp/`, renamed and redacted, and detach the same screen-switch imports from its Button and DropdownMenu. Point the imports there so P1 builds. Add licence rows for the Inter files and icon glyphs they use. P3 replaces and deletes them (T025, T026).
-- [ ] T016 [US1] Template-owned `src/deck/slides.ts`. It imports `model.ts` and the carried content types, sets `langs: ["en"]`, and holds one slide per kind and layout plus their content map, using only the generic blocks, with "Placeholder title" and "Placeholder text" (FR-002).
+- [ ] T015 [US1] Copy the code files listed under "Temporary design files" into `src/_origin-temp/`, renamed and redacted, and detach the same screen-switch imports from its Button and DropdownMenu. Their public assets (fonts, icons) stay under `public/`, so they are served. Point the imports there so P1 builds. Rows go in `docs/carried/temp.md`, and licence rows are added for the Inter files and icon glyphs. P3 replaces and deletes them (T025, T026).
+- [ ] T016 [US1] Template-owned `src/deck/langs.ts` (`langs = ["en"]` and `Lang`) and `src/deck/slides.ts`. `slides.ts` imports `model.ts` and the carried content types, and holds one slide per kind and layout plus their content map, using only the generic blocks, with "Placeholder title" and "Placeholder text" (FR-002).
 - **Gate P1:** `npm run gate` (drift "not run — T020"); the strip diff against the template build is within tolerance, and the constants are exact.
 
 ## Phase P3: Averlo ports and brand config (branch `p3-averlo`, base `p1-carry`)
@@ -103,7 +104,7 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
   - wrap the app in the ported MotionProvider, and set `class="dark"` on `<html>`.
 
   All changes are listed rows, and the icon mapping table goes in `docs/carried/deck.md`.
-- [ ] T026 Delete `src/_origin-temp/`. Remove the origin's `@radix-ui/react-dropdown-menu`, `@radix-ui/react-radio-group` and `@material-symbols/svg-400` if nothing imports them. Keep the Material Symbols licence row for the lock glyph, and update `docs/licences.md`.
+- [ ] T026 Delete `src/_origin-temp/` and `docs/carried/temp.md`. Remove the origin's `@radix-ui/react-dropdown-menu`, `@radix-ui/react-radio-group` and `@material-symbols/svg-400` if nothing imports them. Keep the Material Symbols licence row for the lock glyph, and update `docs/licences.md`.
 - **Gate P3:** `npm run gate`, every check run.
 
 ## Phase P4: Top bar (branch `p4-topbar`, base `p3-averlo`) [parallel with P5]

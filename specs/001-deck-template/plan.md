@@ -120,7 +120,7 @@ process/workflows.md, WORKFLOWS.md, README.md, LICENSE
 | Phase | Branch (base) | Owns |
 |---|---|---|
 | P0 Baseline, tooling, public | `p0-baseline` (main) | tooling, `scripts/gate.mjs`, `scan-public.mjs`, `LICENSE`, `docs/licences.md`, `docs/decisions/*`, `docs/carried/tests.md`, `docs/orchestration.md` (minimal), `tests/baseline/*`, `tests/motion/strips.spec.ts`, `references/strips/*` |
-| P1 Carry, strip and motion module | `p1-carry` (p0) | `src/app`, `src/deck` (carried, plus `model.ts`), `src/gate`, `src/boot`, `src/motion` (rename, redact, detach), `src/_origin-temp`, `src/brand/placeholder`, `docs/carried/{app,deck,gate,boot,motion,tests}.md`, `scripts/render-pdf.mjs`, `tests/*` adapted, `tests/motion/constants.spec.ts` |
+| P1 Carry, strip and motion module | `p1-carry` (p0) | `src/app`, `src/deck` (carried, plus `model.ts`, `langs.ts`, `slides.ts`), `src/gate`, `src/boot`, `src/motion` (rename, redact, detach), `src/_origin-temp`, `src/brand/placeholder`, `docs/carried/{app,deck,gate,boot,motion,tests,temp}.md`, `scripts/render-pdf.mjs`, `tests/*` adapted, `tests/motion/constants.spec.ts` |
 | P2 | (removed: its detach moved into P1, which can't build without it) | |
 | P3 Averlo ports and brand | `p3-averlo` (p1) | port script and manifest, `check-ports.mjs`, ported folders, `src/styles`, `src/app/globals.css`, `src/brand/config.ts`, `docs/design-source.md`, compose rows in `docs/carried/{app,deck}.md` |
 | P4 Top bar | `p4-topbar` (p3) | the upstream rename (in averlo-questionnaire-template), `src/questionnaire/*`, `src/deck/TopBar.tsx`, deck layout and footer CSS, `docs/carried/deck.md`, `tests/topbar.spec.ts` |

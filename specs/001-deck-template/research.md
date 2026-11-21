@@ -115,7 +115,7 @@ Recorded in P0 from the unchanged origin, built in a scratch copy, on the gate m
 - **Layout shifts:** if an approved layout change (the top bar, the Averlo menu controls) still shifts a normalised strip beyond tolerance, raise an open question. Never re-baseline without the owner.
 - **Tolerance:** the per-value spread across the 3 runs, plus 0.005 of the normalised unit, 0.02 opacity, or 1 frame (16.7 ms) for timing.
 - **Timing constants** are compared exactly:
-  - `motionTokens` and `reducedMotionTokens`, deep-compared with the origin's file at its pinned commit;
+  - `motionTokens` and `reducedMotionTokens`, recorded once in P0 from the origin into `references/strips/constants.json` (numbers only) and deep-compared with it, so the check also runs in a deck made from the template;
   - the swipe constants, the intro timing and the boot timing named in `.local/origin-inventory.md`.
 
   Under Principle IX these count as the motion module, even where they live outside `src/motion`.

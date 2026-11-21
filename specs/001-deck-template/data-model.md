@@ -16,7 +16,7 @@
   - `plan` (a YYYY-MM axis)
 - Validation: every `Text` has every configured language. The template ships placeholder text only (FR-002).
 
-## Languages (`langs`, in template-owned `src/deck/slides.ts`)
+## Languages (`langs` and `Lang`, in template-owned `src/deck/langs.ts`)
 
 - `langs`: an ordered list of codes; the first is the default. `["en"]` by default. With two or more, the language switcher shows.
 
