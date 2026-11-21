@@ -2,25 +2,44 @@
 // specs/001-deck-template/references/strips/constants.json (research R8,
 // task T008): the motion tokens, the swipe constants, the intro timing and
 // the hard-load screen's timing, as numbers under the sources' own names.
-// It reads the origin's source without running it: TypeScript's parser for
+// It reads the source without running it: TypeScript's parser for
 // the modules (a small evaluator for literals, constants and the arrow
 // helpers they call) and plain parsing for the CSS and the inline script.
+// The same extraction reads the template's tree (`--layout template`), so
+// tests/motion/constants.spec.ts can compare it with the baseline.
 //
 //   node tests/baseline/constants.mjs <origin checkout>
+//   node tests/baseline/constants.mjs <checkout> --layout template --stdout
 
 import { readFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
-const origin = process.argv[2];
-if (!origin) {
-  console.error("usage: node tests/baseline/constants.mjs <origin checkout>");
-  process.exit(1);
-}
-const out = new URL(
-  "../../specs/001-deck-template/references/strips/constants.json",
-  import.meta.url,
-);
-const read = (file) => readFileSync(`${origin}/${file}`, "utf8");
+/** Where each source lives, in the origin's tree and in the template's. */
+export const layouts = {
+  origin: {
+    motion: "src/components/ui/foundations/motion.ts",
+    swipe: "src/deck/swipe.ts",
+    fog: "src/gate/fog-volume.ts",
+    intro: "src/gate/Intro.tsx",
+    lock: "src/gate/AnimatedLock.tsx",
+    gateCss: "src/gate/gate.module.css",
+    boot: "src/components/branding/boot-loader/boot-bootstrap.ts",
+    bootCss: "src/components/branding/boot-loader/BootLoader.module.css",
+  },
+  template: {
+    motion: "src/motion/motion.ts",
+    swipe: "src/deck/swipe.ts",
+    fog: "src/gate/fog-volume.ts",
+    intro: "src/gate/Intro.tsx",
+    lock: "src/gate/AnimatedLock.tsx",
+    gateCss: "src/gate/gate.module.css",
+    boot: "src/boot/boot-bootstrap.ts",
+    bootCss: "src/boot/BootLoader.module.css",
+  },
+};
+
+let read;
 
 /** A module's AST and its top-level constants, by name. */
 function module(file) {
@@ -224,108 +243,126 @@ function rule(rules, selector, media = null) {
 }
 const numeric = (value) => Number.parseFloat(value);
 
-// The motion tokens.
-const motion = module("src/components/ui/foundations/motion.ts");
+/** The constants of the tree at `root`, its files where `layout` says. */
+export function extract(root, layout = layouts.origin) {
+  read = (file) => readFileSync(`${root}/${file}`, "utf8");
 
-// The swipe gesture.
-const swipe = numbers(module("src/deck/swipe.ts"));
+  // The motion tokens.
+  const motion = module(layout.motion);
 
-// The intro.
-const fog = module("src/gate/fog-volume.ts");
-const introModule = module("src/gate/Intro.tsx");
-const introScope = { ...introModule.scope, ...fog.scope };
-const lock = jsxAttributes(
-  { source: introModule.source, scope: introScope },
-  "data-lock-state",
-);
-// AnimatedLock's motion.path is its only element with `animate`.
-const shackleOf = jsxAttributes(
-  module("src/gate/AnimatedLock.tsx"),
-  "animate",
-  {
+  // The swipe gesture.
+  const swipe = numbers(module(layout.swipe));
+
+  // The intro.
+  const fog = module(layout.fog);
+  const introModule = module(layout.intro);
+  const introScope = { ...introModule.scope, ...fog.scope };
+  const lock = jsxAttributes(
+    { source: introModule.source, scope: introScope },
+    "data-lock-state",
+  );
+  // AnimatedLock's motion.path is its only element with `animate`.
+  const shackleOf = jsxAttributes(module(layout.lock), "animate", {
     reduced: false,
-  },
-);
-const gateCss = cssRules(read("src/gate/gate.module.css"));
-const lockSelector = ".stage[data-lock] .volume, .stage[data-lock] .mark";
+  });
+  const gateCss = cssRules(read(layout.gateCss));
+  const lockSelector = ".stage[data-lock] .volume, .stage[data-lock] .mark";
 
-// The hard-load screen.
-const bootModule = module(
-  "src/components/branding/boot-loader/boot-bootstrap.ts",
-);
-const script = bootModule.scope.bootBootstrap.getText();
-const match = (pattern) => {
-  const m = pattern.exec(script);
-  if (!m) throw new Error(`not in the boot script: ${pattern}`);
-  return Number(m[1]);
-};
-const bootCss = cssRules(
-  read("src/components/branding/boot-loader/BootLoader.module.css"),
-);
-const fade = rule(bootCss, ".boot")["--boot-fade"];
-const failsafe = rule(bootCss, ".boot").animation.split(" ");
+  // The hard-load screen.
+  const bootModule = module(layout.boot);
+  const script = bootModule.scope.bootBootstrap.getText();
+  const match = (pattern) => {
+    const m = pattern.exec(script);
+    if (!m) throw new Error(`not in the boot script: ${pattern}`);
+    return Number(m[1]);
+  };
+  const bootCss = cssRules(read(layout.bootCss));
+  const fade = rule(bootCss, ".boot")["--boot-fade"];
+  const failsafe = rule(bootCss, ".boot").animation.split(" ");
 
-const constants = {
-  motion: {
-    motionTokens: evaluate(motion.scope.motionTokens, motion.scope),
-    reducedMotionTokens: evaluate(
-      motion.scope.reducedMotionTokens,
-      motion.scope,
-    ),
-  },
-  swipe,
-  intro: {
-    timing: evaluate(introModule.scope.timing, introScope),
-    settle: evaluate(introModule.scope.settle, introScope),
-    fog: numbers(fog),
-    lock: lock(["initial", "animate", "transition"]),
-    shackle: {
-      open: shackleOf(["animate", "transition"], { open: true }),
-      shut: shackleOf(["animate", "transition"], { open: false }),
+  const constants = {
+    motion: {
+      motionTokens: evaluate(motion.scope.motionTokens, motion.scope),
+      reducedMotionTokens: evaluate(
+        motion.scope.reducedMotionTokens,
+        motion.scope,
+      ),
     },
-    css: {
-      gate: {
-        transition: transitions(rule(gateCss, ".gate").transition),
-        opacity: numeric(rule(gateCss, ".gate").opacity),
+    swipe,
+    intro: {
+      timing: evaluate(introModule.scope.timing, introScope),
+      settle: evaluate(introModule.scope.settle, introScope),
+      fog: numbers(fog),
+      lock: lock(["initial", "animate", "transition"]),
+      shackle: {
+        open: shackleOf(["animate", "transition"], { open: true }),
+        shut: shackleOf(["animate", "transition"], { open: false }),
       },
-      gateReady: {
-        opacity: numeric(rule(gateCss, ".gate[data-ready]").opacity),
-      },
-      volume: { scale: numeric(rule(gateCss, ".volume").scale) },
-      mark: { scale: numeric(rule(gateCss, ".mark").scale) },
-      lockShown: {
-        opacity: numeric(rule(gateCss, lockSelector).opacity),
-        scale: numeric(rule(gateCss, lockSelector).scale),
-        transition: transitions(rule(gateCss, lockSelector).transition),
-      },
-      reduced: {
+      css: {
         gate: {
-          transition: transitions(
-            rule(gateCss, ".gate", "@media (prefers-reduced-motion: reduce)")
-              .transition,
-          ),
+          transition: transitions(rule(gateCss, ".gate").transition),
+          opacity: numeric(rule(gateCss, ".gate").opacity),
+        },
+        gateReady: {
+          opacity: numeric(rule(gateCss, ".gate[data-ready]").opacity),
+        },
+        volume: { scale: numeric(rule(gateCss, ".volume").scale) },
+        mark: { scale: numeric(rule(gateCss, ".mark").scale) },
+        lockShown: {
+          opacity: numeric(rule(gateCss, lockSelector).opacity),
+          scale: numeric(rule(gateCss, lockSelector).scale),
+          transition: transitions(rule(gateCss, lockSelector).transition),
+        },
+        reduced: {
+          gate: {
+            transition: transitions(
+              rule(gateCss, ".gate", "@media (prefers-reduced-motion: reduce)")
+                .transition,
+            ),
+          },
         },
       },
     },
-  },
-  boot: {
-    ...numbers(bootModule),
-    fade: {
-      durationMs: ms(fade.split(" ")[0]),
-      easing: easing(fade.split(" ").slice(1).join(" ")),
+    boot: {
+      ...numbers(bootModule),
+      fade: {
+        durationMs: ms(fade.split(" ")[0]),
+        easing: easing(fade.split(" ").slice(1).join(" ")),
+      },
+      reducedFadeMs: ms(
+        rule(bootCss, ".boot", "@media (prefers-reduced-motion: reduce)")[
+          "--boot-fade"
+        ],
+      ),
+      /** The flight's own end, if the page never finishes it. */
+      landingTimerMs: match(/setTimeout\(finish,(\d+)\)/),
+      /** Leaving to done (instant under reduced motion). */
+      leavingMs: match(/reduced\?0:(\d+)/),
+      failsafe: { durationMs: ms(failsafe[1]), delayMs: ms(failsafe[3]) },
     },
-    reducedFadeMs: ms(
-      rule(bootCss, ".boot", "@media (prefers-reduced-motion: reduce)")[
-        "--boot-fade"
-      ],
-    ),
-    /** The flight's own end, if the page never finishes it. */
-    landingTimerMs: match(/setTimeout\(finish,(\d+)\)/),
-    /** Leaving to done (instant under reduced motion). */
-    leavingMs: match(/reduced\?0:(\d+)/),
-    failsafe: { durationMs: ms(failsafe[1]), delayMs: ms(failsafe[3]) },
-  },
-};
+  };
+  return constants;
+}
 
-writeFileSync(out, `${JSON.stringify(constants, null, 2)}\n`);
-console.log(`wrote ${out.pathname}`);
+// Run as a script: write the baseline from the origin, or print a tree's.
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const [root, ...flags] = process.argv.slice(2);
+  const at = flags.indexOf("--layout");
+  const layout = layouts[at < 0 ? "origin" : flags[at + 1]];
+  if (!root || !layout) {
+    console.error(
+      "usage: node tests/baseline/constants.mjs <checkout> [--layout origin|template] [--stdout]",
+    );
+    process.exit(1);
+  }
+  const json = `${JSON.stringify(extract(root, layout), null, 2)}\n`;
+  if (flags.includes("--stdout")) process.stdout.write(json);
+  else {
+    const out = new URL(
+      "../../specs/001-deck-template/references/strips/constants.json",
+      import.meta.url,
+    );
+    writeFileSync(out, json);
+    console.log(`wrote ${out.pathname}`);
+  }
+}
