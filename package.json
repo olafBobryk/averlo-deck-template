@@ -18,7 +18,7 @@
     "typecheck": "tsc --noEmit",
     "test:smoke": "playwright test",
     "test:strips": "playwright test --config playwright.strips.config.ts",
-    "test:tools": "node --test tests/tools/",
+    "test:tools": "node --test \"tests/tools/*_test.mjs\"",
     "check:ports": "node scripts/check-ports.mjs",
     "scan:public": "node scripts/scan-public.mjs",
     "gate": "node scripts/gate.mjs"
