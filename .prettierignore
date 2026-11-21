@@ -1,0 +1,18 @@
+node_modules
+.local/
+.next
+out
+package-lock.json
+next-env.d.ts
+public/
+test-results/
+playwright-report/
+docs/context/
+
+# Preserve upstream Spec Kit assets and their generated-file manifest hashes.
+.claude/
+.agents/
+.specify/
+
+# Approved feature documents and their evidence, kept as the owner approved them.
+specs/

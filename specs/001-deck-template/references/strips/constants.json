@@ -1,0 +1,273 @@
+{
+  "motion": {
+    "motionTokens": {
+      "spring": {
+        "control": {
+          "type": "spring",
+          "stiffness": 800,
+          "damping": 52,
+          "mass": 0.8
+        },
+        "component": {
+          "type": "spring",
+          "stiffness": 420,
+          "damping": 38,
+          "mass": 0.9
+        },
+        "surface": {
+          "type": "spring",
+          "stiffness": 300,
+          "damping": 36,
+          "mass": 1
+        }
+      },
+      "fade": {
+        "duration": 0.2,
+        "ease": [
+          0.2,
+          0,
+          0,
+          1
+        ]
+      },
+      "exit": {
+        "duration": 0.15,
+        "ease": [
+          0.4,
+          0,
+          1,
+          1
+        ]
+      },
+      "distance": {
+        "nudge": 8,
+        "page": 120,
+        "panel": 80
+      },
+      "scale": {
+        "presence": 0.96,
+        "swap": 0.6
+      },
+      "stagger": {
+        "each": 0.03,
+        "max": 5
+      },
+      "loop": {
+        "slow": 180,
+        "medium": 140,
+        "fast": 100,
+        "bars": 1.2,
+        "barsStep": 0.15
+      },
+      "boost": {
+        "rate": 8,
+        "orb": 0.05
+      },
+      "type": {
+        "erase": 0.012,
+        "eraseMax": 0.24,
+        "type": 0.018,
+        "typeMax": 0.36
+      }
+    },
+    "reducedMotionTokens": {
+      "spring": {
+        "control": {
+          "duration": 0
+        },
+        "component": {
+          "duration": 0
+        },
+        "surface": {
+          "duration": 0
+        }
+      },
+      "fade": {
+        "duration": 0
+      },
+      "exit": {
+        "duration": 0
+      },
+      "distance": {
+        "nudge": 0,
+        "page": 0,
+        "panel": 0
+      },
+      "scale": {
+        "presence": 1,
+        "swap": 1
+      },
+      "stagger": {
+        "each": 0,
+        "max": 0
+      },
+      "loop": {
+        "slow": 180,
+        "medium": 140,
+        "fast": 100,
+        "bars": 1.2,
+        "barsStep": 0.15
+      },
+      "boost": {
+        "rate": 1,
+        "orb": 0
+      },
+      "type": {
+        "erase": 0,
+        "eraseMax": 0,
+        "type": 0,
+        "typeMax": 0
+      }
+    }
+  },
+  "swipe": {
+    "SLOP": 10,
+    "COMMIT": 0.5,
+    "FLICK": 0.3,
+    "RESIST": 0.3,
+    "STEEP": 2.5,
+    "REST": 80,
+    "QUIET": 300
+  },
+  "intro": {
+    "timing": {
+      "dotFadeMs": 240,
+      "growMs": 2200,
+      "turnMs": 1000,
+      "minCheckMs": 1200,
+      "openMs": 1000,
+      "openHoldMs": 200,
+      "fadeMs": 300
+    },
+    "settle": {
+      "cubicBezier": [
+        0.16,
+        1,
+        0.3,
+        1
+      ]
+    },
+    "fog": {
+      "fogTravelMs": 2200,
+      "fogFlatHoldMs": 1200,
+      "fogOrbScale": 0.9
+    },
+    "lock": {
+      "initial": {
+        "opacity": 0,
+        "scale": 0.6
+      },
+      "animate": {
+        "opacity": 1,
+        "scale": 1
+      },
+      "transition": {
+        "scale": {
+          "type": "spring",
+          "stiffness": 480,
+          "damping": 24,
+          "mass": 0.7
+        },
+        "opacity": {
+          "duration": 0.16
+        }
+      }
+    },
+    "shackle": {
+      "open": {
+        "animate": {
+          "rotate": -35
+        },
+        "transition": {
+          "type": "spring",
+          "stiffness": 28,
+          "damping": 12,
+          "mass": 1.3
+        }
+      },
+      "shut": {
+        "animate": {
+          "rotate": 0
+        },
+        "transition": {
+          "type": "spring",
+          "stiffness": 480,
+          "damping": 24,
+          "mass": 0.7
+        }
+      }
+    },
+    "css": {
+      "gate": {
+        "transition": [
+          {
+            "property": "opacity",
+            "durationMs": 300,
+            "easing": "ease"
+          }
+        ],
+        "opacity": 1
+      },
+      "gateReady": {
+        "opacity": 0
+      },
+      "volume": {
+        "scale": 0.72
+      },
+      "mark": {
+        "scale": 0.72
+      },
+      "lockShown": {
+        "opacity": 0,
+        "scale": 0.58,
+        "transition": [
+          {
+            "property": "opacity",
+            "durationMs": 160,
+            "easing": [
+              0.3,
+              0.08,
+              0.18,
+              1
+            ]
+          },
+          {
+            "property": "scale",
+            "durationMs": 160,
+            "easing": [
+              0.3,
+              0.08,
+              0.18,
+              1
+            ]
+          }
+        ]
+      },
+      "reduced": {
+        "gate": {
+          "transition": "none"
+        }
+      }
+    }
+  },
+  "boot": {
+    "BOOT_CAP_MS": 3000,
+    "BOOT_MIN_MS": 400,
+    "fade": {
+      "durationMs": 200,
+      "easing": [
+        0.2,
+        0,
+        0,
+        1
+      ]
+    },
+    "reducedFadeMs": 0,
+    "landingTimerMs": 2000,
+    "leavingMs": 240,
+    "failsafe": {
+      "durationMs": 200,
+      "delayMs": 4000
+    }
+  }
+}

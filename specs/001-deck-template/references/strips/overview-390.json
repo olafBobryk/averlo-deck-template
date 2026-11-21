@@ -1,0 +1,145 @@
+{
+ "strip": "overview",
+ "viewport": {
+  "width": 390,
+  "height": 844
+ },
+ "runs": 3,
+ "recorded": "2026-11-21",
+ "units": {
+  "t": "ms",
+  "onset.thumb0": "ms",
+  "latency.thumb0": "ms",
+  "thumb0": "opacity in percent (0-100)",
+  "onset.thumb1": "ms",
+  "latency.thumb1": "ms",
+  "thumb1": "opacity in percent (0-100)",
+  "onset.thumb2": "ms",
+  "latency.thumb2": "ms",
+  "thumb2": "opacity in percent (0-100)",
+  "onset.thumb3": "ms",
+  "latency.thumb3": "ms",
+  "thumb3": "opacity in percent (0-100)",
+  "onset.thumb4": "ms",
+  "latency.thumb4": "ms",
+  "thumb4": "opacity in percent (0-100)",
+  "onset.thumb5": "ms",
+  "latency.thumb5": "ms",
+  "thumb5": "opacity in percent (0-100)",
+  "onset.content": "ms",
+  "latency.content": "ms",
+  "content": "opacity in percent (0-100)"
+ },
+ "grid": 16.7,
+ "groups": {
+  "thumb0": [
+   "thumb0"
+  ],
+  "thumb1": [
+   "thumb1"
+  ],
+  "thumb2": [
+   "thumb2"
+  ],
+  "thumb3": [
+   "thumb3"
+  ],
+  "thumb4": [
+   "thumb4"
+  ],
+  "thumb5": [
+   "thumb5"
+  ],
+  "content": [
+   "content"
+  ]
+ },
+ "events": {
+  "onset.thumb0": 62.1,
+  "latency.thumb0": 52.7,
+  "onset.thumb1": 92.1,
+  "latency.thumb1": 82.7,
+  "onset.thumb2": 122.1,
+  "latency.thumb2": 112.7,
+  "onset.thumb3": 152.1,
+  "latency.thumb3": 142.7,
+  "onset.thumb4": 182.1,
+  "latency.thumb4": 172.7,
+  "onset.thumb5": 212.1,
+  "latency.thumb5": 202.7,
+  "onset.content": 62.1,
+  "latency.content": 52.7
+ },
+ "tolerance": {
+  "latency.thumb0": 17.6,
+  "thumb0": 2.6,
+  "latency.thumb1": 17.6,
+  "thumb1": 2.5,
+  "latency.thumb2": 17.6,
+  "thumb2": 2.2,
+  "latency.thumb3": 17.6,
+  "thumb3": 2.2,
+  "latency.thumb4": 17.6,
+  "thumb4": 2.4,
+  "latency.thumb5": 17.6,
+  "thumb5": 2.2,
+  "latency.content": 17.6,
+  "content": 2.6
+ },
+ "frames": [
+ {"t":0,"values":{"thumb0":null,"thumb1":0,"thumb2":0,"thumb3":0,"thumb4":0,"thumb5":0,"content":null}},
+ {"t":16.7,"values":{"thumb0":11.4,"thumb1":10.3,"thumb2":11.6,"thumb3":11.7,"thumb4":10.5,"thumb5":9.4,"content":11.4}},
+ {"t":33.4,"values":{"thumb0":40.3,"thumb1":40.7,"thumb2":40.2,"thumb3":39.6,"thumb4":39.7,"thumb5":40.3,"content":40.3}},
+ {"t":50.1,"values":{"thumb0":60.8,"thumb1":60.8,"thumb2":60.8,"thumb3":60.8,"thumb4":60.8,"thumb5":60.8,"content":60.8}},
+ {"t":66.8,"values":{"thumb0":73.3,"thumb1":73.3,"thumb2":73.3,"thumb3":73.3,"thumb4":73.3,"thumb5":73.3,"content":73.3}},
+ {"t":83.5,"values":{"thumb0":81.8,"thumb1":81.7,"thumb2":81.8,"thumb3":81.8,"thumb4":81.8,"thumb5":81.8,"content":81.8}},
+ {"t":100.2,"values":{"thumb0":87.8,"thumb1":87.9,"thumb2":87.8,"thumb3":87.9,"thumb4":87.8,"thumb5":87.8,"content":87.8}},
+ {"t":116.9,"values":{"thumb0":92.2,"thumb1":92.2,"thumb2":92.2,"thumb3":92.3,"thumb4":92.2,"thumb5":92.2,"content":92.2}},
+ {"t":133.6,"values":{"thumb0":95.4,"thumb1":95.4,"thumb2":95.4,"thumb3":95.4,"thumb4":95.4,"thumb5":95.4,"content":95.4}},
+ {"t":150.3,"values":{"thumb0":97.6,"thumb1":97.6,"thumb2":97.6,"thumb3":97.6,"thumb4":97.6,"thumb5":97.6,"content":97.6}},
+ {"t":167,"values":{"thumb0":99,"thumb1":99,"thumb2":99,"thumb3":99,"thumb4":99,"thumb5":99,"content":99}},
+ {"t":183.7,"values":{"thumb0":99.8,"thumb1":99.8,"thumb2":99.8,"thumb3":99.8,"thumb4":99.8,"thumb5":99.8,"content":99.8}},
+ {"t":200.4,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":217.1,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":233.8,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":250.5,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":267.2,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":283.9,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":300.6,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":317.3,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":334,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":350.7,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":367.4,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":384.1,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":400.8,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":417.5,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":434.2,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":450.9,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":467.6,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":484.3,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":501,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":517.7,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":534.4,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":551.1,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":567.8,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":584.5,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":601.2,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":617.9,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":634.6,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":651.3,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":668,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":684.7,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"thumb5":100,"content":100}},
+ {"t":701.4,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"content":100}},
+ {"t":718.1,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"thumb4":100,"content":100}},
+ {"t":734.8,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"content":100}},
+ {"t":751.5,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"thumb3":100,"content":100}},
+ {"t":768.2,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"content":100}},
+ {"t":784.9,"values":{"thumb0":100,"thumb1":100,"thumb2":100,"content":100}},
+ {"t":801.6,"values":{"thumb0":100,"thumb1":100,"content":100}},
+ {"t":818.3,"values":{"thumb0":100,"content":100}},
+ {"t":835,"values":{"thumb0":100,"content":100}},
+ {"t":851.7,"values":{}},
+ {"t":868.4,"values":{}},
+ {"t":885.1,"values":{}}
+ ]
+}
