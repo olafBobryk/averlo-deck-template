@@ -132,9 +132,18 @@ export function runCommand(cmd, { cwd, env = process.env, output, log } = {}) {
     pipeLines(child.stdout, { write, tail, log });
     pipeLines(child.stderr, { write, tail, log });
     child.on("error", (error) => done({ code: 127, tail: [error.message] }));
-    child.on("close", (code, signal) =>
-      done({ code: code ?? (signal ? 128 : 1), tail }),
-    );
+    // A check may leave a server behind in its group (the carried PDF script
+    // stops `npx`, not the server under it): when the check exits, stop its
+    // whole group, so nothing outlives it and its pipes close.
+    let exited = null;
+    child.on("exit", (code, signal) => {
+      exited = { code, signal };
+      killGroup(child.pid, "SIGTERM");
+    });
+    child.on("close", (code, signal) => {
+      const end = exited ?? { code, signal };
+      done({ code: end.code ?? (end.signal ? 128 : 1), tail });
+    });
   });
 }
 
