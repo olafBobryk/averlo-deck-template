@@ -1,0 +1,33 @@
+/* The weight crossfades; see weight-label.tsx. */
+.label {
+  display: inline-grid;
+}
+.regular,
+.strong {
+  grid-area: 1 / 1;
+  justify-self: center;
+  font-optical-sizing: none;
+}
+.regular {
+  font: var(--weight-regular-font);
+  letter-spacing: var(--weight-regular-tracking, normal);
+  transition: opacity var(--deck-motion-fade);
+}
+.strong {
+  font: var(--weight-strong-font);
+  letter-spacing: var(--weight-strong-tracking, normal);
+  opacity: 0;
+  transition: opacity var(--deck-motion-exit);
+}
+:is([data-state="checked"], [data-state="active"], [data-selected])
+  > .label
+  > .regular {
+  opacity: 0;
+  transition: opacity var(--deck-motion-exit);
+}
+:is([data-state="checked"], [data-state="active"], [data-selected])
+  > .label
+  > .strong {
+  opacity: 1;
+  transition: opacity var(--deck-motion-fade);
+}

@@ -1,0 +1,71 @@
+/* Long headings wrap at narrow widths. */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--deck-space-4);
+  max-width: 100%;
+  text-align: center;
+}
+.title {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.subtitle {
+  overflow-wrap: anywhere;
+}
+
+/* Headings. A heading is one line: it fits the longest
+   wording that fits, and the shortest ends in an ellipsis when none does. */
+.heading {
+  position: relative;
+}
+/* Erased to nothing, a line still keeps its line box. */
+.typed {
+  display: block;
+  min-height: 1lh;
+}
+.heading[data-fit] {
+  width: 100%;
+  overflow-wrap: normal;
+}
+.heading[data-fit] .typed {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Every wording laid out invisibly in the heading's own type, to choose;
+   beside the heading, out of the flow. */
+.header {
+  position: relative;
+}
+.measure {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+.measure > * {
+  display: block;
+  width: max-content;
+  white-space: nowrap;
+}
+/* The column plus SizeFrame's 4px gutter on each side (its negative margins
+   put it back): at 100% the text had 8px less than the column and wrapped
+   early. */
+.frame {
+  width: calc(100% + 2 * var(--deck-space-4));
+}
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

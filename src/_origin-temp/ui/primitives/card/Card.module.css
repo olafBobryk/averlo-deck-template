@@ -1,0 +1,377 @@
+/* Card: Now, Default, Quiet.
+   Surfaces follow the Elevation board.
+   Card is the single owner of these recipes. Other components reuse one with
+   `composes: surface <level> from "…/card/Card.module.css"` instead of
+   re-typing fills, strokes and effects. */
+
+/* The recipes sit in a cascade layer so a composing module's own unlayered
+   rules (padding, a different fill, radius) always win, whatever order the
+   bundler emits the two stylesheets in. */
+@layer deck-surface {
+  /* Every surface reserves the stroke as a transparent border (Figma strokes are
+     INSIDE and included in layout) and paints it with ::before, so a gradient
+     stroke works over a translucent fill, under backdrop-filter and at any
+     radius. The mask cuts the padding box out of the pseudo-element, leaving a
+     ring exactly over the border. Nothing here sets opacity, filter or mask on
+     the surface itself, so its own backdrop blur keeps sampling the page. */
+  /* Fills use `border-box` so a gradient spans the full bounds under the
+     stroke, as in Figma; padding-box origin would repeat the gradient into the
+     border and swap its ends at the top and bottom edges. */
+  .surface {
+    position: relative;
+    border: var(--deck-border-glass-width) solid transparent;
+  }
+  .surface::before {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--deck-border-glass-width));
+    padding: var(--deck-border-glass-width);
+    border-radius: inherit;
+    background: var(--card-stroke);
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Level 1 · Card */
+  .card {
+    --card-stroke: var(--deck-border-glass);
+    background: var(--deck-surface-card) border-box;
+    backdrop-filter: var(--deck-glass-card-backdrop);
+    box-shadow: var(--deck-glass-card-shadow);
+  }
+  /* Level 1 · Now / highlight */
+  .now {
+    --card-stroke: var(--deck-border-highlight);
+    background: var(--deck-surface-highlight) border-box;
+    backdrop-filter: var(--deck-glass-card-backdrop);
+    box-shadow: var(--deck-glass-card-shadow);
+  }
+  /* Quiet / board rule: no fill or effect, border/default as the
+     [6,6] dash, drawn by CardDashStroke, since CSS `dashed` leaves
+     the dash length to the browser. */
+  .quiet {
+    --card-stroke: none;
+    background: transparent;
+  }
+  .quiet .dashTop,
+  .quiet .dashBottom {
+    stop-color: var(--deck-border-default);
+  }
+  .quiet::before {
+    content: none;
+  }
+  /* An unfilled surface casts no box shadow: Figma draws an unfilled
+     frame's Glass/Card drop shadow from its stroke and contents only, which
+     at 1 px and 10% is nothing to see, where a CSS box
+     shadow draws the whole box's halo. Dark's shadow is transparent either way.
+     List card: no fill, the Glass/Card effect, Border/Glass
+     as a solid stroke: `dashed` with its stroke unbroken. */
+  .outline {
+    --card-stroke: var(--deck-border-glass);
+    background: transparent;
+    backdrop-filter: var(--deck-glass-card-backdrop);
+  }
+  /* Dashed glass, as a list's free blocks draw it.
+     No fill; the Glass/Card effect; Border/Glass
+     (border/glass/top 32% → bottom 6%) as a dashed [6,6] stroke. CSS borders
+     cannot dash a gradient, so Card draws the stroke as an SVG rect
+     (`.dashStroke`) over the reserved 1px border. */
+  .dashed {
+    --card-stroke: none;
+    background: transparent;
+    backdrop-filter: var(--deck-glass-card-backdrop);
+  }
+  .dashed::before {
+    content: none;
+  }
+  /* The SVG box is exactly the border box, so it snaps to pixels like a real
+     border; the rect sits half the stroke inside it, so the stroke covers the
+     border exactly, as Figma's INSIDE stroke does. */
+  .dashStroke {
+    --dash-half: calc(var(--deck-border-glass-width) / 2);
+    position: absolute;
+    top: calc(-1 * var(--deck-border-glass-width));
+    left: calc(-1 * var(--deck-border-glass-width));
+    width: calc(100% + 2 * var(--deck-border-glass-width));
+    height: calc(100% + 2 * var(--deck-border-glass-width));
+    overflow: visible;
+    pointer-events: none;
+  }
+  .dashStroke rect {
+    x: var(--dash-half);
+    y: var(--dash-half);
+    width: calc(100% - var(--deck-border-glass-width));
+    height: calc(100% - var(--deck-border-glass-width));
+    rx: calc(var(--card-radius, 0px) - var(--dash-half));
+    fill: none;
+    stroke-width: var(--deck-border-glass-width);
+    /* Figma dashPattern [6, 6] (Quiet too). */
+    stroke-dasharray: 6 6;
+  }
+  .dashTop {
+    stop-color: var(--deck-border-glass-top);
+  }
+  .dashBottom {
+    stop-color: var(--deck-border-glass-bottom);
+  }
+  /* A list with no fill, list: Border/Glass solid and
+     the Glass/Card effect. The dashed recipe above with the stroke whole. */
+  .clear {
+    --card-stroke: var(--deck-border-glass);
+    background: transparent;
+    backdrop-filter: var(--deck-glass-card-backdrop);
+  }
+  /* Level 2 · Modal */
+  .glass {
+    --card-stroke: var(--deck-border-glass);
+    background: var(--deck-surface-glass) border-box;
+    backdrop-filter: var(--deck-glass-modal-backdrop);
+    box-shadow: var(--deck-glass-modal-shadow);
+  }
+  /* Control · pill, avatar */
+  .control {
+    --card-stroke: var(--deck-border-glass);
+    background: var(--deck-surface-glass) border-box;
+    backdrop-filter: var(--deck-glass-control-backdrop);
+    box-shadow: var(--deck-glass-control-shadow);
+  }
+  /* Opaque navy toast family: surface/popover + border/default, no blur or shadow. */
+  .popover {
+    --card-stroke: var(--deck-border-default);
+    background: var(--deck-surface-popover) border-box;
+  }
+  /* Card inset: the canvas gradient inside the setup panel, with a
+     border/subtle stroke and no blur or shadow. */
+  .inset {
+    --card-stroke: var(--deck-border-subtle);
+    background: var(--deck-canvas-inset) border-box;
+  }
+  /* Flat subtle: surface/subtle + border/subtle. */
+  .subtle {
+    --card-stroke: var(--deck-border-subtle);
+    background: var(--deck-surface-subtle) border-box;
+  }
+  /* A message in a thread:
+     action/disabled/bg + border/subtle, flat. A tone adds its border as on
+     any surface. */
+  .message {
+    --card-stroke: var(--deck-border-subtle);
+    background: var(--deck-action-disabled-bg) border-box;
+  }
+  /* Flat highlight: surface/highlight + border/highlight,
+     no blur or shadow, unlike Now. */
+  .highlight {
+    --card-stroke: var(--deck-border-highlight);
+    background: var(--deck-surface-highlight) border-box;
+  }
+
+  /* Tones. A tone class only defines the tone's colours; `.toned` puts the
+     border-only form on whatever surface it joins (Now + action/danger/border,
+     Level 1 + status/warning/border, subtle + tint)
+     and `.tinted` is the flat tinted material (fill + border, no blur or shadow:
+     Result row, warning panel, InlineNote,
+     banners). `--card-tone-fg` is the tone's
+     foreground for icons and toned text inside the surface. */
+  .toneSuccess {
+    --card-tone-bg: var(--deck-status-success-bg);
+    --card-tone-border: var(--deck-status-success-border);
+    --card-tone-edge: var(--deck-status-success-border);
+    --card-tone-fg: var(--deck-status-success-fg);
+  }
+  .toneInfo {
+    --card-tone-bg: var(--deck-status-info-bg);
+    --card-tone-border: var(--deck-status-info-border);
+    --card-tone-edge: var(--deck-status-info-border);
+    --card-tone-fg: var(--deck-status-info-fg);
+  }
+  .toneWarning {
+    --card-tone-bg: var(--deck-status-warning-bg);
+    --card-tone-border: var(--deck-status-warning-border);
+    --card-tone-edge: var(--deck-status-warning-border);
+    --card-tone-fg: var(--deck-status-warning-fg);
+  }
+  /* Border-only danger uses action/danger/border; the
+     tinted form keeps status/danger/border. */
+  .toneDanger {
+    --card-tone-bg: var(--deck-status-danger-bg);
+    --card-tone-border: var(--deck-status-danger-border);
+    --card-tone-edge: var(--deck-action-danger-border);
+    --card-tone-fg: var(--deck-status-danger-fg);
+  }
+  .toneInsight {
+    --card-tone-bg: var(--deck-status-insight-bg);
+    --card-tone-border: var(--deck-status-insight-border);
+    --card-tone-edge: var(--deck-status-insight-border);
+    --card-tone-fg: var(--deck-status-insight-fg);
+  }
+  /* Result row Tint, updating banner. */
+  .toneTint {
+    --card-tone-bg: var(--deck-action-tint-bg);
+    --card-tone-border: var(--deck-action-tint-border);
+    --card-tone-edge: var(--deck-action-tint-border);
+    --card-tone-fg: var(--deck-icon-accent);
+  }
+  /* Result row Neutral: surface/subtle + border/default, icon/muted. */
+  .toneNeutral {
+    --card-tone-bg: var(--deck-surface-subtle);
+    --card-tone-border: var(--deck-border-default);
+    --card-tone-edge: var(--deck-border-default);
+    --card-tone-fg: var(--deck-icon-muted);
+  }
+  /* Strong emphasis: the action/* recipe where Figma has one.
+     Only danger does (Danger Button, banner: 14% fill,
+     50% border); other tones keep their status recipe. */
+  .toneDanger.strong {
+    --card-tone-bg: var(--deck-action-danger-bg);
+    --card-tone-border: var(--deck-action-danger-border);
+    --card-tone-fg: var(--deck-action-danger-text);
+  }
+  .toned {
+    --card-stroke: var(--card-tone-edge);
+  }
+  .quiet.toned .dashTop,
+  .quiet.toned .dashBottom,
+  .dashed.toned .dashTop,
+  .dashed.toned .dashBottom {
+    stop-color: var(--card-tone-edge);
+  }
+  .tinted {
+    --card-stroke: var(--card-tone-border);
+    background: var(--card-tone-bg) border-box;
+  }
+
+  .shapeCard {
+    --card-radius: var(--deck-radius-2xl);
+    border-radius: var(--card-radius);
+  }
+  /* Setup panel (Figma radius 40, inset radius 30): concentric
+     on the token scale instead. The inset takes radius/2xl; the
+     panel adds the space/12 padding and its border, so the corners share a
+     centre. Use with `padding={12}`. */
+  .shapePanel {
+    --card-radius: calc(
+      var(--deck-radius-2xl) + var(--deck-space-12) +
+        var(--deck-border-glass-width)
+    );
+    border-radius: var(--card-radius);
+  }
+  .shapeXl {
+    --card-radius: var(--deck-radius-xl);
+    border-radius: var(--card-radius);
+  }
+  .shapeLg {
+    --card-radius: var(--deck-radius-lg);
+    border-radius: var(--card-radius);
+  }
+  .shapeMd {
+    --card-radius: var(--deck-radius-md);
+    border-radius: var(--card-radius);
+  }
+  .shapeSm {
+    --card-radius: var(--deck-radius-sm);
+    border-radius: var(--card-radius);
+  }
+  .shapePill {
+    --card-radius: var(--deck-radius-pill);
+    border-radius: var(--card-radius);
+  }
+
+  /* Card's own layout sits in the same layer, so a screen's single
+     class overrides max-width, padding or flex without a doubled selector,
+     whatever order the stylesheets load in. */
+  /* Card content layout: slots stacked at space/14, padding space/22
+     unless the caller passes `padding`. */
+  .root {
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+    overflow-wrap: anywhere;
+    display: flex;
+    flex-direction: column;
+    gap: var(--deck-space-14);
+    padding: var(--card-padding-block) var(--card-padding-inline);
+    color: var(--deck-text-primary);
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--deck-space-8);
+    /* Title/S (header). */
+    font: var(--deck-font-title-s);
+    letter-spacing: var(--deck-type-title-s-tracking);
+    font-optical-sizing: none;
+  }
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--deck-space-6);
+    /* Body/XS (content). */
+    font: var(--deck-font-body-xs);
+    letter-spacing: var(--deck-type-body-xs-tracking);
+    font-optical-sizing: none;
+  }
+  .evidence {
+    width: 100%;
+    min-width: 0;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--deck-space-8);
+  }
+  /* End-aligned cards: the row sits at the card's right. */
+  .actions[data-align="end"] {
+    justify-content: flex-end;
+  }
+  /* Buttons side by side are one height: a primary has no border,
+     so it is 2px shorter than the secondary beside it. */
+  .actions > :is(a, button) {
+    align-self: stretch;
+  }
+  .header > * {
+    min-width: 0;
+  }
+  /* The trailing item (a time or a status chip) keeps its
+     width; the title wraps instead. */
+  .header > :last-child:not(:first-child) {
+    flex-shrink: 0;
+  }
+  .root p,
+  .root h2,
+  .root h3 {
+    margin: 0;
+  }
+
+  .evidence > * {
+    max-width: none;
+  }
+  .root .evidence > * {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* `clip`: the stroke is drawn over the border, outside the padding box, so
+     overflow on the Card itself would hide it. A clipping Card moves its layout
+     into this inner layer instead, rounded concentrically inside the border. */
+  .clipped {
+    padding: 0;
+  }
+  .clip {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: inherit;
+    min-height: 0;
+    padding: var(--card-padding-block) var(--card-padding-inline);
+    overflow: clip;
+    border-radius: calc(
+      var(--card-radius, 0px) - var(--deck-border-glass-width)
+    );
+  }
+}

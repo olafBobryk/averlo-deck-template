@@ -1,0 +1,893 @@
+/* Slide content, on the design tokens only. Sizes are in --u, 1/100 of a
+   16:9 width in the nearest size container (deck.module.css), so a slide is
+   the same full-bleed, in a thumbnail and on a PDF page. Compositions: one
+   anchor per slide, the dominant visual opposite it. One accent plus the
+   text greys; status colours only where a mark means a status. Readability
+   (a deck-only deviation from the type scale): body and labels at weight
+   450, line height 1.5, lines of about 60 characters. */
+
+.head {
+  display: grid;
+  gap: calc(var(--u) * 1.2);
+  min-width: 0;
+  align-content: start;
+}
+.eyebrow.eyebrow {
+  margin: 0;
+  font-size: calc(var(--u) * 1.5);
+  font-weight: 450;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+}
+.headline.headline {
+  max-width: 30ch;
+  margin: 0;
+  font-size: calc(var(--u) * 3.6);
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 2.6);
+  min-width: 0;
+}
+.block {
+  min-width: 0;
+}
+.centred {
+  align-items: start;
+}
+
+/* ---------- Compositions ---------- */
+
+/* split: the heading at the left, the evidence at the right (two-column,
+   argument and evidence, 5 + 7); split-end mirrors it. */
+:global([data-layout="split"]),
+:global([data-layout="split-end"]) {
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  column-gap: calc(var(--u) * 5);
+  align-items: center;
+  align-content: center !important;
+}
+:global([data-layout="split-end"]) .head {
+  grid-column: 2;
+  grid-row: 1;
+}
+:global([data-layout="split-end"]) .body {
+  grid-column: 1;
+  grid-row: 1;
+}
+:global([data-layout="split"]) .headline.headline,
+:global([data-layout="split-end"]) .headline.headline {
+  font-size: calc(var(--u) * 3.4);
+  max-width: none;
+}
+/* center: a quote or the closing message in the middle of the stage. Every
+   part (eyebrow, headline, lead) on one vertical axis: the closing
+   kind's start alignment (deck.module.css) must not win. */
+:global([data-layout="center"]) {
+  align-content: center !important;
+  justify-items: center !important;
+  text-align: center;
+}
+:global([data-layout="center"]) .head {
+  justify-items: center;
+}
+:global([data-layout="center"]) .headline.headline {
+  max-width: 22ch;
+  font-size: calc(var(--u) * 5.4);
+}
+:global([data-layout="center"]) .body {
+  align-items: center;
+}
+/* statement: one large claim anchored at the bottom left, its lead under. */
+:global([data-layout="statement"]) {
+  align-content: end !important;
+  padding-bottom: calc(var(--u) * 12) !important;
+}
+:global([data-layout="statement"]) .headline.headline {
+  max-width: 20ch;
+  font-size: calc(var(--u) * 6);
+  line-height: 1.08;
+}
+
+/* A glyph from the icon set, on the accent, sized with the slide. */
+.glyph {
+  --icon-slot-size: calc(var(--u) * 2.2);
+  display: inline-flex;
+  color: var(--deck-text-accent);
+}
+.points[data-style="chips"] .glyph {
+  --icon-slot-size: calc(var(--u) * 1.6);
+}
+
+/* ---------- Text ---------- */
+
+.lead.lead {
+  max-width: 46ch;
+  margin: 0;
+  font-size: calc(var(--u) * 2);
+  font-weight: 450;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.lead.lead[data-size="statement"] {
+  max-width: 24ch;
+  font-size: calc(var(--u) * 3.2);
+  line-height: 1.2;
+  color: var(--deck-text-primary);
+}
+/* Key phrases: bold inside body text, in its own tone, at the labels'
+   title weight: Body/M Strong's 500 sits too close to the deck's 450 body
+   to read as bold. */
+.key {
+  font-weight: var(--deck-type-title-l-weight);
+}
+/* Two-tone big lines: the obvious lead-in in the secondary tone, the
+   rest in the heading gradient, one block in one type. Live, each part is
+   its own HeadingText run (so a language change still retypes), set inline
+   in the block's type; the heading run lets the block's gradient paint
+   through it, as one text, rather than drawing its own per line. */
+.headline .run.run {
+  font: inherit;
+  letter-spacing: inherit;
+}
+.headline .run [data-typed] {
+  display: inline;
+}
+.headline .run[data-tone="heading"] {
+  background: none;
+}
+.muted {
+  color: var(--deck-text-secondary);
+}
+.note.note {
+  max-width: 60ch;
+  margin: 0;
+  padding-inline-start: calc(var(--u) * 1.2);
+  border-inline-start: max(2px, calc(var(--u) * 0.2)) solid
+    var(--deck-text-accent);
+  font-size: calc(var(--u) * 1.5);
+  font-weight: 450;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+/* ---------- Points: cards, numbered rows or chips ---------- */
+
+.points {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: calc(var(--u) * 1.4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.points[data-cols="2"] {
+  --cols: 2;
+}
+.points[data-cols="3"] {
+  --cols: 3;
+}
+.points[data-cols="4"] {
+  --cols: 4;
+}
+.points[data-cols="5"] {
+  --cols: 5;
+}
+.point {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 0.8);
+  padding: calc(var(--u) * 1.8);
+}
+.pointLabel.pointLabel {
+  margin: 0;
+  font-size: calc(var(--u) * 1.9);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.points[data-cols="5"] .pointLabel {
+  font-size: calc(var(--u) * 1.6);
+}
+.pointText.pointText {
+  max-width: 60ch;
+  margin: 0;
+  font-size: calc(var(--u) * 1.4);
+  font-weight: 450;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+/* Numbered: bare rows (or columns) led by a large numeral, no surface. */
+.points[data-style="numbered"] .point {
+  padding: calc(var(--u) * 1.4) 0 0;
+  border-top: 1px solid var(--deck-border-subtle);
+}
+:global([data-layout="split"]) .points[data-style="numbered"] {
+  --cols: 1 !important;
+  gap: calc(var(--u) * 1.6);
+}
+:global([data-layout="split"]) .points[data-style="numbered"] .point {
+  display: grid;
+  grid-template-columns: calc(var(--u) * 6) minmax(0, 1fr);
+  column-gap: calc(var(--u) * 1.6);
+  row-gap: calc(var(--u) * 0.4);
+}
+:global([data-layout="split"])
+  .points[data-style="numbered"]
+  .point
+  > :not(.numeral) {
+  grid-column: 2;
+}
+:global([data-layout="split"]) .points[data-style="numbered"] .numeral {
+  grid-row: 1 / span 2;
+}
+.numeral {
+  font-size: calc(var(--u) * 3.4);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--deck-text-accent);
+}
+/* Chips: a short checklist of glass pills. */
+.points[data-style="chips"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--u) * 1);
+}
+.points[data-style="chips"] .point {
+  flex-direction: row;
+  align-items: center;
+  gap: calc(var(--u) * 0.8);
+  padding: calc(var(--u) * 1) calc(var(--u) * 1.8);
+}
+.points[data-style="chips"] .pointLabel {
+  font-size: calc(var(--u) * 1.6);
+}
+
+/* ---------- Steps: a rail, or numbered nodes ---------- */
+
+.steps {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: calc(var(--u) * 1.2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.step {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  align-content: start;
+  gap: calc(var(--u) * 0.8);
+  min-width: 0;
+}
+.when.when {
+  margin: 0;
+  font-size: calc(var(--u) * 1.3);
+  font-weight: 450;
+  font-variant-numeric: tabular-nums;
+}
+.rail {
+  position: relative;
+  height: calc(var(--u) * 1.2);
+}
+.rail::before {
+  content: "";
+  position: absolute;
+  inset: 50% calc(var(--u) * -1.2) auto 0;
+  height: max(1px, calc(var(--u) * 0.12));
+  translate: 0 -50%;
+  background: var(--deck-border-subtle);
+}
+/* The line runs from each dot to the next one's edge; the last has none. */
+.step:last-child .rail::before {
+  display: none;
+}
+/* Lines run under the dots to their centres, so they meet every dot's edge.
+   A hollow dot is filled solid to hide the line: the canvas between its top
+   and middle stops, where the rail and the plan's axis sit (--deck-canvas
+   is a gradient). The current dot's halo stays translucent: the line meets
+   the dot itself. */
+.steps,
+.plan {
+  --dot: calc(var(--u) * 1.2);
+  --dot-fill: color-mix(
+    in srgb,
+    var(--deck-bg-canvas-mid) 73%,
+    var(--deck-bg-canvas-top)
+  );
+}
+.rail::after,
+.mark::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--dot);
+  height: var(--dot);
+  border-radius: 50%;
+  background: var(--deck-text-secondary);
+  box-sizing: border-box;
+}
+.rail[data-status="current"]::after,
+.mark[data-status="current"]::before {
+  background: var(--deck-text-accent);
+  box-shadow: 0 0 0 calc(var(--u) * 0.4) var(--deck-surface-subtle);
+}
+.rail[data-status="upcoming"]::after,
+.mark[data-status="upcoming"]::before {
+  border: max(1px, calc(var(--u) * 0.15)) solid var(--deck-text-tertiary);
+  background: var(--dot-fill);
+}
+.stepLabel.stepLabel {
+  margin: 0;
+  font-size: calc(var(--u) * 1.6);
+  line-height: 1.25;
+  text-wrap: balance;
+}
+.stepText.stepText {
+  max-width: 60ch;
+  margin: 0;
+  font-size: calc(var(--u) * 1.4);
+  font-weight: 450;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+/* In a split slide the rail runs down the right column. */
+:global([data-layout="split"]) .steps[data-style="rail"],
+:global([data-layout="split-end"]) .steps[data-style="rail"] {
+  grid-auto-flow: row;
+  gap: calc(var(--u) * 1.6);
+}
+:global([data-layout="split"]) .steps[data-style="rail"] .step {
+  grid-template-columns: calc(var(--u) * 11) calc(var(--u) * 1.2) minmax(0, 1fr);
+  grid-template-rows: auto;
+  align-items: center;
+  column-gap: calc(var(--u) * 1.6);
+}
+/* The rail cell spans its row; the line runs from the first dot's centre
+   through each row and the row gap to the last dot's centre. */
+:global([data-layout="split"]) .steps[data-style="rail"] .rail {
+  align-self: stretch;
+  height: auto;
+}
+:global([data-layout="split"]) .steps[data-style="rail"] .rail::after {
+  top: calc(50% - var(--dot) / 2);
+}
+:global([data-layout="split"]) .steps[data-style="rail"] .rail::before {
+  inset: 0 auto calc(var(--u) * -1.6) 50%;
+  width: max(1px, calc(var(--u) * 0.12));
+  height: auto;
+  translate: -50% 0;
+}
+:global([data-layout="split"])
+  .steps[data-style="rail"]
+  .step:first-child
+  .rail::before {
+  top: 50%;
+}
+:global([data-layout="split"])
+  .steps[data-style="rail"]
+  .step:last-child
+  .rail::before {
+  display: block;
+  bottom: 50%;
+}
+/* Nodes: an ordered sequence of large numbered circles, joined. */
+.steps[data-style="nodes"] {
+  gap: calc(var(--u) * 3);
+}
+.steps[data-style="nodes"] .step {
+  grid-template-rows: auto auto auto;
+  gap: calc(var(--u) * 1.2);
+}
+/* The circle and the link to the next one: the link runs from this circle's
+   edge across the column gap to the next circle's edge, with no gap. */
+.nodeRow {
+  display: flex;
+  align-items: center;
+}
+.link {
+  flex: 1;
+  height: max(1px, calc(var(--u) * 0.12));
+  margin-inline-end: calc(var(--u) * -3);
+  background: var(--deck-border-subtle);
+}
+.node {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 7);
+  height: calc(var(--u) * 7);
+  border: max(1px, calc(var(--u) * 0.15)) solid var(--deck-border-strong);
+  border-radius: 50%;
+  font-size: calc(var(--u) * 3);
+  font-weight: 600;
+  color: var(--deck-text-primary);
+}
+.node[data-status="current"] {
+  border-color: var(--deck-text-accent);
+  color: var(--deck-text-accent);
+}
+.steps[data-style="nodes"] .stepLabel {
+  font-size: calc(var(--u) * 2);
+}
+
+/* ---------- Facts: label and value rows on one card ---------- */
+
+.facts {
+  display: grid;
+  margin: 0;
+  padding: calc(var(--u) * 0.6) calc(var(--u) * 2);
+}
+.fact {
+  display: grid;
+  grid-template-columns: minmax(0, 0.32fr) minmax(0, 1fr);
+  gap: calc(var(--u) * 2);
+  align-items: baseline;
+  padding-block: calc(var(--u) * 1.2);
+}
+:global([data-layout="split"]) .fact,
+:global([data-layout="split-end"]) .fact {
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(var(--u) * 0.6);
+}
+.fact + .fact {
+  border-top: 1px solid var(--deck-border-subtle);
+}
+.factLabel.factLabel {
+  margin: 0;
+  font-size: calc(var(--u) * 1.4);
+  font-weight: 450;
+  line-height: 1.3;
+}
+.factText.factText {
+  max-width: 60ch;
+  margin: 0;
+  font-size: calc(var(--u) * 1.75);
+  font-weight: 450;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+/* ---------- Org and fork: a node and what hangs off it ---------- */
+
+/* Every connector is drawn from the real geometry: the gap between the root
+   and its branches (--reach), the gap between branches (--between) and the
+   line (--line). Each branch draws its own stub and its share of the bar or
+   spine, so the lines land on every card whatever its size; no two pieces
+   overlap, since the line is translucent. The branch item
+   holds them; its glass card (whose ::before is the stroke) carries the diff
+   marks (whose ::after is the tip). */
+.org,
+.fork {
+  --line: max(1px, calc(var(--u) * 0.12));
+  --between: calc(var(--u) * 1);
+  position: relative;
+  display: grid;
+  gap: var(--reach);
+}
+.root,
+.branchCard {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 0.5);
+  padding: calc(var(--u) * 1.3) calc(var(--u) * 1.6);
+}
+.fork .branchCard {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: calc(var(--u) * 1);
+}
+.fork .branchCard .pointText {
+  flex-basis: 100%;
+}
+.branches {
+  position: relative;
+  display: grid;
+  gap: var(--between);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.branch {
+  position: relative;
+  display: grid;
+}
+.branches::before,
+.branch::before,
+.branch::after {
+  content: "";
+  position: absolute;
+  background: var(--deck-border-strong);
+}
+/* Org: the leadership node over its three roles, joined by a bracket. The
+   stem drops from the root's bottom edge to the bar at mid-gap; each role's
+   stub rises from its top edge, centred, to the bar. */
+.org {
+  --reach: calc(var(--u) * 2);
+  justify-items: center;
+}
+.org .root {
+  width: min(100%, calc(var(--u) * 40));
+  text-align: center;
+  align-items: center;
+}
+.org .branches {
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.org .branches::before,
+.org .branch::before {
+  left: 50%;
+  width: var(--line);
+  translate: -50% 0;
+}
+.org .branches::before {
+  top: calc(var(--reach) * -1);
+  height: calc(var(--reach) / 2 - var(--line) / 2);
+}
+.org .branch::before {
+  top: calc(var(--reach) / -2 + var(--line) / 2);
+  height: calc(var(--reach) / 2 - var(--line) / 2);
+}
+.org .branch::after {
+  top: calc(var(--reach) / -2 - var(--line) / 2);
+  left: calc(var(--between) / -2);
+  right: calc(var(--between) / -2);
+  height: var(--line);
+}
+.org .branch:first-child::after {
+  left: calc(50% - var(--line) / 2);
+}
+.org .branch:last-child::after {
+  right: calc(50% - var(--line) / 2);
+}
+/* Fork: one stage at the left branching into its options at the right. The
+   stub leaves the root's right edge for a spine at mid-gap; each option's arm
+   leaves the spine for its left edge, at its vertical centre. */
+.fork {
+  --reach: calc(var(--u) * 6);
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  align-items: center;
+  row-gap: calc(var(--u) * 2);
+}
+.fork .branches::before {
+  left: calc(var(--reach) * -1);
+  top: 50%;
+  width: calc(var(--reach) / 2 - var(--line) / 2);
+  height: var(--line);
+  translate: 0 -50%;
+}
+.fork .branch::before {
+  left: calc(var(--reach) / -2 + var(--line) / 2);
+  top: calc(50% - var(--line) / 2);
+  width: calc(var(--reach) / 2 - var(--line) / 2);
+  height: var(--line);
+}
+.fork .branch::after {
+  left: calc(var(--reach) / -2 - var(--line) / 2);
+  top: calc(var(--between) / -2);
+  bottom: calc(var(--between) / -2);
+  width: var(--line);
+}
+.fork .branch:first-child::after {
+  top: calc(50% - var(--line) / 2);
+}
+.fork .branch:last-child::after {
+  bottom: calc(50% - var(--line) / 2);
+}
+
+/* ---------- Week: the five working days and their fixed moments ---------- */
+
+.week {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: calc(var(--u) * 1.2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.day {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 0.6);
+  min-height: calc(var(--u) * 8);
+  padding: calc(var(--u) * 1.4) calc(var(--u) * 1.6);
+}
+.day[data-empty] {
+  border: 1px dashed var(--deck-border-subtle);
+  border-radius: var(--deck-radius-lg);
+}
+
+/* ---------- Plan: a time axis with marks and an undated span ---------- */
+
+/* Every dot's centre sits on the axis's centre line (50%): a mark's text
+   starts --off from it, and its dot reaches back --off plus half a dot. */
+.plan {
+  --off: calc(var(--u) * 1.8);
+  position: relative;
+  height: calc(var(--u) * 30);
+  margin-inline: calc(var(--u) * 2) calc(var(--u) * 8);
+}
+.axis {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: max(2px, calc(var(--u) * 0.18));
+  translate: 0 -50%;
+  background: var(--deck-border-strong);
+}
+.marks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* Doubled, so diff mode's position: relative never moves a mark. */
+.mark.mark {
+  position: absolute;
+  left: var(--at);
+  top: 50%;
+  display: grid;
+  gap: calc(var(--u) * 0.4);
+  width: calc(var(--u) * 14);
+  translate: calc(var(--dot) / -2) 0;
+}
+/* The last mark ends at the axis's end: its text runs back from it. */
+.mark[data-edge="end"] {
+  translate: calc(-100% + var(--dot) / 2) 0;
+  justify-items: end;
+  text-align: end;
+}
+.mark[data-edge="end"]::before {
+  left: auto;
+  right: 0;
+}
+.mark[data-side="above"] {
+  bottom: calc(50% + var(--off));
+  top: auto;
+}
+.mark[data-side="below"] {
+  top: calc(50% + var(--off));
+}
+.mark[data-side="above"]::before {
+  top: auto;
+  bottom: calc(var(--off) * -1 - var(--dot) / 2);
+}
+.mark[data-side="below"]::before {
+  top: calc(var(--off) * -1 - var(--dot) / 2);
+}
+.span.span {
+  position: absolute;
+  left: var(--from);
+  width: calc(var(--to) - var(--from));
+  top: calc(50% + var(--u) * 6.6);
+  padding-top: calc(var(--u) * 1);
+  border-top: max(2px, calc(var(--u) * 0.3)) dashed var(--deck-text-accent);
+}
+.spanLabel.spanLabel {
+  margin: 0;
+  font-size: calc(var(--u) * 1.4);
+  font-weight: 450;
+}
+
+/* ---------- Phones: portrait and narrow (the reflow) ---------- */
+
+@media (orientation: portrait) and (max-width: 699px) {
+  :global(:where([data-deck-title])) .eyebrow.eyebrow {
+    font-size: max(13px, 3.4cqw);
+  }
+  :global(:where([data-deck-title])) .headline.headline,
+  :global(:where([data-deck-title])[data-layout]) .headline.headline {
+    max-width: none;
+    font-size: max(28px, 7.4cqw);
+    overflow-wrap: break-word;
+  }
+  :global(:where([data-deck-title])[data-layout="split"]),
+  :global(:where([data-deck-title])[data-layout="split-end"]) {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start !important;
+  }
+  :global(:where([data-deck-title])[data-layout="split-end"]) .head,
+  :global(:where([data-deck-title])[data-layout="split-end"]) .body {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  :global(:where([data-deck-title])[data-layout="statement"]) {
+    align-content: start !important;
+  }
+  :global(:where([data-deck-title])) .lead.lead {
+    font-size: max(16px, 4.4cqw);
+  }
+  :global(:where([data-deck-title])) .lead.lead[data-size="statement"] {
+    font-size: max(20px, 6cqw);
+  }
+  :global(:where([data-deck-title])) .note.note {
+    font-size: max(14px, 3.8cqw);
+  }
+  :global(:where([data-deck-title])) .points {
+    --cols: 1 !important;
+    gap: 10px;
+  }
+  :global(:where([data-deck-title])) .point {
+    padding: 14px 16px;
+    gap: 4px;
+  }
+  :global(:where([data-deck-title])) .points[data-style="numbered"] .point {
+    padding: 12px 0 0;
+  }
+  :global(:where([data-deck-title])) .numeral {
+    font-size: max(22px, 6cqw);
+  }
+  :global(:where([data-deck-title])[data-layout="split"])
+    .points[data-style="numbered"]
+    .point {
+    grid-template-columns: 44px minmax(0, 1fr);
+    column-gap: 10px;
+  }
+  :global(:where([data-deck-title])) .glyph,
+  :global(:where([data-deck-title])) .points[data-style="chips"] .glyph {
+    --icon-slot-size: 18px;
+  }
+  :global(:where([data-deck-title])) .org .root {
+    width: 100%;
+  }
+  :global(:where([data-deck-title])) .pointLabel.pointLabel,
+  :global(:where([data-deck-title])) .points[data-cols="5"] .pointLabel,
+  :global(:where([data-deck-title])) .points[data-style="chips"] .pointLabel {
+    font-size: max(16px, 4.4cqw);
+  }
+  :global(:where([data-deck-title])) .pointText.pointText {
+    font-size: max(14px, 3.8cqw);
+  }
+  :global(:where([data-deck-title])) .steps,
+  :global(:where([data-deck-title])) .steps[data-style="nodes"] {
+    grid-auto-flow: row;
+    gap: 14px;
+  }
+  :global(:where([data-deck-title])) .step,
+  :global(:where([data-deck-title])[data-layout="split"])
+    .steps[data-style="rail"]
+    .step {
+    grid-template-columns: max(12px, 3cqw) minmax(0, 1fr);
+    grid-template-rows: auto;
+    column-gap: 12px;
+    row-gap: 2px;
+  }
+  :global(:where([data-deck-title])) .step .rail {
+    grid-row: 1 / span 3;
+    grid-column: 1;
+    height: max(12px, 3cqw);
+    margin-top: 2px;
+  }
+  :global(:where([data-deck-title])) .step .rail::before,
+  :global(:where([data-deck-title])) .link {
+    display: none;
+  }
+  :global(:where([data-deck-title])) .step .rail::after,
+  :global(:where([data-deck-title])[data-layout="split"])
+    .steps[data-style="rail"]
+    .rail::after {
+    top: 0;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+  }
+  :global(:where([data-deck-title])[data-layout="split"])
+    .steps[data-style="rail"]
+    .rail {
+    align-self: start;
+    height: max(12px, 3cqw);
+  }
+  :global(:where([data-deck-title])) .nodeRow {
+    grid-row: 1 / span 3;
+    grid-column: 1;
+    align-self: start;
+  }
+  :global(:where([data-deck-title])) .node {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  :global(:where([data-deck-title])) .steps[data-style="nodes"] .step {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+  :global(:where([data-deck-title])) .when.when,
+  :global(:where([data-deck-title])) .stepLabel.stepLabel,
+  :global(:where([data-deck-title])) .stepText.stepText {
+    grid-column: 2;
+  }
+  :global(:where([data-deck-title])) .when.when {
+    font-size: max(12px, 3.2cqw);
+  }
+  :global(:where([data-deck-title])) .stepLabel.stepLabel,
+  :global(:where([data-deck-title])) .steps[data-style="nodes"] .stepLabel {
+    font-size: max(15px, 4.2cqw);
+  }
+  :global(:where([data-deck-title])) .stepText.stepText {
+    font-size: max(13px, 3.6cqw);
+  }
+  :global(:where([data-deck-title])) .facts {
+    padding: 4px 16px;
+  }
+  :global(:where([data-deck-title])) .fact {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    padding-block: 12px;
+  }
+  :global(:where([data-deck-title])) .factLabel.factLabel {
+    font-size: max(12px, 3.2cqw);
+  }
+  :global(:where([data-deck-title])) .factText.factText {
+    font-size: max(15px, 4cqw);
+  }
+  :global(:where([data-deck-title])) .org .branches,
+  :global(:where([data-deck-title])) .fork,
+  :global(:where([data-deck-title])) .week {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  :global(:where([data-deck-title])) .branches::before,
+  :global(:where([data-deck-title])) .branch::before,
+  :global(:where([data-deck-title])) .branch::after {
+    display: none;
+  }
+  :global(:where([data-deck-title])) .root,
+  :global(:where([data-deck-title])) .branchCard,
+  :global(:where([data-deck-title])) .day {
+    padding: 14px 16px;
+    min-height: 0;
+  }
+  :global(:where([data-deck-title])) .day[data-empty] {
+    display: none;
+  }
+  :global(:where([data-deck-title])) .plan {
+    height: auto;
+    margin: 0;
+    display: grid;
+    gap: 12px;
+  }
+  :global(:where([data-deck-title])) .axis {
+    display: none;
+  }
+  :global(:where([data-deck-title])) .marks {
+    display: grid;
+    gap: 12px;
+  }
+  :global(:where([data-deck-title])) .mark.mark,
+  :global(:where([data-deck-title])) .mark.mark[data-side] {
+    position: relative;
+    inset: auto;
+    width: auto;
+    translate: none;
+    padding-left: 24px;
+    justify-items: start;
+    text-align: start;
+  }
+  :global(:where([data-deck-title])) .mark.mark .when.when,
+  :global(:where([data-deck-title])) .mark.mark .stepLabel.stepLabel {
+    grid-column: 1;
+  }
+  :global(:where([data-deck-title])) .mark.mark::before,
+  :global(:where([data-deck-title])) .mark.mark[data-side]::before {
+    top: 4px;
+    right: auto;
+    bottom: auto;
+    left: 0;
+    width: 12px;
+    height: 12px;
+  }
+  :global(:where([data-deck-title])) .span.span {
+    position: relative;
+    inset: auto;
+    width: auto;
+  }
+  :global(:where([data-deck-title])) .spanLabel.spanLabel {
+    font-size: max(13px, 3.6cqw);
+  }
+}

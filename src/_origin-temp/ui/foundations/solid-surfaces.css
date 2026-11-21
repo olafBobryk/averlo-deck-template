@@ -1,0 +1,16 @@
+/* Glass without the glass, where the browser renders it too slowly to test
+   (Linux WebKit in CI; the test setup sets the attribute). The surfaces
+   take the opaque popover surface, so text over scrolling content stays
+   readable and contrast checks still mean something. Nothing sets this attribute
+   in the product. Composites are declared on every [data-theme] (tokens.css), so
+   this is too. */
+html:root[data-solid-surfaces],
+html[data-solid-surfaces] [data-theme] {
+  --deck-glass-card-backdrop: none;
+  --deck-glass-control-backdrop: none;
+  --deck-glass-modal-backdrop: none;
+  --deck-surface-glass: var(--deck-surface-popover);
+  --deck-surface-card: var(--deck-surface-popover);
+  --deck-action-secondary-bg: var(--deck-surface-popover);
+  --deck-action-disabled-bg: var(--deck-surface-popover);
+}

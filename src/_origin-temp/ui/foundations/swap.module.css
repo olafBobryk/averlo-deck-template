@@ -1,0 +1,27 @@
+/* The swap recipe for glyphs that stay mounted and stack in one
+   slot (a bar's stacked circle buttons, the field submit): the same
+   as IconSwap. Hidden, a glyph is at scale.swap, transparent and
+   unreachable; shown, it scales up on the control spring and fades in on
+   fade; leaving, it fades on exit and stays visible until then. Compose
+   `swap` and set data-shown (a Radix indicator's checked state counts). Other properties the element animates go in
+   --swap-also (a transition list). */
+.swap {
+  opacity: 0;
+  scale: var(--deck-motion-scale-swap);
+  visibility: hidden;
+  transition:
+    opacity var(--deck-motion-exit),
+    scale var(--deck-motion-spring-control),
+    visibility var(--deck-motion-exit),
+    var(--swap-also, opacity var(--deck-motion-exit));
+}
+.swap:is([data-shown], [data-state="checked"]) {
+  opacity: 1;
+  scale: 1;
+  visibility: visible;
+  transition:
+    opacity var(--deck-motion-fade),
+    scale var(--deck-motion-spring-control),
+    visibility 0s,
+    var(--swap-also, opacity var(--deck-motion-fade));
+}

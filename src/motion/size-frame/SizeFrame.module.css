@@ -1,0 +1,23 @@
+/* The frame's own edge is the only clip, and only while it resizes. Its 4px
+   gutter (padding cancelled by a negative margin) keeps the widest focus
+   indicator, outline 2px + offset 2px, inside that edge (focus
+   is never clipped). :where, so a caller's own margin or padding wins whatever
+   order the CSS chunks load (else a caller's gaps vary by load order). */
+:where(.frame) {
+  box-sizing: border-box;
+  padding: var(--deck-space-4);
+  margin: calc(-1 * var(--deck-space-4));
+}
+.frame[data-resizing] {
+  overflow: clip;
+}
+.content {
+  display: flow-root;
+}
+/* A frame that follows its content's width lets the content size itself, so
+   the content's width never depends on the frame's animating width. Set
+   --size-frame-max-width (e.g. the space the frame may take) to let it wrap. */
+.frame:not([data-axis="height"]) .content {
+  width: max-content;
+  max-width: var(--size-frame-max-width, none);
+}

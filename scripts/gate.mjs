@@ -2,7 +2,7 @@
 // The gate (`npm run gate`, FR-021). It loads the machine settings from the
 // ignored .local/env, runs every check in order, starts and stops the
 // servers a check needs, and reports each check as passed, failed or not run.
-// The report is printed and written to test-results/gate-report.md, then
+// The report is printed and written to gate-results/gate-report.md, then
 // checked with the public scan's text mode.
 //
 // A check reports "not run" when its tool does not exist yet (the report
@@ -132,9 +132,18 @@ export function runCommand(cmd, { cwd, env = process.env, output, log } = {}) {
     pipeLines(child.stdout, { write, tail, log });
     pipeLines(child.stderr, { write, tail, log });
     child.on("error", (error) => done({ code: 127, tail: [error.message] }));
-    child.on("close", (code, signal) =>
-      done({ code: code ?? (signal ? 128 : 1), tail }),
-    );
+    // A check may leave a server behind in its group (the carried PDF script
+    // stops `npx`, not the server under it): when the check exits, stop its
+    // whole group, so nothing outlives it and its pipes close.
+    let exited = null;
+    child.on("exit", (code, signal) => {
+      exited = { code, signal };
+      killGroup(child.pid, "SIGTERM");
+    });
+    child.on("close", (code, signal) => {
+      const end = exited ?? { code, signal };
+      done({ code: end.code ?? (end.signal ? 128 : 1), tail });
+    });
   });
 }
 
@@ -300,13 +309,31 @@ async function runCheck(check, { cwd, env, output, logDir }) {
       output,
       log,
     });
-    if (code === 0) return { ...base, status: "passed", reason: null };
+    if (code === 0)
+      return { ...base, status: "passed", reason: flakyReason(tail) };
     if (code === NOT_RUN_EXIT) return notRun(notRunReason(tail));
     return failed(`exit code ${code}`);
   } finally {
     for (const server of servers.reverse()) await server.stop();
     log?.end();
   }
+}
+
+/**
+ * Playwright's summary lists tests that passed only on a retry under
+ * "N flaky" (owner: "Retry once, report it"). Returns that as a note, or null.
+ */
+function flakyReason(tail) {
+  const at = tail.findIndex((line) => /^\s*\d+ flaky\s*$/.test(line));
+  if (at < 0) return null;
+  const count = tail[at].trim().split(" ")[0];
+  const names = [];
+  for (const line of tail.slice(at + 1)) {
+    const match = /^\s+(\[[^\]]+\]) › .*? › (.+?)\s*$/.exec(line);
+    if (!match) break;
+    names.push(`${match[1]} ${match[2]}`);
+  }
+  return `${count} flaky (passed on retry): ${names.join(", ")}`;
 }
 
 export function exitCode(results) {
@@ -483,7 +510,7 @@ async function main() {
     cwd: repoRoot,
     env: process.env,
     output: process.stdout,
-    logDir: join(repoRoot, "test-results", "gate"),
+    logDir: join(repoRoot, "gate-results", "logs"),
   });
 
   const dirty = gitValue(["status", "--porcelain"]);
@@ -496,7 +523,7 @@ async function main() {
     commit,
     missingEnv: missing,
   });
-  const reportFile = join(repoRoot, "test-results", "gate-report.md");
+  const reportFile = join(repoRoot, "gate-results", "gate-report.md");
   mkdirSync(dirname(reportFile), { recursive: true });
   writeFileSync(reportFile, report);
 
@@ -510,7 +537,7 @@ async function main() {
   writeFileSync(reportFile, report);
 
   console.log(`\n${report}`);
-  console.log("Written to test-results/gate-report.md");
+  console.log("Written to gate-results/gate-report.md");
   if (!reportClean) {
     console.log(`${scan.stdout ?? ""}${scan.stderr ?? ""}`.trim());
   }

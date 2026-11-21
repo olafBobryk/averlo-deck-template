@@ -1,0 +1,114 @@
+/* The intro, after the questionnaire's .aq-startup and .aq-gate-* rules
+   (averlo-questionnaire-template 7ffd671 src/styles.css): the orb in the fog
+   with the accent arc round it, then the lock in its place, opening on its
+   own. Sizes and timings are the questionnaire's; colours are the deck's
+   tokens. Over the deck, its footer and its menu. */
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  overflow-y: auto;
+  background: var(--deck-canvas);
+  color: var(--deck-text-primary);
+  opacity: 1;
+  transition: opacity 300ms ease;
+}
+.gate[data-ready] {
+  opacity: 0;
+  pointer-events: none;
+}
+/* Centred. */
+.body {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 220px;
+  height: 220px;
+}
+.stage > * {
+  grid-area: 1 / 1;
+}
+/* The orb inside the arc: the fog volume's canvas, or its poster when WebGL
+   is missing. The settled quad is fog-volume.ts's fogOrbScale of the canvas. */
+.volume {
+  width: 96px;
+  height: 96px;
+  visibility: hidden;
+  scale: 0.72;
+}
+.stage[data-motion="volume"] .volume {
+  visibility: visible;
+}
+.mark {
+  width: calc(96px * 0.9);
+  aspect-ratio: 1;
+  background: center / cover no-repeat;
+  /* The orb's radial mask, as the shader's orbMask draws it. */
+  mask-image: radial-gradient(
+    closest-side,
+    #000 50%,
+    rgb(0 0 0 / 0.75) 65%,
+    rgb(0 0 0 / 0.35) 82%,
+    transparent 100%
+  );
+  visibility: hidden;
+  scale: 0.72;
+}
+.stage[data-motion="fallback"] .mark {
+  visibility: visible;
+}
+.stage[data-lock] .volume,
+.stage[data-lock] .mark {
+  opacity: 0;
+  scale: 0.58;
+  transition:
+    opacity 160ms cubic-bezier(0.3, 0.08, 0.18, 1),
+    scale 160ms cubic-bezier(0.3, 0.08, 0.18, 1);
+}
+
+.arc {
+  width: 96px;
+  height: 96px;
+  overflow: visible;
+  fill: none;
+  stroke: var(--deck-text-accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+.lock {
+  display: grid;
+  place-items: center;
+  color: var(--deck-text-primary);
+}
+.lock > div {
+  display: grid;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gate {
+    transition: none;
+  }
+  .stage .volume {
+    display: none;
+  }
+}
+
+/* Only while the intro plays (intro-state.ts's pre-paint script): a repeat
+   load in the session never shows it, and the hard-load screen stays under
+   it. */
+:global(html:not([data-intro])) .gate {
+  display: none;
+}
+:global(html[data-intro]) :global(#deck-boot) {
+  display: none;
+}

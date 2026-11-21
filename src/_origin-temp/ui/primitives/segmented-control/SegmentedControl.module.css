@@ -1,0 +1,97 @@
+/* Segmented control, Segment. */
+/* Group: Border/Glass + Glass/Control (Control surface, owned by
+   Card) with a Surface/Card fill. */
+.group {
+  composes: surface control from "../card/Card.module.css";
+  display: inline-flex;
+  align-items: center;
+  gap: var(--deck-space-4);
+  max-width: 100%;
+  padding: var(--deck-space-4);
+  border-radius: var(--deck-radius-pill);
+  background-image: var(--deck-surface-card);
+}
+/* The checked fill is one indicator that slides to the
+   checked item (selection-indicator.tsx), under the labels. */
+.indicator {
+  border-radius: var(--deck-radius-pill);
+  background: var(--deck-action-secondary-active-bg);
+}
+.item {
+  composes: stateLayer from "../../foundations/StateLayer.module.css";
+  padding: var(--deck-space-6) var(--deck-space-14);
+  border: 0;
+  border-radius: var(--deck-radius-pill);
+  background: transparent;
+  color: var(--deck-text-secondary);
+  /* The label's two weights (weight-label.tsx); line box from the regular. */
+  font: var(--deck-font-label-m);
+  --weight-regular-font: var(--deck-font-label-m);
+  --weight-regular-tracking: var(--deck-type-label-m-tracking);
+  --weight-strong-font: var(--deck-font-label-m-strong);
+  --weight-strong-tracking: var(--deck-type-label-m-strong-tracking);
+  cursor: pointer;
+  transition: color var(--deck-motion-fade);
+}
+.item[data-state="checked"] {
+  color: var(--deck-text-primary);
+}
+.item:disabled {
+  background: var(--deck-action-disabled-bg);
+  color: var(--deck-action-disabled-text);
+  cursor: default;
+}
+.item:focus-visible:not(:disabled, [data-pointer-focus]) {
+  outline: 2px solid var(--deck-border-focus);
+  outline-offset: 2px;
+}
+
+/* A pointer press never shows a ring, the browser's own included
+   (pointer-focus.ts). */
+.item[data-pointer-focus] {
+  outline: none;
+}
+
+/* size="sm": a panel's scope switch: a flat
+   action/disabled/bg track 3 inside its edge, 2 between; Label/S segments
+   (6/10), the checked one on action/secondary with its border, the others in
+   text/accent. One weight: the frame keeps Medium when checked. */
+.group[data-size="sm"] {
+  --card-stroke: transparent;
+  gap: var(--deck-space-2);
+  /* 36 tall: the checked segment's 1px border (outside its 28) plus 3. */
+  padding: var(--deck-space-4) calc(var(--deck-space-2) + 1px);
+  border-width: 0;
+  background: var(--deck-action-disabled-bg);
+  backdrop-filter: none;
+  box-shadow: none;
+}
+.group[data-size="sm"] .indicator {
+  background: var(--deck-action-secondary-bg);
+  /* The frame's border sits outside the 28 segment (30 tall checked). */
+  box-shadow: 0 0 0 1px var(--deck-action-secondary-border);
+}
+.group[data-size="sm"] .item {
+  padding: var(--deck-space-6) var(--deck-space-10);
+  color: var(--deck-text-accent);
+  font: var(--deck-font-label-s);
+  --weight-regular-font: var(--deck-font-label-s);
+  --weight-regular-tracking: var(--deck-type-label-s-tracking);
+  --weight-strong-font: var(--deck-font-label-s);
+  --weight-strong-tracking: var(--deck-type-label-s-tracking);
+}
+.group[data-size="sm"] .item[data-state="checked"] {
+  color: var(--deck-text-primary);
+}
+
+/* variant="bare": Control=Segmented, the frames' Segment
+   pills 6 apart with no track. */
+.group[data-variant="bare"] {
+  --card-stroke: transparent;
+  gap: var(--deck-space-6);
+  padding: 0;
+  border-width: 0;
+  background: none;
+  backdrop-filter: none;
+  box-shadow: none;
+}

@@ -12,3 +12,4 @@ Project-wide decisions, one line each, linking to where the owner gave the answe
 - 2026-11-21 — An unattended phase that fails its gate 3 times is parked as a draft PR — [spec 001](../../specs/001-deck-template/spec.md#session-2026-11-21-grilling-with-the-owner)
 - 2026-11-21 — MIT licence; the Averlo name and mark are excluded as brand assets — [spec 001](../../specs/001-deck-template/spec.md#session-2026-11-21-grilling-with-the-owner)
 - 2026-11-21 — The agent pushes the setup commits to `main` once; everything after arrives through PRs the owner merges — [spec 001](../../specs/001-deck-template/spec.md#session-2026-11-21-grilling-with-the-owner)
+- 2026-11-21 — The template is deployed on Vercel (team averloco) and its production link, averlo-deck-template.vercel.app, stays public; later deploys are previews unless the owner says otherwise — owner in session ("Yes, Vercel preview", then "Keep it public")

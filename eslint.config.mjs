@@ -14,6 +14,10 @@ export default defineConfig([
     "out/**",
     "test-results/**",
     "playwright-report/**",
+    "gate-results/**",
     "next-env.d.ts",
+    // Carried as is; changes listed in docs/carried.
+    "src/motion/**",
+    "src/_origin-temp/**",
   ]),
 ]);

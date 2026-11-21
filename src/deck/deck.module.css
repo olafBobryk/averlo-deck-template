@@ -1,0 +1,246 @@
+/* Deck layout, on the design tokens only. Slides are sized in --u: 1/100 of
+   a 16:9 width inside the nearest size container (.stage, .thumbStage, a PDF
+   page). Full-bleed today; to fall back to a fixed 16:9 canvas, give .stage
+   an aspect-ratio and centre it. No orb, no
+   filter, no dimming: the root's canvas and horizon glow show through. */
+
+.stage {
+  --u: min(1cqw, 1.7778cqh);
+  position: fixed;
+  inset: 0;
+  container-type: size;
+  overflow: hidden;
+}
+/* On the deck's page the document itself never scrolls, only a phone slide
+   does: base.css gives the body `min-height: 100vh`, and when a
+   phone's toolbar collapses the page could scroll, resize the stage and
+   bounce. /print has no stage and keeps its page flow. */
+:global(html):has(.stage),
+:global(html):has(.stage) :global(body) {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* ---------- Slides ---------- */
+
+/* The slide layer. While the overview is expanded it sinks `distance.page`
+   and fades on `exit`, and comes back on the surface spring, fading in on
+   `fade`. html[data-menu-expanded] is MenuCard's. Reduced motion and a
+   hard load make the tokens instant. */
+.slides {
+  position: absolute;
+  inset: 0;
+  cursor: default;
+  user-select: none;
+  transition:
+    translate var(--deck-motion-spring-surface),
+    opacity var(--deck-motion-fade);
+}
+:global(html[data-menu-expanded]) .slides {
+  translate: 0 var(--deck-motion-page);
+  opacity: 0;
+  transition:
+    translate var(--deck-motion-spring-surface),
+    opacity var(--deck-motion-exit);
+}
+
+/* The page the page step moves: no background of its own, so the leaving
+   snapshot is the title alone over the live canvas. */
+.page {
+  position: absolute;
+  inset: 0;
+}
+
+.slide {
+  --u: min(1cqw, 1.7778cqh);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  padding: calc(var(--u) * 7) calc(var(--u) * 6) calc(var(--u) * 9);
+  overflow: hidden;
+}
+.titleBox {
+  min-width: 0;
+}
+.title {
+  max-width: 22ch;
+  font-size: calc(var(--u) * 4.4);
+  text-wrap: balance;
+}
+
+.slide[data-kind="slide"] {
+  align-content: start;
+  row-gap: calc(var(--u) * 3.4);
+}
+/* Title and divider slides (the cover and section archetypes): the title
+   anchored at the bottom left, its lead under it, most of the stage left
+   empty. */
+.slide[data-kind="divider"],
+.slide[data-kind="title"],
+.slide[data-kind="closing"] {
+  align-content: end;
+  justify-items: start;
+  row-gap: calc(var(--u) * 2.4);
+  padding-bottom: calc(var(--u) * 12);
+}
+.slide[data-kind="divider"] .title {
+  font-size: calc(var(--u) * 7.2);
+}
+.slide[data-kind="title"] .title {
+  font-size: calc(var(--u) * 10);
+}
+.slide[data-kind="closing"] .title {
+  font-size: calc(var(--u) * 6);
+}
+/* ---------- Footer: one row, the progress bar under it ---------- */
+
+.footer {
+  --gutter: max(var(--deck-space-16), calc(var(--u) * 3));
+  --bar: max(2px, calc(var(--u) * 0.18));
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  pointer-events: none;
+}
+.row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--deck-space-24);
+  padding: var(--deck-space-12) var(--deck-space-16) var(--deck-space-16)
+    var(--gutter);
+}
+/* Without a menu slot (print), the row keeps the gutter on its right. */
+.row:has(+ .progress) {
+  padding-right: var(--gutter);
+}
+.wordmark {
+  white-space: nowrap;
+}
+.section {
+  min-width: 0;
+}
+.count {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* MenuCard's button and card. It stays when the footer leaves: the card
+   it opens is the overview. */
+.menuSlot {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--deck-space-12) var(--gutter) var(--deck-space-16) 0;
+  pointer-events: auto;
+}
+.progress {
+  grid-column: 1 / -1;
+  height: var(--bar);
+  background: var(--deck-surface-subtle);
+}
+/* Its real width on the component spring. */
+.progressFill {
+  width: calc(100% * var(--progress));
+  height: 100%;
+  background: var(--deck-text-accent);
+  transition: width var(--deck-motion-spring-component);
+}
+
+/* While the overview is expanded the footer leaves downward out of view on
+   `exit`, and returns on the surface spring, fading in on `fade`. The row
+   moves by its own
+   height and the bar's, the bar by its own. */
+.row,
+.progress {
+  transition:
+    translate var(--deck-motion-spring-surface),
+    opacity var(--deck-motion-fade);
+}
+:global(html[data-menu-expanded]) .row,
+:global(html[data-menu-expanded]) .progress {
+  opacity: 0;
+  transition:
+    translate var(--deck-motion-spring-surface),
+    opacity var(--deck-motion-exit);
+}
+:global(html[data-menu-expanded]) .row {
+  translate: 0 calc(100% + var(--bar));
+}
+:global(html[data-menu-expanded]) .progress {
+  translate: 0 100%;
+}
+
+/* ---------- Portrait ---------- */
+
+/* Taller than wide, the live deck reflows: each title sizes from the width
+   (the .stage container's cqw) with a 28 px phone minimum, wraps within
+   24 px side margins and breaks a word only if one could overflow. The footer
+   keeps the slide number and the menu, with the bar under them. Thumbnails
+   and print are not in .stage and stay 16:9; landscape is untouched. */
+@media (orientation: portrait) and (max-width: 699px) {
+  .stage .slide {
+    padding-inline: 24px;
+  }
+  /* Content taller than a phone scrolls inside the slide, above the footer;
+     the swipe only reads horizontal drags. The slide's box stops above the
+     footer row, so no line passes under the page number or the menu button;
+     its last line still ends 96 px above the screen's edge. */
+  .stage .slide[data-headline] {
+    bottom: 84px;
+    padding-block: 56px 12px;
+    row-gap: 24px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .stage .title {
+    font-size: max(28px, 8cqw);
+    overflow-wrap: break-word;
+  }
+  .stage .slide[data-kind="divider"] .title,
+  .stage .slide[data-kind="closing"] .title {
+    font-size: max(28px, 10cqw);
+  }
+  /* Title and divider text clears the footer. */
+  .stage .slide[data-kind="title"],
+  .stage .slide[data-kind="divider"] {
+    padding-bottom: 104px;
+  }
+  .stage .slide[data-kind="title"] .title {
+    font-size: max(28px, 12cqw);
+  }
+  .stage .wordmark,
+  .stage .section {
+    display: none;
+  }
+}
+
+/* ---------- Thumbnails (overview) ---------- */
+
+/* A size container for `<SlideView still />`, so --u follows the thumbnail. */
+.thumbStage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  container-type: size;
+  overflow: hidden;
+}
+
+/* ---------- Print (PDF): one slide and its footer per 1920×1080 page ---------- */
+
+.printPage {
+  --u: min(1cqw, 1.7778cqh);
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  container-type: size;
+  overflow: hidden;
+  break-after: page;
+  background: var(--deck-canvas);
+}
+/* No blank page after the last slide. */
+.printPage:last-child {
+  break-after: auto;
+}

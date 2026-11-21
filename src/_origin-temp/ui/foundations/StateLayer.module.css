@@ -1,0 +1,154 @@
+/* Interaction states for every pressable control (hover,
+   focus, pressed and open states, thoroughly; Figma's sets have none). A
+   state layer in the control's own label colour sits over its fill, so
+   every variant shows it: light labels lighten a dark fill, a dark label
+   darkens a light one, and a fill-less control (ghost) gets a tint.
+   Controls compose `stateLayer`; one bordered control sets --state-inset
+   to its border width so the layer covers the border box. Disabled and
+   loading controls take no layer, and a static (non-pressable) tile or chip
+   never reacts. Layered below deck-mute, whose overlay
+   also uses ::after (base.css orders them). */
+@layer deck-state {
+  :global(:root) {
+    --deck-state-hover: 0.08;
+    --deck-state-focus: 0.1;
+    --deck-state-open: 0.1;
+    /* Open and under the pointer: the open layer plus a hover's, so an open
+       toggle that closes on click still answers the pointer. */
+    --deck-state-open-hover: 0.18;
+    --deck-state-pressed: 0.12;
+  }
+  .stateLayer {
+    position: relative;
+    isolation: isolate;
+    -webkit-tap-highlight-color: transparent;
+    --state-opacity: 0;
+  }
+  .stateLayer::after {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--state-inset, 0px));
+    border-radius: inherit;
+    background: var(--state-color, currentColor);
+    opacity: var(--state-opacity);
+    transition: opacity var(--deck-motion-fade);
+    pointer-events: none;
+  }
+  @media (hover: hover) {
+    .stateLayer:where(
+        a[href],
+        button,
+        [role="button"],
+        [role="radio"],
+        [role="checkbox"],
+        [role="switch"],
+        [role="tab"],
+        [role="menuitem"],
+        [role="option"]
+      ):hover:not(:disabled, [aria-disabled="true"], [data-loading]) {
+      --state-opacity: var(--deck-state-hover);
+    }
+  }
+  .stateLayer:focus-visible:not(
+      :disabled,
+      [aria-disabled="true"],
+      [data-loading],
+      [data-pointer-focus]
+    ) {
+    --state-opacity: var(--deck-state-focus);
+  }
+  /* Open or toggled on: a menu trigger while its menu is open, a pressed
+     toggle button. */
+  .stateLayer:where(
+      a[href],
+      button,
+      [role="button"],
+      [role="radio"],
+      [role="checkbox"],
+      [role="switch"],
+      [role="tab"],
+      [role="menuitem"],
+      [role="option"]
+    ):is(
+      [aria-expanded="true"],
+      [data-state="open"],
+      [aria-pressed="true"]
+    ):not(:disabled, [aria-disabled="true"], [data-loading]) {
+    --state-opacity: var(--deck-state-open);
+  }
+  @media (hover: hover) {
+    .stateLayer:where(
+        a[href],
+        button,
+        [role="button"],
+        [role="radio"],
+        [role="checkbox"],
+        [role="switch"],
+        [role="tab"],
+        [role="menuitem"],
+        [role="option"]
+      ):is(
+        [aria-expanded="true"],
+        [data-state="open"],
+        [aria-pressed="true"]
+      ):hover:not(:disabled, [aria-disabled="true"], [data-loading]) {
+      --state-opacity: var(--deck-state-open-hover);
+    }
+  }
+  /* Pressed lands at once and eases out on release. */
+  .stateLayer:where(
+      a[href],
+      button,
+      [role="button"],
+      [role="radio"],
+      [role="checkbox"],
+      [role="switch"],
+      [role="tab"],
+      [role="menuitem"],
+      [role="option"]
+    ):active:not(:disabled, [aria-disabled="true"], [data-loading]) {
+    --state-opacity: var(--deck-state-pressed);
+  }
+  .stateLayer:where(
+      a[href],
+      button,
+      [role="button"],
+      [role="radio"],
+      [role="checkbox"],
+      [role="switch"],
+      [role="tab"],
+      [role="menuitem"],
+      [role="option"]
+    ):active:not(:disabled, [aria-disabled="true"], [data-loading])::after {
+    transition-duration: 0s;
+  }
+  /* Static state boards (stories). */
+  .stateLayer[data-preview-state="hover"]:not(
+      :disabled,
+      [aria-disabled="true"],
+      [data-loading]
+    ) {
+    --state-opacity: var(--deck-state-hover);
+  }
+  .stateLayer[data-preview-state="focus"]:not(
+      :disabled,
+      [aria-disabled="true"],
+      [data-loading]
+    ) {
+    --state-opacity: var(--deck-state-focus);
+  }
+  .stateLayer[data-preview-state="open"]:not(
+      :disabled,
+      [aria-disabled="true"],
+      [data-loading]
+    ) {
+    --state-opacity: var(--deck-state-open);
+  }
+  .stateLayer[data-preview-state="pressed"]:not(
+      :disabled,
+      [aria-disabled="true"],
+      [data-loading]
+    ) {
+    --state-opacity: var(--deck-state-pressed);
+  }
+}
