@@ -57,14 +57,14 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 
 ## Phase P1: Carry, strip and motion module (branch `p1-carry`, base `p0-baseline`)
 
-- [ ] T012 [US1, US2] Tests first. Adapt the origin's tests marked "Adapt" in `.local/origin-inventory.md` to the template's routes, ids and placeholder titles, and add the "Harvest" tests. Also add:
+- [x] T012 [US1, US2] Tests first. Adapt the origin's tests marked "Adapt" in `.local/origin-inventory.md` to the template's routes, ids and placeholder titles, and add the "Harvest" tests. Also add:
   - an over-long placeholder triggers the dev overflow report;
   - the menu's PDF download returns a file;
   - every placeholder slide fits its stage at 390 and 1440 (SC-005);
   - `tests/motion/constants.spec.ts`: the motion module's `motionTokens` and `reducedMotionTokens`, and the swipe, intro and boot constants, deep-equal `references/strips/constants.json` (T008); no file imports the product's screen-switch, registry or config code.
 
   Record them failing.
-- [ ] T013 [US1] Carry the files marked "Carry" in `.local/origin-inventory.md` into their listed paths:
+- [x] T013 [US1] Carry the files marked "Carry" in `.local/origin-inventory.md` into their listed paths:
   - the boot loader goes into `src/boot/`, and the origin's `slides.ts` into `src/deck/model.ts`;
   - apply exactly the listed removals, keeping FR-001 intact, including the second-language detach and the import re-pointing listed in the inventory;
   - `src/app/globals.css` is carried temporarily, importing `src/_origin-temp/base.css`, until T023;
@@ -74,14 +74,14 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
   - add the Material Symbols licence row for the glyph inside the carried lock.
 
   Every change is a row in `docs/carried/<area>.md`.
-- [ ] T014 [US2] Carry the files listed under "Motion" in `.local/origin-inventory.md` (including `route-map.ts`, `SizeFrame` and `fade`) into `src/motion/`:
+- [x] T014 [US2] Carry the files listed under "Motion" in `.local/origin-inventory.md` (including `route-map.ts`, `SizeFrame` and `fade`) into `src/motion/`:
   - rename and redact;
   - detach the product's screen-switch, registry and config imports and calls (owner: "Detach them");
   - include the selection indicator only if a file kept after T013 imports it.
 
   Copy nothing from the origin's `lib/`. Rows go in `docs/carried/motion.md`.
-- [ ] T015 [US1] Copy the code files listed under "Temporary design files" into `src/_origin-temp/`, renamed and redacted, and detach the same screen-switch imports from its Button and DropdownMenu. Their public assets (fonts, icons) stay under `public/`, so they are served. Point the imports there so P1 builds. Rows go in `docs/carried/temp.md`, and licence rows are added for the Inter files and icon glyphs. P3 replaces and deletes them (T025, T026).
-- [ ] T016 [US1] Template-owned `src/deck/langs.ts` (`langs = ["en"]` and `Lang`) and `src/deck/slides.ts`. `slides.ts` imports `model.ts` and the carried content types, and holds one slide per kind and layout plus their content map, using only the generic blocks, with "Placeholder title" and "Placeholder text" (FR-002).
+- [x] T015 [US1] Copy the code files listed under "Temporary design files" into `src/_origin-temp/`, renamed and redacted, and detach the same screen-switch imports from its Button and DropdownMenu. Their public assets (fonts, icons) stay under `public/`, so they are served. Point the imports there so P1 builds. Rows go in `docs/carried/temp.md`, and licence rows are added for the Inter files and icon glyphs. P3 replaces and deletes them (T025, T026).
+- [x] T016 [US1] Template-owned `src/deck/langs.ts` (`langs = ["en"]` and `Lang`) and `src/deck/slides.ts`. `slides.ts` imports `model.ts` and the carried content types, and holds one slide per kind and layout plus their content map, using only the generic blocks, with "Placeholder title" and "Placeholder text" (FR-002).
 - **Gate P1:** `npm run gate` (drift "not run — T020"); the strip diff against the template build is within tolerance, and the constants are exact.
 
 ## Phase P3: Averlo ports and brand config (branch `p3-averlo`, base `p1-carry`)
