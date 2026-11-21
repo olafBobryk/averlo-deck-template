@@ -10,6 +10,6 @@ Prerequisites: Node 24, `npm ci`, and Chromium for Playwright (`npx playwright i
    - `test:strips`: the strip diff against `references/strips` (US2)
    - `check:ports`: every port matches its pinned source (US2)
    - `scan:public`: blocked terms and licence coverage (FR-017 to FR-019)
-4. **Second language:** add a code to `languages` with its strings. The language switcher appears, and `?lang=` holds (US4).
+4. **Second language:** add a code to `langs` with its strings. The language switcher appears, and `?lang=` holds (US4).
 5. **Brand:** set the brand to `owner` without assets. The intro and hard-load screen show the "your logo" placeholder (US3, FR-005).
 6. **Content workflow:** follow "Draft a deck from any source" in `process/workflows.md` with `tests/fixtures/sample-source.md`. Every slide's text traces to the file or the owner's answers (US3, SC-006).

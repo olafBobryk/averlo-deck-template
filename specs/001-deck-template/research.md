@@ -6,7 +6,7 @@ Sources were read at averlo-web-transition `cfa3d61`, averlo-questionnaire-templ
 
 - **Finding:** Most of the origin's components, libraries and motion code are copies of its product's design source, and the engine sits on them.
 - **Decision:**
-  - The motion files are carried whole into `src/motion/`, with a rename of the product's identifiers and a detach of the product's screen-switch, registry and config code. The owner answered both ("Copy files, rename only"; "Detach them").
+  - The motion files are carried whole into `src/motion/` in P1, with a rename of the product's identifiers, redacts, and a detach of the product's screen-switch, registry and config code. The detach also applies to the temporary Button and DropdownMenu copies, because P1 can't build otherwise. The owner answered both ("Copy files, rename only"; "Detach them").
   - The visible components are replaced by Averlo ports (R3).
   - The rest of the origin's design-source files are used temporarily in P1 from a quarantine folder and deleted in P3.
 - **Alternatives:** Re-implementing the motion from its values was declined by the owner. Keeping the product's names fails the public scan.
@@ -15,7 +15,7 @@ Sources were read at averlo-web-transition `cfa3d61`, averlo-questionnaire-templ
 
 - **Finding:** The origin uses motion 14.7.1. averlo-web-transition locks 12.38.0, and the questionnaire pins 12.34.3.
 - **Decision:** Keep 14.7.1, because the carried motion's parity depends on it. Ports stay unchanged; typecheck, smoke and the strip diff prove they work.
-- **If a port fails on 14.7.1:** add an entry to `docs/decisions/open-questions.md` and park the phase. Never patch the port.
+- **If a port fails on 14.7.1:** raise it as an open question and park the phase. Never patch the port.
 - **Version precedence**, when the lockfiles disagree:
   1. The origin's pins win: next, react, react-dom, motion, typescript, @playwright/test and eslint.
   2. Otherwise averlo-web-transition's lockfile version wins.
@@ -39,7 +39,7 @@ Not ported:
 
 From averlo-next-template @ `dc3b01d`: `src/font/index.ts`.
 
-### R3a Closure rule (used by `scripts/port-averlo.mjs` for all three sources)
+### R3a Closure rule — the port procedure (written to `process/workflows.md#port-the-design-system` in T021) (used by `scripts/port-averlo.mjs` for all three sources)
 
 1. **Follow** every TS/JS import, CSS `@import` and `url()`, and asset import (SVG, JSON, images), starting from the manifest's entry files.
 2. **Resolve aliases** with the source repository's own tsconfig (averlo-web-transition: `@/*` → `./src/*`). The template's tsconfig declares the same alias, so ported imports resolve unchanged.
@@ -68,6 +68,7 @@ From averlo-next-template @ `dc3b01d`: `src/font/index.ts`.
 - **Decision:**
   - P4 starts by renaming those names inside averlo-questionnaire-template on a branch, across the whole repository (file names, identifiers, comments and every importer), using neutral names (for example `shared-header.tsx`, `shell.css`, `primitives/`). The questionnaire's own build and tests must pass. It opens a PR there, whose text passes the blocked-term rule, and the owner merges it. The port is then pinned to that merged commit.
   - The bar's files then come in through the port script, unchanged.
+  - The shell and foundations CSS set `--font-sf-pro` inside `.aq`. Because the SF Pro files are excluded, the template-owned wrapper sets `--font-sf-pro: var(--font-inter)` inline, the same way it sets the `--aq-*` variables, so the bar renders in Inter without editing a port. This is recorded in `docs/design-source.md`.
   - Template-owned `src/deck/TopBar.tsx` reproduces only the questionnaire's composition markup (the lines in its `react.tsx` that compose header, label and navigator, named by line range in `docs/design-source.md`). It uses only the ports' public props and children. The save chip and Review button are children of the header and the topline in `react.tsx`, so leaving them out needs no change to a port. If that turns out to be false, the phase is parked with an open question.
   - CSS rules of the shell stylesheet that are not under `@scope (.aq)` are listed in `docs/design-source.md`. If one conflicts with the deck, it becomes an open question, never a trim.
   - Wording defaults that carry questionnaire copy stay as they are. The deck's copy comes in only through the wording context.
@@ -79,6 +80,7 @@ From averlo-next-template @ `dc3b01d`: `src/font/index.ts`.
   - the file is missing or empty;
   - any term appears, case-insensitive, in tracked files, in `git log --all -p`, in commit messages or in branch names;
   - any font or image file, any direct dependency or devDependency in `package.json`, or any port is missing from `docs/licences.md` or marked not redistributable.
+- **Text mode:** `scan:public --text <file>` (or stdin) checks any text, such as a PR body or a gate report, before it is posted.
 - **Its output** names only the file, the line and the term's number in the list, never the term or the matched text, so it can be pasted into a PR safely.
 - PR titles, bodies and gate reports are passed through the same check before they are posted.
 - Running the scan in CI is deferred, since CI can't see the local list.
@@ -112,7 +114,11 @@ Recorded in P0 from the unchanged origin, built in a scratch copy, on the gate m
 - **Alignment:** each strip is resampled onto a fixed 16.7 ms grid, starting at the triggering input event, and then compared point by point.
 - **Layout shifts:** if an approved layout change (the top bar, the Averlo menu controls) still shifts a normalised strip beyond tolerance, raise an open question. Never re-baseline without the owner.
 - **Tolerance:** the per-value spread across the 3 runs, plus 0.005 of the normalised unit, 0.02 opacity, or 1 frame (16.7 ms) for timing.
-- **Timing constants** (durations, springs, delays) are compared exactly from the motion module's exports.
+- **Timing constants** are compared exactly:
+  - `motionTokens` and `reducedMotionTokens`, deep-compared with the origin's file at its pinned commit;
+  - the swipe constants, the intro timing and the boot timing named in `.local/origin-inventory.md`.
+
+  Under Principle IX these count as the motion module, even where they live outside `src/motion`.
 - **Menu close:** it is baselined. Its origin timing test failed on the gate machine, so its tolerance comes only from the recorded runs, not from the origin's thresholds.
 - The origin's 4 failing tolerance tests on the gate machine are not carried as thresholds.
 
@@ -120,6 +126,7 @@ Recorded in P0 from the unchanged origin, built in a scratch copy, on the gate m
 
 - **Decision:**
   - The carried hard-load screen (renamed, in `src/boot/`) composes the Averlo `Logo` (variant `mark`) where the orb was, with the same timing (200 ms fade, 400 ms minimum, 3 s cap).
+  - The placeholder and the mark are rendered as an `<img>` in the hard-load screen, because its carried script waits on an image's decode.
   - The intro renders the same mark, or the owner's logo from the brand config, in the orb poster's place inside the fog, with every timing value kept.
   - "Your logo" is a template-owned neutral placeholder mark, shown for brand `owner` when no asset has been given yet.
   - In P1, the orb is detached and replaced by the template-owned "your logo" placeholder with the same box and role attribute, so the intro strip measures the same element. No orb image or video is copied. P5 then composes the brand mark there.

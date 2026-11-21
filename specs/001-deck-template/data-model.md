@@ -1,11 +1,11 @@
 # Data model: Averlo deck template
 
-## Slide (`src/deck/slides.ts`)
+## Slide (types in carried `src/deck/model.ts`; data in template-owned `src/deck/slides.ts`)
 
 - `id`: string, unique and stable. The URL's `?s=` holds the slide's position, not its id, as in the origin.
 - `kind`: `title` | `divider` | `slide` | `closing`.
 - `section?`, `parent?`, `title`: `Text` (one string per configured language).
-- `content`: `{ headline?, blocks: Block[], layout?: "stack" | "split" | "split-end" | "center" | "statement" | "module", notes? }`.
+- Content lives in a separate map keyed by slide id, read through the carried `slideContent(id)` (types in carried `src/deck/content.ts`): `{ headline?, blocks: Block[], layout?: "stack" | "split" | "split-end" | "center" | "statement" | "module", notes? }`.
 - `Block`, the generic types kept from the origin:
   - `lead`, `note`
   - `points` (2 to 5 columns; cards, numbered or chips)
@@ -16,9 +16,9 @@
   - `plan` (a YYYY-MM axis)
 - Validation: every `Text` has every configured language. The template ships placeholder text only (FR-002).
 
-## Languages (`src/deck/slides.ts`)
+## Languages (`langs`, in template-owned `src/deck/slides.ts`)
 
-- `languages`: an ordered list of codes; the first is the default. `["en"]` by default. With two or more, the language switcher shows.
+- `langs`: an ordered list of codes; the first is the default. `["en"]` by default. With two or more, the language switcher shows.
 
 ## Deck configuration (`src/brand/config.ts`)
 
@@ -36,10 +36,6 @@
 - `file` (target path) and `changes`: a list of `{ kind: rename | detach | compose | redact, what, why }`. Rename rows say "product identifier → deck" and never name the product. Redact rows give the line and "comment reworded" or "comment removed", never the original text.
 - One file per area, so phases that run in parallel never write the same record.
 
-## Open question (`docs/decisions/open-questions/<phase>-<slug>.md`)
-
-- `question`, `context`, `options` with a recommendation, `blocks` (the task and phase). One file per question, so parallel phases never write the same file. When the owner answers, the answer moves to the spec's Session block or `decisions.md`, and the question file is deleted.
-
 ## Motion baseline (`specs/001-deck-template/references/strips/*.json`)
 
 - `strip`, `viewport`, `runs` (3), `frames` [{ t ms, values }], `tolerance` per value, `recorded` (date). Numbers and generic names only. The values are defined in research R8.
@@ -47,3 +43,5 @@
 ## Licence entry (`docs/licences.md`)
 
 - `file, package or port`, `source`, `licence`, `redistributable` (yes/no). A missing entry, or a `no`, fails the public scan.
+- Licence value `brand asset (not under MIT)` with `redistributable: yes (placeholder in this repo)`: the Averlo name, the Averlo `Logo` port and the questionnaire's logo mark. The scan accepts it.
+- One row covers `specs/*/references/screens/`: own work, MIT, screenshots of template builds only.

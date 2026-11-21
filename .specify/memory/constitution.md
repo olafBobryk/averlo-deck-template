@@ -34,7 +34,7 @@ Work happens on a branch with small plain-English commits (no Conventional Commi
 
 ### VIII. The Averlo design system is the source
 
-The template is built on the Averlo design system's real components, tokens and helpers, not a re-theme. A port is a whole, unchanged copy of its source files and of everything they import, made at a pinned commit by a port script and listed with its source commit in [docs/design-source.md](../../docs/design-source.md). Re-implementing, simplifying or partially copying a ported component is a defect. The ports drift test fails if a ported file differs from its source. Within the template, changing a ported file needs the owner's explicit answer, and template-owned code composes ports without editing them. This binds the template's build only: a deck made from the template may change its look and its ports. Keyboard access, visible focus, labelled icon buttons and 4.5:1 text contrast are required.
+The template is built on the Averlo design system itself, not a re-theme. Ported code is complete and unchanged: it is never re-implemented, simplified or edited within the template, and template-owned code composes it. Changing a ported file needs the owner's explicit answer. How ports are made, pinned, excluded and verified is the [port procedure](../../process/workflows.md#port-the-design-system). This binds the template's build only: a deck made from the template may change its look and its ports. Keyboard access, visible focus, labelled icon buttons and 4.5:1 text contrast are required.
 
 ### IX. The deck's motion is its own, and polished
 
@@ -70,6 +70,6 @@ Resolve each skill at use time; if one is unavailable, follow the linked procedu
 
 ## Governance
 
-These principles record the owner's standing instructions. The owner's corrections take precedence: record each with its date, and in the same change reconcile every rule that conflicts with it. Record substantive changes here and increment the version: major for incompatible rule changes, minor for additions, patch for clarifications. 1.0.0 adopted 21 November 2026. 1.0.1 (21 November 2026): Principle VIII says ports are whole, unchanged copies, and that the Averlo look binds the template's build, not decks made from it. 1.0.2 (21 November 2026): the Layout paragraph lists every folder ports and template-owned code live in.
+These principles record the owner's standing instructions. The owner's corrections take precedence: record each with its date, and in the same change reconcile every rule that conflicts with it. Record substantive changes here and increment the version: major for incompatible rule changes, minor for additions, patch for clarifications. 1.0.0 adopted 21 November 2026. 1.0.1 (21 November 2026): Principle VIII says ports are whole, unchanged copies, and that the Averlo look binds the template's build, not decks made from it. 1.0.2 (21 November 2026): the Layout paragraph lists every folder ports and template-owned code live in. 1.0.3 (21 November 2026): Principle VIII states the principle only; the porting mechanics, including licence-based exclusions, move to the port procedure.
 
-**Version**: 1.0.2 | **Ratified**: 2026-11-21 | **Last Amended**: 2026-11-21
+**Version**: 1.0.3 | **Ratified**: 2026-11-21 | **Last Amended**: 2026-11-21

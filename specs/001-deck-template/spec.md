@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-21
 
-**Status**: Approved by the owner on 2026-11-21 ("Approve spec"). Revised the same day after `/speckit-analyze`, with the owner's answers recorded below.
+**Status**: Approved by the owner on 2026-11-21 ("Approve spec"). Revised the same day after `/speckit-analyze`, with the owner's answers recorded below. The owner's approval of tasks.md also re-approves this revised spec.
 
 **Input**: User description: "Turn an existing polished client deck into a product-neutral, public, reusable deck template that uses the Averlo design system for real (not a re-theme), keeps the deck's polished motion at close parity, and starts any new deck by talking its source material through with an agent."
 
@@ -149,7 +149,7 @@ A deck owner adds a second language through configuration and translated strings
 
 - **FR-008**: The template MUST use the Averlo design system's components, tokens and helpers from averlo-web-transition and the averlo-questionnaire-template top bar, and fonts from averlo-next-template. All of them come in as ports listed with their source commits.
 - **FR-009**: A drift test MUST fail when any port differs from its pinned source. It guards the template's own build. A deck made from the template may change its look and its ports, and the README MUST say how to re-pin, re-target or turn off the drift test for such a deck.
-- **FR-009a**: Every port MUST be a whole, unchanged copy of its source files together with every file they import, so it renders and behaves exactly as in its source. Re-implementing, simplifying, stubbing or partially copying a port, or editing it to make it compile, is a defect. When a port needs something the template doesn't have, that is ported too. A gap that truly cannot be ported is raised with the owner.
+- **FR-009a**: Every port MUST be a whole, unchanged copy of its source files together with every file they import, so it renders and behaves exactly as in its source. The only exception is asset files whose licence forbids redistribution, which the port manifest lists as exclusions. Re-implementing, simplifying, stubbing or partially copying a port, or editing it to make it compile, is a defect. When a port needs something the template doesn't have, that is ported too. A gap that truly cannot be ported is raised with the owner.
 - **FR-009b**: Carried files (engine, intro, print, hard-load screen and motion module) MUST stay as they are, except for four kinds of change:
   - renaming the origin product's identifiers;
   - detaching removed features and the product's screen-switch, registry and config code;
