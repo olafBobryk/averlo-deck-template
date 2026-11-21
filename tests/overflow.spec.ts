@@ -41,6 +41,16 @@ test.beforeAll(async ({}, info) => {
   test.setTimeout(300_000);
   const env: Record<string, string | undefined> = { ...process.env };
   delete env.NODE_ENV;
+  // When it detects an AI agent, `next dev` writes agent notes into the
+  // repository's AGENTS.md; the dev server here is a test fixture, not an
+  // agent's session.
+  for (const key of Object.keys(env))
+    if (
+      /^(AI_AGENT|CLAUDE|CODEX|CURSOR|GEMINI|COPILOT|GITHUB_COPILOT|AUGMENT|ANTIGRAVITY|OPENCODE|DEVIN|REPL|COWORK)/.test(
+        key,
+      )
+    )
+      delete env[key];
   server = spawn(
     "npx",
     ["next", "dev", "--hostname", "127.0.0.1", "--port", String(port)],
