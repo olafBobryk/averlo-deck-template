@@ -174,6 +174,24 @@ describe("gate", () => {
     );
   });
 
+  test("a flaky test's name is reported without Playwright's separator", async () => {
+    const { dir, cleanup } = tempDir("gate-fixture-");
+    cleanups.push(cleanup);
+    const out = [
+      "  1 flaky",
+      "    [desktop] › tests/motion/strips.spec.ts:35:3 › overview keeps its baseline ─────────",
+      "  39 passed (2.5m)",
+    ].join("\\n");
+    const results = await runGate(
+      [{ name: "strips", cmd: [node, "-e", `console.log("${out}")`] }],
+      { cwd: dir, output: quiet },
+    );
+    assert.equal(
+      results[0].reason,
+      "1 flaky (passed on retry): [desktop] overview keeps its baseline",
+    );
+  });
+
   test("loadEnv fills missing values without overriding set ones and names the missing", () => {
     const { dir, cleanup } = tempDir("gate-env-");
     cleanups.push(cleanup);
