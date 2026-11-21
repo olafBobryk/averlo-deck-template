@@ -2,7 +2,9 @@
 // helpers the engine reads. The slides themselves are in slides.ts, and each
 // slide's content in its content map.
 
+import { config } from "@/brand/config";
 import { langs, type Lang } from "./langs";
+import { pdfName } from "./pdf-name";
 
 export type Text = Record<Lang, string>;
 
@@ -35,15 +37,13 @@ export const ui = {
   next: { en: "Next" },
   fullscreen: { en: "Fullscreen" },
   pdf: { en: "PDF" },
-  english: { en: "English" },
-  french: { en: "French" },
   firstSlide: { en: "First slide" },
   slideProgress: { en: "Slide progress" },
   goSlide: { en: "Go to slide {count}" },
   slideNumber: { en: "Slide number" },
 } satisfies Record<string, Text>;
 
-export const pdfHref = (lang: Lang) => `/pdf/deck-deck-${lang}.pdf`;
+export const pdfHref = (lang: Lang) => `/pdf/${pdfName(config.deckTitle, lang)}`;
 
 export const sectionLabel = (slide: Slide, lang: Lang) =>
   [slide.section?.[lang], slide.parent?.[lang]].filter(Boolean).join(" · ");

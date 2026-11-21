@@ -27,7 +27,7 @@ import { DeckIcon } from "./icon";
 import { MenuDropdown } from "./menu-dropdown";
 import { morph, type Box } from "@/motion/popup-motion";
 import { Downloads, Overview } from "./Overview";
-import { langs, type Lang } from "./langs";
+import { langNames, langs, type Lang } from "./langs";
 import { ui } from "./model";
 import styles from "./menu.module.css";
 import controls from "./menu-controls.module.css";
@@ -499,7 +499,7 @@ function Card({
               key: option,
               value: option,
               selected: option === lang,
-              content: option.toUpperCase(),
+              content: langNames[option],
             }))}
             onChoose={(option) => onLang(option.value)}
             trigger={({ isOpen, toggleMenu, caretIcon, ref }) => (
