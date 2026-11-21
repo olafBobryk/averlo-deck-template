@@ -57,7 +57,8 @@ const wordmark = (page: Page) =>
     .locator(":scope > *")
     .first();
 
-/** The live title's size and box, and whether anything scrolls sideways. */
+/** The live title's size and box, the slide's stage (below the top bar),
+ *  and whether anything scrolls sideways. */
 const measureTitle = (page: Page) =>
   page.evaluate(() => {
     // The slide's largest text: its title, or its headline.
@@ -65,6 +66,7 @@ const measureTitle = (page: Page) =>
       "main:not([aria-hidden]) [data-variant='display']",
     )!;
     const box = title.getBoundingClientRect();
+    const stage = title.closest("main")!.getBoundingClientRect();
     const root = document.documentElement;
     return {
       text: title.textContent,
@@ -74,8 +76,14 @@ const measureTitle = (page: Page) =>
       titleOverflow: title.scrollWidth - title.clientWidth,
       pageOverflow: root.scrollWidth - root.clientWidth,
       width: innerWidth,
+      stageWidth: stage.width,
+      stageHeight: stage.height,
     };
   });
+
+/** A 16:9 unit of the slide's stage: min(width, 1.7778 × height) / 100. */
+const unitOf = (m: { stageWidth: number; stageHeight: number }) =>
+  Math.min(m.stageWidth, 1.7778 * m.stageHeight) / 100;
 
 async function expectPortraitFooter(page: Page, slide: number) {
   const footer = page.getByRole("contentinfo");
@@ -149,10 +157,11 @@ test.describe("portrait reading", () => {
       const slide = slides[TITLED - 1];
       await openDeck(page, `?s=${TITLED}`);
       await expectLandscapeFooter(page, sectionLabel(slide, langs[0]), TITLED);
-      // The 16:9 title: its units of min(width, 1.7778 × height) / 100.
-      const unit = Math.min(width, 1.7778 * height) / 100;
+      // The 16:9 title: its units of the slide's stage (below the top bar,
+      // where the bar shows).
       const m = await measureTitle(page);
-      expect(m.fontSize).toBeCloseTo(unit * titleUnits[slide.kind], 0);
+      expect(m.stageWidth).toBeCloseTo(width, 0);
+      expect(m.fontSize).toBeCloseTo(unitOf(m) * titleUnits[slide.kind], 0);
     });
   }
 
@@ -175,8 +184,9 @@ test.describe("portrait reading", () => {
     await page.setViewportSize({ width: 844, height: 390 });
     await expectLandscapeFooter(page, sectionLabel(slide, langs[0]), TITLED);
     await expect(heading).toBeVisible();
-    expect((await measureTitle(page)).fontSize).toBeCloseTo(
-      (Math.min(844, 1.7778 * 390) / 100) * titleUnits[slide.kind],
+    const landscape = await measureTitle(page);
+    expect(landscape.fontSize).toBeCloseTo(
+      unitOf(landscape) * titleUnits[slide.kind],
       0,
     );
 

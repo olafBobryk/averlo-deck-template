@@ -64,6 +64,11 @@
   - Q: The phone menu footer is cramped. → A: "Icon-only on phones": below about 480 px, Previous, Next and Fullscreen show only their icons, keeping their accessible names.
   - Q: A strip lands just outside tolerance about one run in three. → A: "Retry once, report it": a failing strip is re-run once; a pass on retry counts as passed and is listed as flaky in the gate report.
   - Q: The menu's slide list. → A: "I don't like the list": every slide is the same ghost button; a section's slides are indented under it, and the section's own row gets a chevron and doubles as an accordion. Only the current section is open when the menu opens. Only the popup's list changes; the expanded overview stays.
+- During P4, the owner answered:
+  - Q: A slide's empty bottom padding overflows by a few pixels at 1440. → A: "Fit = content fits": SC-005 checks that every slide's visible text and blocks stay inside its stage.
+  - Q: The bar's ported `utilities.css` and `foundations.css` turn the deck light when imported. → A: "Port, don't import": they stay ported and drift-tested, not imported.
+  - Q: The bar's small deviations. → A: the muted grey becomes `#767676` (4.5:1), and the step number gets a visible focus ring. The Review button is left out ("Remove it, adjust parity"); the parity test removes it from the reference too. The bar fades out while the expanded overview is open ("Fade it after all").
+  - Q: The top bar on small screens. → A: "on small screens its not neccesary can be removed": the bar is hidden on phones (under about 480 px wide or 500 px tall), and the slides take the full stage.
 
 ## User Scenarios & Testing *(mandatory)*
 

@@ -61,6 +61,7 @@ test("every placeholder slide fits its stage (SC-005)", async ({ page }) => {
           .querySelector("footer")!
           .getBoundingClientRect();
         // The lowest and the widest line of slide text, as drawn.
+        let top = box.bottom;
         let bottom = box.top;
         let right = box.left;
         let left = box.right;
@@ -73,20 +74,44 @@ test("every placeholder slide fits its stage (SC-005)", async ({ page }) => {
           range.selectNodeContents(node);
           for (const r of range.getClientRects()) {
             if (r.width < 1 || r.height < 1) continue;
+            top = Math.min(top, r.top);
             bottom = Math.max(bottom, r.bottom);
             right = Math.max(right, r.right);
             left = Math.min(left, r.left);
           }
         }
+        // Every visible block's box.
+        const blocks = {
+          top: box.bottom,
+          bottom: box.top,
+          left: box.right,
+          right: box.left,
+        };
+        for (const block of slide.querySelectorAll<HTMLElement>(
+          "[data-block]",
+        )) {
+          if (!block.checkVisibility({ opacityProperty: true })) continue;
+          const r = block.getBoundingClientRect();
+          if (r.width < 1 || r.height < 1) continue;
+          blocks.top = Math.min(blocks.top, r.top);
+          blocks.bottom = Math.max(blocks.bottom, r.bottom);
+          blocks.left = Math.min(blocks.left, r.left);
+          blocks.right = Math.max(blocks.right, r.right);
+        }
         return {
           sw: slide.scrollWidth,
           cw: slide.clientWidth,
-          sh: slide.scrollHeight,
-          ch: slide.clientHeight,
+          top,
           bottom,
           right,
           left,
-          box: { left: box.left, right: box.right, bottom: box.bottom },
+          blocks,
+          box: {
+            left: box.left,
+            right: box.right,
+            top: box.top,
+            bottom: box.bottom,
+          },
           footerTop: footer.top,
           pageOverflow:
             document.documentElement.scrollWidth -
@@ -94,12 +119,19 @@ test("every placeholder slide fits its stage (SC-005)", async ({ page }) => {
         };
       });
     const at = `slide ${s}: ${JSON.stringify(m)}`;
-    // Nothing overflows the slide, either way, and the page never scrolls
-    // sideways.
+    // Fit means the content fits (owner, spec "During P4": "Fit = content
+    // fits"): every visible line of text and every block stays inside the
+    // slide's stage. The slide's empty bottom padding may run past it.
+    // Nothing overflows sideways, and the page never scrolls sideways.
     expect(m.sw, at).toBeLessThanOrEqual(m.cw + 1);
-    expect(m.sh, at).toBeLessThanOrEqual(m.ch + 1);
     expect(m.pageOverflow, at).toBeLessThanOrEqual(0);
+    // Every block is inside the slide.
+    expect(m.blocks.top, at).toBeGreaterThanOrEqual(m.box.top - 0.5);
+    expect(m.blocks.bottom, at).toBeLessThanOrEqual(m.box.bottom + 0.5);
+    expect(m.blocks.left, at).toBeGreaterThanOrEqual(m.box.left - 0.5);
+    expect(m.blocks.right, at).toBeLessThanOrEqual(m.box.right + 0.5);
     // Every line is inside the slide, and above the footer.
+    expect(m.top, at).toBeGreaterThanOrEqual(m.box.top - 0.5);
     expect(m.left, at).toBeGreaterThanOrEqual(m.box.left - 0.5);
     expect(m.right, at).toBeLessThanOrEqual(m.box.right + 0.5);
     expect(m.bottom, at).toBeLessThanOrEqual(m.box.bottom + 0.5);

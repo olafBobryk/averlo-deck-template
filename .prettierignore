@@ -30,6 +30,8 @@ src/deck/*
 !src/deck/slide-list.module.css
 !src/deck/menu-controls.module.css
 !src/deck/OverflowReport.tsx
+!src/deck/TopBar.tsx
+!src/deck/topbar.module.css
 src/gate/
 src/boot/
 scripts/render-pdf.mjs

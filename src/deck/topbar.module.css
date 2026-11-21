@@ -1,0 +1,75 @@
+/* The top bar's place in the stage (TopBar.tsx). Template-owned: the bar's
+   own look is the ported shell stylesheet's (src/questionnaire/shell.css).
+
+   The `.aq` wrapper sits across the top of the stage, over the slides and
+   under the footer and its menu card, and ends at the bottom of the
+   navigator's track (--deck-bar, measured by TopBar and set on the stage),
+   where the slides begin. The shell's own white page stops there. Only the
+   header band and the step label take presses: the rest of the shell's
+   boxes reach over the slides' top and must not catch them. The navigator's
+   mound button and touch zone set their own `pointer-events: auto`. */
+.bar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 5;
+  height: var(--deck-bar, 0px);
+  pointer-events: none;
+}
+.bar :global(.top),
+.bar :global(.topline) {
+  pointer-events: auto;
+}
+
+/* On phones the bar is hidden, and the slides take the whole stage: under
+   about 480 px wide, or about 500 px tall (a phone on its side). The
+   footer's progress bar stays. Hidden, the track measures 0, so
+   --deck-bar is 0 (owner: "on small screens its not neccesary can be
+   removed"; spec, "During P4"). */
+@media (max-width: 480px), (max-height: 500px) {
+  .bar {
+    display: none;
+  }
+}
+/* While the overview is expanded the bar fades out on `exit` and takes no
+   presses, as the slide layer does (deck.module.css): the overview card is
+   glass, and the bar's white page would show through it. It fades back in
+   on `fade`. */
+.bar {
+  transition: opacity var(--deck-motion-fade);
+}
+:global(html[data-menu-expanded]) .bar {
+  opacity: 0;
+  transition: opacity var(--deck-motion-exit);
+}
+:global(html[data-menu-expanded]) .bar * {
+  pointer-events: none;
+}
+
+/* The step label's number has no focus indicator in the shell (its
+   outline is 0); the template needs a visible one (constitution, Principle
+   VIII). It gets the shell's own ring, as its mound button has. */
+.bar :global(.step-jump-button:focus-visible),
+.bar :global(.step-jump-input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* The deck's Tailwind preflight (imported by the ported library.css) sets
+   `small` to 80%; the questionnaire's page has no preflight, so its step
+   label is set at the browser's own `smaller`. Restored inside the bar. */
+.bar :global(small) {
+  font-size: smaller;
+}
+
+/* A brand's logo, or the "your logo" placeholder, in the brand slot's box
+   (the shell's `.brand-logo`). The placeholder is drawn white, for the dark
+   intro; on the bar's white page it is inverted to read as ink. */
+.logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.placeholder {
+  filter: invert(1);
+}

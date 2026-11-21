@@ -218,6 +218,104 @@
           "importedBy": 1
         }
       ]
+    },
+    {
+      "repo": "averlo-questionnaire-template",
+      "commit": "756be64",
+      "resolved": "756be647c598d25240fcdf5172b2ae801ab101e8",
+      "entries": [
+        "src/shared-header.tsx",
+        "src/progress-navigator.tsx",
+        "src/progress-model.ts",
+        "src/wording-context.ts",
+        "src/wording.ts",
+        "src/wording-defaults.ts",
+        "src/primitives/Logo.tsx",
+        "src/shell.css",
+        "src/utilities.css"
+      ],
+      "files": [
+        {
+          "source": "src/foundations.css",
+          "target": "src/questionnaire/foundations.css"
+        },
+        {
+          "source": "src/primitives/Logo.tsx",
+          "target": "src/questionnaire/primitives/Logo.tsx"
+        },
+        {
+          "source": "src/primitives/focus.ts",
+          "target": "src/questionnaire/primitives/focus.ts"
+        },
+        {
+          "source": "src/progress-model.ts",
+          "target": "src/questionnaire/progress-model.ts"
+        },
+        {
+          "source": "src/progress-navigator.tsx",
+          "target": "src/questionnaire/progress-navigator.tsx"
+        },
+        {
+          "source": "src/shared-header.tsx",
+          "target": "src/questionnaire/shared-header.tsx"
+        },
+        {
+          "source": "src/shell.css",
+          "target": "src/questionnaire/shell.css"
+        },
+        {
+          "source": "src/utilities.css",
+          "target": "src/questionnaire/utilities.css"
+        },
+        {
+          "source": "src/wording-context.ts",
+          "target": "src/questionnaire/wording-context.ts"
+        },
+        {
+          "source": "src/wording-defaults.ts",
+          "target": "src/questionnaire/wording-defaults.ts"
+        },
+        {
+          "source": "src/wording.ts",
+          "target": "src/questionnaire/wording.ts"
+        }
+      ],
+      "excluded": [
+        {
+          "source": "src/fonts/SFPRODISPLAYREGULAR.otf",
+          "reason": "SF Pro Display font files: Apple's font licence does not allow redistribution (owner: \"Exclude the font files only\")"
+        },
+        {
+          "source": "src/fonts/SFPRODISPLAYMEDIUM.otf",
+          "reason": "SF Pro Display font files: Apple's font licence does not allow redistribution (owner: \"Exclude the font files only\")"
+        },
+        {
+          "source": "src/fonts/SFPRODISPLAYBOLD.otf",
+          "reason": "SF Pro Display font files: Apple's font licence does not allow redistribution (owner: \"Exclude the font files only\")"
+        }
+      ],
+      "packages": [
+        {
+          "name": "clsx",
+          "version": "2.1.1",
+          "importedBy": 1
+        },
+        {
+          "name": "motion",
+          "version": "12.34.3",
+          "importedBy": 2
+        },
+        {
+          "name": "react",
+          "version": "19.3.0",
+          "importedBy": 4
+        },
+        {
+          "name": "tailwindcss",
+          "version": "4.3.3",
+          "importedBy": 1
+        }
+      ]
     }
   ]
 }

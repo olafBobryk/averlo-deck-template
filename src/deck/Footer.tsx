@@ -1,5 +1,7 @@
 "use client";
 import type { CSSProperties, ReactNode } from "react";
+import { config } from "@/brand/config";
+import { brandName } from "@/brand/name";
 import { HeadingText } from "@/motion/page-header/heading-text";
 import { Text } from "./text";
 import type { Lang } from "./langs";
@@ -36,7 +38,7 @@ export function Footer({
       <div className={styles.row}>
         {/* The wordmark. */}
         <Text variant="title-l" tone="primary" className={styles.wordmark}>
-          Deck
+          {brandName(config.brand)}
         </Text>
         {still ? (
           <Text

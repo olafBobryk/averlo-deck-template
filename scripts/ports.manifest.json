@@ -125,6 +125,55 @@
         }
       ],
       "exclude": []
+    },
+    {
+      "repo": "averlo-questionnaire-template",
+      "commit": "756be64",
+      "targetRoot": "src/questionnaire",
+      "entries": [
+        {
+          "source": "src/shared-header.tsx",
+          "target": "src/questionnaire/shared-header.tsx"
+        },
+        {
+          "source": "src/progress-navigator.tsx",
+          "target": "src/questionnaire/progress-navigator.tsx"
+        },
+        {
+          "source": "src/progress-model.ts",
+          "target": "src/questionnaire/progress-model.ts"
+        },
+        {
+          "source": "src/wording-context.ts",
+          "target": "src/questionnaire/wording-context.ts"
+        },
+        {
+          "source": "src/wording.ts",
+          "target": "src/questionnaire/wording.ts"
+        },
+        {
+          "source": "src/wording-defaults.ts",
+          "target": "src/questionnaire/wording-defaults.ts"
+        },
+        {
+          "source": "src/primitives/Logo.tsx",
+          "target": "src/questionnaire/primitives/Logo.tsx"
+        },
+        {
+          "source": "src/shell.css",
+          "target": "src/questionnaire/shell.css"
+        },
+        {
+          "source": "src/utilities.css",
+          "target": "src/questionnaire/utilities.css"
+        }
+      ],
+      "exclude": [
+        {
+          "path": "src/fonts/**",
+          "reason": "SF Pro Display font files: Apple's font licence does not allow redistribution (owner: \"Exclude the font files only\")"
+        }
+      ]
     }
   ]
 }

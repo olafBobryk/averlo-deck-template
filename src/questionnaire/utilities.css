@@ -1,0 +1,8 @@
+/* The donor foundations and primitive utility classes are compiled into the shared package. */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@import "./foundations.css";
+@source "./primitives/";
+@source './dropdown';
+@source './file-input';
+@source './inputs';

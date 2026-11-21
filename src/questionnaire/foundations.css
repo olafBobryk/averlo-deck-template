@@ -1,0 +1,127 @@
+@property --color-background {
+	syntax: "<color>";
+	inherits: true;
+	initial-value: rgb(255 255 255 / 1);
+}
+
+:root {
+	--font-sans-fallback: system-ui, -apple-system, sans-serif;
+	--font-body: var(--font-sf-pro), var(--font-sans-fallback);
+	--font-heading: var(--font-sf-pro), var(--font-sans-fallback);
+	--motion-feedback-duration: 160ms;
+	--motion-feedback-ease: cubic-bezier(0.3, 0.08, 0.18, 1);
+	--motion-interaction-duration: 240ms;
+	--motion-interaction-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+	--color-primary-rgb: 25 27 37;
+	--color-primary-hover-rgb: 45 48 63;
+	--color-primary-active-rgb: 10 11 17;
+	--color-primary-foreground-rgb: 255 255 255;
+	--color-accent-rgb: 255 50 0;
+	--color-accent-hover-rgb: 255 105 0;
+	--color-accent-foreground-rgb: 255 255 255;
+	--color-danger-rgb: 207 35 49;
+	--color-success-rgb: 29 170 97;
+	--color-foreground-rgb: 25 27 37;
+	--color-background-rgb: 255 255 255;
+	--color-cream-rgb: 248 245 232;
+	--color-background: rgb(var(--color-background-rgb) / 1);
+	--color-background-hover: color-mix(
+		in srgb,
+		rgb(var(--color-background-rgb) / 1) 95%,
+		rgb(var(--color-foreground-rgb) / 1)
+	);
+	--color-border: color-mix(
+		in srgb,
+		rgb(var(--color-background-rgb) / 1) 85%,
+		rgb(var(--color-foreground-rgb) / 1)
+	);
+	--color-foreground: rgb(var(--color-foreground-rgb) / 1);
+	--color-muted: color-mix(
+		in srgb,
+		rgb(var(--color-foreground-rgb) / 1) 75%,
+		rgb(var(--color-background-rgb) / 1)
+	);
+	--color-primary: rgb(var(--color-primary-rgb) / 1);
+	--color-primary-hover: rgb(var(--color-primary-hover-rgb) / 1);
+	--color-primary-active: rgb(var(--color-primary-active-rgb) / 1);
+	--color-primary-foreground: rgb(var(--color-primary-foreground-rgb) / 1);
+	--color-input: var(--color-border);
+	--color-ring: var(--color-accent);
+	--color-muted-foreground: var(--color-muted);
+	--color-accent: rgb(var(--color-accent-rgb) / 1);
+	--color-accent-hover: rgb(var(--color-accent-hover-rgb) / 1);
+	--color-danger: rgb(var(--color-danger-rgb) / 1);
+	--radius-pill: 999px;
+	/* Averlo Next tokens (T 603dad5) that the file input's Chip, Card and Modal read; values from its library.css. */
+	--foreground: var(--color-foreground);
+	--background: var(--color-background);
+	--primary: var(--color-primary);
+	--danger: var(--color-danger);
+	--danger-text: #af1d42;
+	--success: #36c24c;
+	--success-text: #157334;
+	--warning: #fdb31f;
+	--warning-foreground: #b54708;
+	--card-border-color: var(--color-border);
+	--font-size-3xs: 0.625rem;
+}
+
+@theme {
+	--color-background: rgb(var(--color-background-rgb) / 1);
+	--color-background-hover: var(--color-background-hover);
+	--color-border: var(--color-border);
+	--color-foreground: rgb(var(--color-foreground-rgb) / 1);
+	--color-muted: var(--color-muted);
+	--color-primary: rgb(var(--color-primary-rgb) / 1);
+	--color-primary-hover: rgb(var(--color-primary-hover-rgb) / 1);
+	--color-primary-active: rgb(var(--color-primary-active-rgb) / 1);
+	--color-primary-foreground: rgb(var(--color-primary-foreground-rgb) / 1);
+	--color-input: var(--color-input);
+	--color-ring: var(--color-ring);
+	--color-muted-foreground: var(--color-muted-foreground);
+	--color-accent: rgb(var(--color-accent-rgb) / 1);
+	--color-accent-hover: rgb(var(--color-accent-hover-rgb) / 1);
+	--color-danger: rgb(var(--color-danger-rgb) / 1);
+	--radius-pill: var(--radius-pill);
+	--color-card: var(--color-background);
+	--color-card-foreground: var(--color-foreground);
+	--color-success: var(--success);
+	--color-success-text: var(--success-text);
+	--color-warning: var(--warning-foreground);
+	--color-warning-accent: var(--warning);
+	--color-danger-text: var(--danger-text);
+	--color-primary-text: var(--color-primary);
+	--text-3xs: var(--font-size-3xs);
+}
+
+@layer utilities {
+	.motion-micro {
+		transition-duration: var(--motion-feedback-duration);
+		transition-timing-function: var(--motion-feedback-ease);
+	}
+
+	.motion-interactive {
+		transition-duration: var(--motion-interaction-duration);
+		transition-timing-function: var(--motion-interaction-ease);
+	}
+}
+
+@layer base {
+	input:-webkit-autofill,
+	input:-webkit-autofill:hover,
+	input:-webkit-autofill:focus,
+	input:-webkit-autofill:active,
+	textarea:-webkit-autofill,
+	textarea:-webkit-autofill:hover,
+	textarea:-webkit-autofill:focus,
+	textarea:-webkit-autofill:active,
+	select:-webkit-autofill,
+	select:-webkit-autofill:hover,
+	select:-webkit-autofill:focus,
+	select:-webkit-autofill:active {
+		-webkit-box-shadow: 0 0 0 1000px transparent inset !important;
+		-webkit-text-fill-color: inherit !important;
+		transition: background-color 5000s ease-in-out 0s !important;
+		caret-color: var(--color-foreground) !important;
+	}
+}

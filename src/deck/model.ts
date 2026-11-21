@@ -37,6 +37,10 @@ export const ui = {
   pdf: { en: "PDF" },
   english: { en: "English" },
   french: { en: "French" },
+  firstSlide: { en: "First slide" },
+  slideProgress: { en: "Slide progress" },
+  goSlide: { en: "Go to slide {count}" },
+  slideNumber: { en: "Slide number" },
 } satisfies Record<string, Text>;
 
 export const pdfHref = (lang: Lang) => `/pdf/deck-deck-${lang}.pdf`;
