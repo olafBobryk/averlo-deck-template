@@ -1,0 +1,292 @@
+/* The deck's menu card: one card, a popup at the menu button
+   and an overview inset 40. Its width, height, bottom and right are motion
+   values (MenuCard.tsx); layout only here, from design-system tokens. */
+/* Under the DropdownMenu (z-index 40), which the downloads open over
+   it; over the footer (10). */
+.card {
+  position: fixed;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  padding: var(--deck-space-24);
+  border: 1px solid var(--deck-border-glass-top);
+  border-radius: var(--deck-radius-xl);
+  background: linear-gradient(
+    var(--deck-surface-card-top),
+    var(--deck-surface-card-bottom)
+  );
+  -webkit-backdrop-filter: var(--deck-glass-modal-backdrop);
+  backdrop-filter: var(--deck-glass-modal-backdrop);
+  box-shadow: var(--deck-glass-modal-shadow);
+  overflow: clip;
+  outline: none;
+}
+/* The expanded card: subtle, over the canvas the slide sinks away from. */
+.card[data-view="expanded"] {
+  background: var(--deck-surface-subtle);
+  -webkit-backdrop-filter: var(--deck-glass-card-backdrop);
+  backdrop-filter: var(--deck-glass-card-backdrop);
+  box-shadow: none;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--deck-space-12);
+  flex: none;
+  padding-bottom: var(--deck-space-16);
+}
+.title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+.separator {
+  flex: none;
+  width: 100%;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: var(--deck-border-subtle);
+}
+
+/* The viewport scrolls between the separator and the controls. It reaches
+   the card's own edge on the right, so while Expand or Minimize resizes the
+   card only that edge clips the content; each
+   pane's width and start are its form's (MenuCard.tsx), flush left with an
+   8 px scrollbar gutter in the popup, centred expanded. */
+.viewport {
+  flex: 1;
+  min-height: 0;
+  margin-inline-end: calc(-1 * var(--deck-space-24));
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+}
+.content {
+  position: relative;
+  padding-block: var(--deck-space-16);
+}
+.pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--deck-space-24);
+}
+/* A leaving pane stands where it was, at its own width, out of the flow,
+   while it fades. */
+.leaving {
+  position: absolute;
+  top: var(--deck-space-16);
+  left: 0;
+  pointer-events: none;
+}
+
+/* The language in the header, as tall as the header's icon buttons: the
+   ported SegmentedControl keeps its own rules; this sizes it from outside. */
+.headerLanguage {
+  display: flex;
+  flex: none;
+}
+.headerLanguage [role="radiogroup"] {
+  box-sizing: border-box;
+  height: var(--deck-size-icon-button);
+  padding: var(--deck-space-2);
+}
+.headerLanguage [role="radio"] {
+  height: 100%;
+  padding-block: 0;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+/* A control that can't be used here (Previous on the first slide, Next on
+   the last): its own look at a muted opacity. */
+.unavailable.unavailable {
+  opacity: 0.5;
+  cursor: default;
+  transition: opacity var(--deck-motion-fade);
+}
+/* Button draws aria-disabled with its Disabled fill; keep the secondary
+   look (Button.module.css's secondary variant values) so only the opacity
+   says it can't be used. */
+.unavailable.unavailable.unavailable[aria-disabled="true"] {
+  border-color: var(--deck-action-secondary-border);
+  --button-fill: var(--deck-action-secondary-bg);
+  color: var(--deck-text-primary);
+}
+.slideItem.slideItem {
+  width: 100%;
+  color: var(--deck-text-secondary);
+}
+.slideItem.slideItem[data-sub] {
+  padding-inline-start: var(--deck-space-32);
+}
+.slideItem.slideItem[aria-current="true"] {
+  --button-fill: var(--deck-surface-highlight);
+  color: var(--deck-text-primary);
+}
+/* inline-block, so the number and the title are read as two words
+   ("03 Placeholder title"); it draws the same as inline. */
+.number {
+  display: inline-block;
+  margin-inline-end: var(--deck-space-8);
+  font-variant-numeric: tabular-nums;
+  /* Secondary, not tertiary: over a content slide the popup's glass is
+     lighter, and tertiary fell under 4.5:1. */
+  color: var(--deck-text-secondary);
+}
+
+.downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--deck-space-8);
+}
+.header .downloads {
+  flex: none;
+}
+/* In the footer, after the controls. On a narrow phone it keeps only its
+   icon, so the row stays one line. */
+.line .downloads {
+  flex: none;
+  margin-inline-start: auto;
+}
+@media (max-width: 480px) {
+  .downloadLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* The controls row: the part that travels out of the button. */
+.controls {
+  flex: none;
+  display: flex;
+  padding-top: var(--deck-space-16);
+  border-top: 1px solid var(--deck-border-subtle);
+}
+/* Its controls, on one line at any width: the line is the row's width,
+   never less than the popup's
+   (MenuCard.tsx), so the row's travel out of the button never wraps it. Where
+   the controls are wider than the card (a phone, a long language), labels give,
+   ending in an ellipsis: those after Previous and Next first, theirs last.
+   Every control and icon stays, and Download, an icon alone there, keeps
+   its width. */
+.line {
+  display: flex;
+  flex: 1 0 0;
+  gap: var(--deck-space-8);
+}
+.line > *,
+.line button {
+  min-width: 0;
+}
+/* So much more than Previous and Next that theirs give nothing, not even a
+   fraction of a pixel (an ellipsis), until these have given all they can. */
+.line > button:nth-child(n + 3) {
+  flex-shrink: 100000;
+}
+.line button > span > span:not([data-side]) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.key {
+  margin-inline-start: var(--deck-space-4);
+  font-family: inherit;
+  /* Secondary, as the labels it sits beside, so the icon stays visible. */
+  color: var(--deck-text-secondary);
+}
+/* A touch screen has no keys to press: no hints. */
+@media (hover: none) and (pointer: coarse) {
+  .key {
+    display: none;
+  }
+}
+
+/* The overview: every slide, each in its own 16:9 size container. */
+.grid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--deck-space-16);
+}
+.thumb {
+  display: flex;
+  flex-direction: column;
+  gap: var(--deck-space-8);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--deck-radius-md);
+  background: none;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.thumb:focus-visible {
+  outline: 2px solid var(--deck-border-focus);
+  outline-offset: 2px;
+}
+.thumbStage {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  container-type: size;
+  border: 1px solid var(--deck-border-subtle);
+  border-radius: var(--deck-radius-md);
+  overflow: hidden;
+  transition:
+    border-color var(--deck-motion-fade),
+    box-shadow var(--deck-motion-fade);
+}
+/* A thumbnail draws its slide's cards without glass blur: the overview fades
+   its items, and opacity never animates over a backdrop filter. Important,
+   so no slide class outranks it. */
+.thumbStage * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.thumb:hover .thumbStage {
+  border-color: var(--deck-border-strong);
+}
+.thumb[aria-current="true"] .thumbStage {
+  border-color: var(--deck-border-focus);
+  box-shadow: 0 0 0 1px var(--deck-border-focus);
+}
+.thumbLabel {
+  font-size: var(--deck-type-size-label-m);
+  color: var(--deck-text-secondary);
+}
+.thumbLabel span {
+  display: inline-block;
+  margin-inline-end: var(--deck-space-8);
+  font-variant-numeric: tabular-nums;
+  color: var(--deck-text-tertiary);
+}
+
+/* The footer's menu button: its glyph in full white (deck-base-white), over
+   the horizon glow, resting, hover, focus and open alike. */
+.trigger.trigger[data-icon-variant="default"]:not(:disabled):not(
+    [aria-disabled="true"]
+  ) {
+  color: var(--deck-base-white);
+}
+/* While the card is up the button it opens from is out of sight, still in
+   the layout and focusable; the card fades it back in as it goes home
+   (MenuCard.tsx, fadeHome). */
+.trigger[data-covered] {
+  opacity: 0;
+}

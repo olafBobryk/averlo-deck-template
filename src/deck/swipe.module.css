@@ -1,0 +1,10 @@
+/* The slide area a finger drags (swipe.ts). Pans and pinches stay the
+   browser's: swipe.ts holds a pan off only once it has turned sideways, so
+   a scroll that starts a little sideways still scrolls (under pan-y Chrome
+   drops it). Any value but auto ends double-tap zoom, so a second quick tap
+   is only a tap (and swipe.ts keeps it from stepping twice). No tap highlight:
+   the whole area takes taps, and a highlight flashes the slide. */
+.area {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
