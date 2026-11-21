@@ -27,3 +27,4 @@ src/deck/*
 src/gate/
 src/boot/
 scripts/render-pdf.mjs
+gate-results/

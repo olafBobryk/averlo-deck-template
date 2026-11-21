@@ -2,7 +2,7 @@
 // The gate (`npm run gate`, FR-021). It loads the machine settings from the
 // ignored .local/env, runs every check in order, starts and stops the
 // servers a check needs, and reports each check as passed, failed or not run.
-// The report is printed and written to test-results/gate-report.md, then
+// The report is printed and written to gate-results/gate-report.md, then
 // checked with the public scan's text mode.
 //
 // A check reports "not run" when its tool does not exist yet (the report
@@ -492,7 +492,7 @@ async function main() {
     cwd: repoRoot,
     env: process.env,
     output: process.stdout,
-    logDir: join(repoRoot, "test-results", "gate"),
+    logDir: join(repoRoot, "gate-results", "logs"),
   });
 
   const dirty = gitValue(["status", "--porcelain"]);
@@ -505,7 +505,7 @@ async function main() {
     commit,
     missingEnv: missing,
   });
-  const reportFile = join(repoRoot, "test-results", "gate-report.md");
+  const reportFile = join(repoRoot, "gate-results", "gate-report.md");
   mkdirSync(dirname(reportFile), { recursive: true });
   writeFileSync(reportFile, report);
 
@@ -519,7 +519,7 @@ async function main() {
   writeFileSync(reportFile, report);
 
   console.log(`\n${report}`);
-  console.log("Written to test-results/gate-report.md");
+  console.log("Written to gate-results/gate-report.md");
   if (!reportClean) {
     console.log(`${scan.stdout ?? ""}${scan.stderr ?? ""}`.trim());
   }
