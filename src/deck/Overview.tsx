@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/primitives/Button";
 import { DeckIcon } from "./icon";
 import { MenuDropdown } from "./menu-dropdown";
 import { SlideView } from "./SlideView";
-import { langs, type Lang } from "./langs";
+import { langNames, langs, type Lang } from "./langs";
 import { pdfHref, ui } from "./model";
 import { useDeck } from "./version";
 import styles from "./menu.module.css";
@@ -84,7 +84,7 @@ export function Downloads({
           content: (
             <>
               {ui.pdf[lang]} ·{" "}
-              {option === "en" ? ui.english[lang] : ui.french[lang]}
+              {langNames[option]}
             </>
           ),
         }))}
