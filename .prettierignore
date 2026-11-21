@@ -16,3 +16,7 @@ docs/context/
 
 # Approved feature documents and their evidence, kept as the owner approved them.
 specs/
+
+# Carried as is; changes listed in docs/carried.
+src/motion/
+src/_origin-temp/

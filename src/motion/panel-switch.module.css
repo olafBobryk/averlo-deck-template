@@ -1,0 +1,17 @@
+/* A leaving panel is pinned in its frame while the new one takes its place. */
+.frameContent {
+  position: relative;
+}
+/* A panel holds its own margins in both states (a switch moves on
+   x alone). In the flow, a first child's margin collapses through a plain
+   block; absolute, it can't. A nested SizeFrame's 4px gutter therefore moved
+   the leaving panel's content 4px up in the frame it was pinned. */
+.panel {
+  display: flow-root;
+}
+.panel[data-leaving] {
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}

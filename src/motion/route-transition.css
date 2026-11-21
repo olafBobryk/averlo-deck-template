@@ -1,0 +1,20 @@
+/* Route transitions (route-transition.tsx). The leaving page's snapshot is
+   animated from JS on the motion tokens, so the browser's default crossfade
+   is off; reduced motion makes that animation instant. */
+::view-transition-old(.deck-page) {
+  animation: none;
+}
+/* The rest of the document stays live under the leaving snapshot: the
+   header, notices and fixed bars never fade, and the entering sections show at once
+   (React keeps the root out only when nothing outside a ViewTransition
+   changed). */
+::view-transition-old(root) {
+  display: none;
+}
+::view-transition-new(root) {
+  animation: none;
+}
+/* Clicks during the short exit reach the live page underneath. */
+::view-transition {
+  pointer-events: none;
+}

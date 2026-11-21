@@ -1,0 +1,125 @@
+/* Deck motion language.
+   motion.ts is the source; these values must match it. Springs are
+   `<duration> linear(…)` pairs for CSS transitions, e.g.
+   `transition: height var(--deck-motion-spring-component)`. */
+:root {
+  --deck-motion-spring-control: 400ms
+    linear(
+      0,
+      0.2804,
+      0.6121,
+      0.8116,
+      0.9129,
+      0.9608,
+      0.9826,
+      0.9923,
+      0.9966,
+      0.9985,
+      0.9994,
+      1,
+      1
+    );
+  --deck-motion-spring-component: 450ms
+    linear(
+      0,
+      0.1551,
+      0.4094,
+      0.6247,
+      0.7753,
+      0.8711,
+      0.9284,
+      0.9614,
+      0.9796,
+      0.9895,
+      0.9947,
+      0.9974,
+      0.9987,
+      0.9994,
+      1
+    );
+  --deck-motion-spring-surface: 650ms
+    linear(
+      0,
+      0.1002,
+      0.2854,
+      0.4671,
+      0.6169,
+      0.7309,
+      0.8139,
+      0.8726,
+      0.9134,
+      0.9415,
+      0.9606,
+      0.9735,
+      0.9823,
+      0.9881,
+      0.9921,
+      0.9947,
+      0.9965,
+      0.9976,
+      0.9984,
+      0.9989,
+      1,
+      1
+    );
+  --deck-motion-fade: 200ms cubic-bezier(0.2, 0, 0, 1);
+  --deck-motion-exit: 150ms cubic-bezier(0.4, 0, 1, 1);
+  --deck-motion-nudge: 8px;
+  --deck-motion-page: 120px;
+  --deck-motion-panel: 80px;
+  --deck-motion-scale-presence: 0.96;
+  --deck-motion-scale-swap: 0.6;
+  --deck-motion-stagger: 30ms;
+  --deck-motion-loop-slow: 180s;
+  --deck-motion-loop-medium: 140s;
+  --deck-motion-loop-fast: 100s;
+  /* The speaking bars: one swing between 40% and 100% height, each bar
+     starting a step after the one before. */
+  --deck-motion-loop-bars: 1.2s;
+  --deck-motion-loop-bars-step: 150ms;
+  /* A heading's erase-and-retype: per character, each
+     phase capped. */
+  --deck-motion-type-erase: 12ms;
+  --deck-motion-type-erase-max: 240ms;
+  --deck-motion-type-type: 18ms;
+  --deck-motion-type-type-max: 360ms;
+}
+/* Reduced motion animates nothing: fades go with movement. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --deck-motion-spring-control: 0s linear;
+    --deck-motion-spring-component: 0s linear;
+    --deck-motion-spring-surface: 0s linear;
+    --deck-motion-fade: 0s linear;
+    --deck-motion-exit: 0s linear;
+    --deck-motion-nudge: 0px;
+    --deck-motion-page: 0px;
+    --deck-motion-panel: 0px;
+    --deck-motion-scale-presence: 1;
+    --deck-motion-scale-swap: 1;
+    --deck-motion-stagger: 0ms;
+    --deck-motion-type-erase: 0ms;
+    --deck-motion-type-erase-max: 0ms;
+    --deck-motion-type-type: 0ms;
+    --deck-motion-type-type-max: 0ms;
+  }
+}
+/* A hard load has no entrance, so nothing moves until it has arrived
+   (arrival.ts): the same instant values, from the first paint. */
+:root[data-arriving] {
+  --deck-motion-spring-control: 0s linear;
+  --deck-motion-spring-component: 0s linear;
+  --deck-motion-spring-surface: 0s linear;
+  --deck-motion-fade: 0s linear;
+  --deck-motion-exit: 0s linear;
+  --deck-motion-nudge: 0px;
+  --deck-motion-page: 0px;
+  --deck-motion-panel: 0px;
+  --deck-motion-scale-presence: 1;
+  --deck-motion-scale-swap: 1;
+  --deck-motion-stagger: 0ms;
+  --deck-motion-type-erase: 0ms;
+  --deck-motion-type-erase-max: 0ms;
+  --deck-motion-type-type: 0ms;
+  --deck-motion-type-type-max: 0ms;
+}
