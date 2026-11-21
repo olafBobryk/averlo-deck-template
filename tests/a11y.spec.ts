@@ -373,7 +373,13 @@ test.describe("keyboard", () => {
     // the language toggle (one stop, where there is one), Expand, Close, the
     // slides, then Previous, Next, Fullscreen and Download.
     const L = await card.locator("header [role='radiogroup']").count();
-    const popup = await tabThrough(page, L + 2 + N + 4);
+    // The list's stops: its rows shown (a closed section's are not) and a
+    // chevron after each section's row (tests/menu-list.spec.ts).
+    const R = await card.locator("[data-menu-slides] button").count();
+    const C = await card
+      .locator("[data-menu-slides] button[aria-expanded]")
+      .count();
+    const popup = await tabThrough(page, L + 2 + R + 4);
     const names = popup.map((stop) => stop.name);
     expect(names.slice(0, L + 2)).toEqual([
       ...(L ? [langs[0].toUpperCase()] : []),
@@ -382,11 +388,11 @@ test.describe("keyboard", () => {
     ]);
     if (L) expect(popup[0].role).toBe("radio");
     expect(
-      names.slice(L + 2, L + 2 + N).every((name) => /^\d\d/.test(name)),
-    ).toBe(true);
+      names.slice(L + 2, L + 2 + R).filter((name) => /^\d\d/.test(name)),
+    ).toHaveLength(R - C);
     expect(names[L + 2]).toMatch(/^01/);
-    expect(names[L + 1 + N]).toMatch(new RegExp(`^${pad(N)}`));
-    expect(names.slice(L + 2 + N).map((name) => name.split(" ")[0])).toEqual([
+    expect(names[L + 1 + R]).toMatch(new RegExp(`^${pad(N)}`));
+    expect(names.slice(L + 2 + R).map((name) => name.split(" ")[0])).toEqual([
       "Previous",
       "Next",
       "Fullscreen",
@@ -401,7 +407,7 @@ test.describe("keyboard", () => {
     await expect(page).toHaveURL(/s=4(?!\d)/);
 
     // Back from Next: Previous, the slides, Close, Expand.
-    for (let i = 0; i < 1 + N + 2; i++) await page.keyboard.press("Shift+Tab");
+    for (let i = 0; i < 1 + R + 2; i++) await page.keyboard.press("Shift+Tab");
 
     // Expand by Enter, focus staying on the button (now Minimize). After it
     // come Close, the thumbnails and the footer, Download last.
