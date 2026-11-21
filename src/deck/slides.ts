@@ -1,8 +1,9 @@
 // The deck's slides and their content: what a deck made from this template
 // edits. Each slide's content is keyed by its id and read through
-// `slideContent` (content.ts). The template ships placeholders only: one
-// slide per kind and per layout, using every generic block. Every `Text`
-// has a string for each language in `langs` (langs.ts).
+// `slideContent` (content.ts). The template ships placeholders only: every
+// kind and every layout, and every generic block in each of its styles
+// (tests/deck.spec.ts checks it). Every `Text` has a string for each
+// language in `langs` (langs.ts).
 
 import type { SlideContent } from "./content";
 import type { Slide, Text } from "./model";
@@ -32,6 +33,7 @@ export const content: Record<string, SlideContent> = {
   divider: { blocks: [] },
   stack: {
     headline: { text },
+    layout: "stack",
     blocks: [
       {
         type: "points",
@@ -50,8 +52,8 @@ export const content: Record<string, SlideContent> = {
       {
         type: "steps",
         items: [
-          { label: title, text, status: "done" },
-          { label: text, text, status: "current" },
+          { when: title, label: title, text, status: "done" },
+          { when: text, label: text, text, status: "current" },
         ],
       },
       { type: "note", item: { text: bold } },
@@ -63,6 +65,15 @@ export const content: Record<string, SlideContent> = {
     blocks: [
       {
         type: "facts",
+        items: [
+          { label: title, text },
+          { label: text, text },
+        ],
+      },
+      {
+        type: "points",
+        style: "numbered",
+        columns: 2,
         items: [
           { label: title, text },
           { label: text, text },
@@ -86,6 +97,7 @@ export const content: Record<string, SlideContent> = {
     blocks: [
       {
         type: "org",
+        style: "tree",
         root: { label: title, text },
         items: [
           { label: title, text },
@@ -116,6 +128,14 @@ export const content: Record<string, SlideContent> = {
         days: [title, text],
         items: [{ day: title, label: title, text }],
       },
+      {
+        type: "steps",
+        style: "nodes",
+        items: [
+          { label: title, text, status: "done" },
+          { label: text, text, status: "current" },
+        ],
+      },
     ],
   },
   plan: {
@@ -135,6 +155,13 @@ export const content: Record<string, SlideContent> = {
   },
   closing: {
     headline: { text },
-    blocks: [{ type: "lead", item: { text } }],
+    blocks: [
+      { type: "lead", item: { text } },
+      {
+        type: "points",
+        style: "chips",
+        items: [{ label: title }, { label: text }],
+      },
+    ],
   },
 };
