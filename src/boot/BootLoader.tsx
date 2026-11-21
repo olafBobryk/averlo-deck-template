@@ -1,4 +1,4 @@
-import { placeholderMark } from "@/brand/placeholder/mark";
+import { brandMark } from "@/brand/mark";
 import { bootBootstrap } from "./boot-bootstrap";
 import styles from "./BootLoader.module.css";
 
@@ -6,7 +6,7 @@ import styles from "./BootLoader.module.css";
 // arrives, and it is the same on every page.
 const inner = `<div class="${styles.backdrop}"></div>
 <div class="${styles.orb}" data-boot-orb="">
-<div class="${styles.media}"><img src="${placeholderMark}" alt="" width="1080" height="1080"></div>
+<div class="${styles.media}"><img src="${brandMark.src}" alt="" width="1080" height="1080" data-brand-mark="${brandMark.kind}"></div>
 </div>`;
 
 /**

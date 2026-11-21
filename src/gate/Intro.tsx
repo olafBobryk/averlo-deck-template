@@ -9,7 +9,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { preload } from "react-dom";
-import { placeholderMark } from "@/brand/placeholder/mark";
+import { brandMark } from "@/brand/mark";
 import type { Lang } from "@/deck/langs";
 import { parseLang } from "@/deck/model";
 import { AnimatedLock } from "./AnimatedLock";
@@ -69,7 +69,7 @@ export function Intro() {
   );
   const active = useSyncExternalStore(noSubscription, playing, () => true);
   // The mark is the intro's first frame: fetch it before anything.
-  preload(placeholderMark, { as: "image", fetchPriority: "high" });
+  preload(brandMark.src, { as: "image", fetchPriority: "high" });
   const root = useRef<HTMLDivElement>(null);
   const surface = useRef<HTMLCanvasElement>(null);
   const renderer = useRef<ReturnType<typeof prepareFogVolume>>(null);
@@ -85,7 +85,7 @@ export function Intro() {
     const canvas = surface.current;
     if (!canvas) return;
     let live = true;
-    const volume = prepareFogVolume(canvas, placeholderMark);
+    const volume = prepareFogVolume(canvas, brandMark.src);
     renderer.current = volume;
     const fallback = () => {
       if (live) setMotion("fallback");
@@ -216,7 +216,8 @@ export function Intro() {
           <canvas ref={surface} className={styles.volume} />
           <div
             className={styles.mark}
-            style={{ backgroundImage: `url(${placeholderMark})` }}
+            data-brand-mark={brandMark.kind}
+            style={{ backgroundImage: `url(${brandMark.src})` }}
           />
           <svg
             ref={arcSvg}
