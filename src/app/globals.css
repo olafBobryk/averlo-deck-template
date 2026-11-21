@@ -1,7 +1,10 @@
 /* Template-owned (T023). The ported Averlo library (it imports Tailwind,
-   so Tailwind is not imported again), then the deck's font and its token
-   bridge, then the carried motion module's stylesheets. */
+   so Tailwind is not imported again), then the questionnaire's ported shell
+   stylesheet for the top bar (T029; scoped to its .aq wrapper, its other
+   rules are listed in docs/design-source.md), then the deck's font and its
+   token bridge, then the carried motion module's stylesheets. */
 @import "../components/ui/foundations/library.css";
+@import "../questionnaire/shell.css";
 @import "../styles/fonts.css";
 @import "../styles/tokens.css";
 @import "../motion/motion.css";
