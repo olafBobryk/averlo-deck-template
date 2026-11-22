@@ -4,8 +4,10 @@ import { config } from "../src/brand/config";
 import { langs } from "../src/deck/langs";
 import { pdfHref } from "../src/deck/model";
 import { pdfName } from "../src/deck/pdf-name";
-import { slideContent, type Block } from "../src/deck/content";
+import { slideContent, stepsStyle, type Block } from "../src/deck/content";
 import { slides } from "../src/deck/slides";
+import { registry } from "../src/presets/registry";
+import { showcase } from "../src/presets/showcase";
 
 // The template's own checks of the placeholder deck (User Story 1): it holds
 // every kind, layout and generic block in placeholder text only (FR-002),
@@ -75,7 +77,12 @@ test("the placeholder deck holds every kind, layout and block (FR-002)", () => {
         : [],
     );
   has(styles("points", "cards"), ["cards", "numbered", "chips"]);
-  has(styles("steps", "rail"), ["rail", "nodes"]);
+  has(
+    blocks.flatMap((block) =>
+      block.type === "steps" ? [stepsStyle(block.style)] : [],
+    ),
+    ["rail", "across"],
+  );
   // The org block draws one way and has no style: the ledger was dropped,
   // and nothing reads a "tree" style.
   const orgs = blocks.filter((block) => block.type === "org");
@@ -90,13 +97,149 @@ test("the placeholder deck holds every kind, layout and block (FR-002)", () => {
   );
 
   // Placeholder text only (constitution III): every string a slide shows is
-  // "Placeholder title" or "Placeholder text", key-phrase markup aside.
-  const words = [...slides, ...contents].flatMap(texts);
+  // "Placeholder title" or "Placeholder text", key-phrase markup aside. The
+  // presets' showcase is checked against the registry below.
+  const own = slides.filter((slide) => !shown.has(slide.id));
+  const words = [...own, ...own.map((slide) => slideContent(slide.id))].flatMap(
+    texts,
+  );
   expect(words.length).toBeGreaterThan(0);
   for (const word of words)
     expect(["Placeholder title", "Placeholder text"]).toContain(
       word.replaceAll("**", ""),
     );
+});
+
+/** The showcase's slides, by id. */
+const shown = new Set(showcase().slides.map((slide) => slide.id));
+
+// The presets in the demo (feature 002, "Session 2026-11-22 (owner, after
+// the final build)": "Put them in the demo"): before the closing slide, a
+// divider "Presets" and one slide per registry preset, in the registry's
+// order, each with its example in its layout. Its section and titles are
+// the preset names, as the gallery's are; everything else is the
+// registry's placeholder content.
+test("the placeholder deck ends with a showcase of every preset, before the closing", () => {
+  const at = slides.findIndex((slide) => slide.id === showcase().slides[0].id);
+  expect(at, "the showcase's divider").toBeGreaterThan(0);
+  // Slides 1–12 stay as they were; the closing slide stays last.
+  expect(at).toBeGreaterThanOrEqual(12);
+  expect(slides.at(-1)!.kind).toBe("closing");
+  const run = slides.slice(at, -1);
+  expect(run).toHaveLength(1 + registry.length);
+  const [divider, ...rest] = run;
+  expect(divider.kind).toBe("divider");
+  for (const lang of langs) {
+    expect(divider.section?.[lang]).toBe("Presets");
+    expect(divider.title[lang]).toBe("Presets");
+  }
+  expect(slideContent(divider.id).blocks).toEqual([]);
+  for (const [i, entry] of registry.entries()) {
+    const slide = rest[i];
+    expect(slide.kind, entry.name).toBe("slide");
+    for (const lang of langs) {
+      expect(slide.section?.[lang], entry.name).toBe("Presets");
+      expect(slide.title[lang], entry.name).toBe(entry.name);
+    }
+    const content = slideContent(slide.id);
+    // T051 (owner on T050: "all these slides dont come with slide body
+    // text, they porbably should"): a short body text, a plain lead of
+    // placeholder text, with the example; before it, or after it on the
+    // statement, whose example is the claim itself.
+    const body = { type: "lead", item: { text: { en: "Placeholder text" } } };
+    expect(content.blocks, entry.name).toEqual(
+      entry.layout === "statement"
+        ? [entry.example, body]
+        : [body, entry.example],
+    );
+    expect(content.layout ?? "stack", entry.name).toBe(entry.layout ?? "stack");
+    for (const word of texts(content.headline))
+      expect(word, entry.name).toBe("Placeholder text");
+  }
+  // Ids of their own: the gallery's are not the deck's.
+  const ids = slides.map((slide) => slide.id);
+  expect(new Set(ids).size).toBe(ids.length);
+});
+
+// T051 (owner on T050: "slides are too tight next to the header, more
+// padding on top"): where the top bar shows, a content slide's first line
+// starts well clear of it: from the logo's box to the first line's box,
+// at least 4.5 slide units (--u), where it was 1.8 (26 px at 1440 × 900;
+// about 40 px to the glyphs). Phones hide the bar.
+test("a content slide's text starts well below the top bar", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  let checked = 0;
+  for (let s = 1; s <= slides.length; s++) {
+    const content = slideContent(slides[s - 1].id);
+    if (!content.headline) continue;
+    await openDeck(page, s);
+    const logo = page.locator(".aq .brand-logo").first();
+    if (!(await logo.isVisible())) continue;
+    const m = await page
+      .locator("main:not([aria-hidden]) [data-kind]")
+      .evaluate((slide) => {
+        const range = document.createRange();
+        let top = Infinity;
+        const walker = document.createTreeWalker(slide, NodeFilter.SHOW_TEXT);
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          if (!node.textContent?.trim()) continue;
+          range.selectNodeContents(node);
+          for (const r of range.getClientRects())
+            if (r.height >= 1) top = Math.min(top, r.top);
+        }
+        const width = document.documentElement.clientWidth;
+        const height = document.documentElement.clientHeight;
+        return { top, u: Math.min(width / 100, (height * 1.7778) / 100) };
+      });
+    const bottom = (await logo.boundingBox())!;
+    const gap = (m.top - (bottom.y + bottom.height)) / m.u;
+    expect(gap, `slide ${s}`).toBeGreaterThanOrEqual(4.5);
+    checked++;
+  }
+  test.skip(checked === 0, "the top bar is hidden on this screen");
+});
+
+// T051: on a split preset slide the body text stands beside the visual,
+// under the headline, so the slide shows text and a visual side by side.
+test("a split showcase slide sets its body text beside the visual", async ({
+  page,
+}) => {
+  const split = slides
+    .map((slide, i) => ({ slide, s: i + 1, content: slideContent(slide.id) }))
+    .filter(
+      ({ slide, content }) =>
+        shown.has(slide.id) &&
+        content.layout === "split" &&
+        content.blocks[0]?.type === "lead",
+    );
+  expect(split.length).toBeGreaterThan(0);
+  const phone = (page.viewportSize()?.width ?? 0) < 700;
+  for (const { slide, s } of split) {
+    await openDeck(page, s);
+    const main = page.locator("main:not([aria-hidden])");
+    const head = (await main
+      .locator("[data-kind] > :first-child")
+      .boundingBox())!;
+    const lead = (await main.locator('[data-block="lead"]').boundingBox())!;
+    const visual = (await main
+      .locator('[data-block]:not([data-block="lead"])')
+      .first()
+      .boundingBox())!;
+    // Under the headline, in every layout.
+    expect(lead.y, slide.id).toBeGreaterThanOrEqual(head.y + head.height - 1);
+    if (phone) {
+      // One column: headline, body text, visual.
+      expect(visual.y, slide.id).toBeGreaterThanOrEqual(
+        lead.y + lead.height - 1,
+      );
+    } else {
+      // Beside the visual, in the headline's column.
+      expect(lead.x + lead.width, slide.id).toBeLessThanOrEqual(visual.x + 1);
+      expect(Math.abs(lead.x - head.x), slide.id).toBeLessThanOrEqual(1);
+    }
+  }
 });
 
 test("the menu's PDF download returns the deck as a file", async ({ page }) => {

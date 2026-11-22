@@ -1,7 +1,8 @@
 // The preset gallery's slides (feature 002, FR-004), built from the
 // registry: a title slide, a divider for each family that has presets, then
 // for each preset a slide with its example and a slide with its alternate
-// (SC-005), in the layout its entry names (stack by default), and last a
+// (SC-005), in the layout its entry names (stack by default) with a short
+// body text (`presetBlocks`; T051), and last a
 // divider and a slide for each composed visual example (research D3), which
 // is not a preset. The /gallery route and the print view's `?deck=gallery`
 // draw them through the deck engine. Slide titles name the gallery, its
@@ -10,7 +11,13 @@
 import type { Block, SlideContent } from "@/deck/content";
 import { langs } from "@/deck/langs";
 import type { Slide, Text } from "@/deck/model";
-import { families, registry, type Family, type PresetEntry } from "./registry";
+import {
+  families,
+  presetBlocks,
+  registry,
+  type Family,
+  type PresetEntry,
+} from "./registry";
 
 /** The same words in every language. */
 const words = (value: string) =>
@@ -90,7 +97,7 @@ export function buildGallery(
         content[id] = {
           headline: { text: placeholder },
           layout: entry.layout ?? "stack",
-          blocks: [block],
+          blocks: presetBlocks(entry, block),
         };
       }
     }

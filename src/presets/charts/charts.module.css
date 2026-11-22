@@ -11,19 +11,11 @@
   min-width: 0;
   margin: 0;
 }
-.top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: calc(var(--u) * 0.6) calc(var(--u) * 2);
-}
-.unit.unit,
 .source.source,
 .legend {
   margin: 0;
   font-size: calc(var(--u) * 1.3);
-  font-weight: 450;
+  font-weight: var(--deck-type-body-weight);
   line-height: 1.3;
 }
 .legend {
@@ -58,7 +50,7 @@
 .plot {
   position: relative;
   min-width: 0;
-  height: calc(var(--u) * 24);
+  height: min(calc(var(--u) * 24), calc(100cqh - var(--u) * 36));
   font-size: calc(var(--u) * 1.3);
 }
 .plot svg {
@@ -81,7 +73,8 @@
 }
 .key {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, max-content) auto;
+  justify-content: start;
   align-items: center;
   gap: calc(var(--u) * 0.9) calc(var(--u) * 1.2);
   max-width: calc(var(--u) * 36);
@@ -96,12 +89,18 @@
 .keyValue.keyValue {
   margin: 0;
   font-size: calc(var(--u) * 1.5);
-  font-weight: 450;
+  font-weight: var(--deck-type-body-weight);
   line-height: 1.3;
 }
 .keyValue.keyValue {
+  padding-left: calc(var(--u) * 2);
   text-align: end;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* The unit after a key's value, smaller than the value. */
+.keyUnit {
+  font-size: 0.85em;
 }
 
 /* ---------- Stats ---------- */
@@ -109,43 +108,45 @@
 .stats {
   display: grid;
   grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-  gap: calc(var(--u) * 1.4);
+  gap: calc(var(--u) * 1.6);
   margin: 0;
   padding: 0;
   list-style: none;
 }
+/* A stat card: the value with clear space under it, then the label and the
+   note. Its padding stays as before (owner: "Just revert the padding"). */
 .stat {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--u) * 0.8);
+  gap: calc(var(--u) * 0.9);
   padding: calc(var(--u) * 2.2);
 }
 .figure {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: calc(var(--u) * 0.6);
-  margin: 0;
+  gap: calc(var(--u) * 0.6) calc(var(--u) * 1);
+  margin: 0 0 calc(var(--u) * 1.1);
 }
 .value.value {
-  font-size: calc(var(--u) * 6);
+  font-size: calc(var(--u) * 4.6);
   overflow-wrap: anywhere;
 }
 .statUnit.statUnit {
-  font-size: calc(var(--u) * 1.9);
-  font-weight: 450;
+  font-size: calc(var(--u) * 1.7);
+  font-weight: var(--deck-type-body-weight);
   line-height: 1.2;
 }
 .statLabel.statLabel {
   margin: 0;
-  font-size: calc(var(--u) * 1.9);
-  line-height: 1.2;
+  font-size: calc(var(--u) * 1.8);
+  line-height: 1.25;
   text-wrap: balance;
 }
 .statNote.statNote {
   margin: 0;
-  font-size: calc(var(--u) * 1.4);
-  font-weight: 450;
+  font-size: calc(var(--u) * 1.5);
+  font-weight: var(--deck-type-body-weight);
   line-height: 1.5;
   text-wrap: pretty;
 }
@@ -156,7 +157,6 @@
   :global(:where([data-deck-title])) .chart {
     gap: 10px;
   }
-  :global(:where([data-deck-title])) .unit.unit,
   :global(:where([data-deck-title])) .source.source,
   :global(:where([data-deck-title])) .legend,
   :global(:where([data-deck-title])) .keyLabel.keyLabel,
@@ -171,8 +171,7 @@
     width: 16px;
     height: 3px;
   }
-  :global(:where([data-deck-title])) .legend,
-  :global(:where([data-deck-title])) .top {
+  :global(:where([data-deck-title])) .legend {
     gap: 6px 16px;
   }
   :global(:where([data-deck-title])) .plot {
@@ -194,17 +193,18 @@
   }
   :global(:where([data-deck-title])) .stats {
     grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
+    gap: 12px;
   }
   :global(:where([data-deck-title])) .stat {
-    gap: 4px;
+    gap: 6px;
     padding: 14px 16px;
   }
   :global(:where([data-deck-title])) .figure {
     column-gap: 8px;
+    margin-bottom: 6px;
   }
   :global(:where([data-deck-title])) .value.value {
-    font-size: max(36px, 10cqw);
+    font-size: max(32px, 8.6cqw);
   }
   :global(:where([data-deck-title])) .statUnit.statUnit,
   :global(:where([data-deck-title])) .statLabel.statLabel {

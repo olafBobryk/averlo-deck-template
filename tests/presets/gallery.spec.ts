@@ -31,6 +31,15 @@ const N = gallery.slides.length;
 /** A gallery slide's position (1-based), by id. */
 const at = (id: string) => gallery.slides.findIndex((s) => s.id === id) + 1;
 
+/** A gallery slide's preset block: the block beside its body text (T051:
+ *  each preset slide carries a plain `lead` of placeholder body text). */
+const shown = (id: string) => {
+  const blocks = gallery.content[id].blocks;
+  const body = (b: (typeof blocks)[number]) =>
+    b.type === "lead" && !b.size && blocks.length > 1;
+  return blocks.find((b) => !body(b)) ?? blocks[0];
+};
+
 test("the gallery has a title slide, a divider per family in use and two slides per preset", () => {
   const families = new Set(registry.map((entry) => entry.family));
   // Then a divider and a slide for each composed visual example (T143).
@@ -53,6 +62,20 @@ test("every registry entry has a gallery slide for its example and its alternate
     expect(gallery.content[alternate!.id].blocks).toContainEqual(
       entry.alternate,
     );
+    // T051 (owner on T050: "all these slides dont come with slide body
+    // text, they porbably should"): each preset slide carries a short body
+    // text, a plain lead of placeholder text, before its visual; after it
+    // on the statement, whose visual is the claim itself.
+    for (const [slide, block] of [
+      [example!, entry.example],
+      [alternate!, entry.alternate],
+    ] as const) {
+      const body = { type: "lead", item: { text: { en: "Placeholder text" } } };
+      const blocks = gallery.content[slide.id].blocks;
+      expect(blocks, slide.id).toEqual(
+        entry.layout === "statement" ? [block, body] : [body, block],
+      );
+    }
   }
 });
 
@@ -114,7 +137,9 @@ test("each preset renders its example and its alternate, and both fit (SC-005)",
     for (const slide of [slides.example!, slides.alternate!]) {
       await openGallery(page, at(slide.id));
       await expect(
-        page.locator(`main:not([aria-hidden]) [data-block="${entry.block}"]`),
+        page
+          .locator(`main:not([aria-hidden]) [data-block="${entry.block}"]`)
+          .first(),
         `${entry.name}: ${slide.id}`,
       ).toBeVisible();
       await expectFits(page, `${entry.name}: ${slide.id}`);
@@ -202,7 +227,7 @@ for (const kind of chartKinds) {
     expect(entry, kind).toBeTruthy();
     const slides = gallery.presetSlides(entry!.name);
     for (const slide of [slides.example!, slides.alternate!]) {
-      const block = gallery.content[slide.id].blocks[0];
+      const block = shown(slide.id);
       if (block.type !== "chart") throw new Error(`${slide.id}: not a chart`);
       await openGallery(page, at(slide.id));
       const main = page.locator("main:not([aria-hidden])");
@@ -224,10 +249,31 @@ for (const kind of chartKinds) {
       expect(labels.map(squash), slide.id).toEqual(
         block.categories.map((c) => squash(c[langs[0]])),
       );
-      if (block.unit)
-        await expect(chart.locator("[data-unit]")).toHaveText(
-          block.unit[langs[0]],
-        );
+      // T051 (owner on T050: "for the bar chart isnt that trippling titling
+      // bad?"): no caption line over the plot. The unit is on the value
+      // axis of a bar or line chart, and with each value in a donut's key.
+      await expect(chart.locator("[data-unit]")).toHaveCount(0);
+      if (block.unit) {
+        const unit = block.unit[langs[0]];
+        if (kind === "donut") {
+          await expect(chart.locator("[data-key-value]")).toHaveText(
+            block.series[0].values.map((v) => `${v} ${unit}`),
+          );
+        } else {
+          await expect(chart.locator("svg [data-axis-unit]")).toHaveText(unit);
+        }
+      } else {
+        await expect(chart.locator("[data-axis-unit]")).toHaveCount(0);
+      }
+      // Nothing but a legend stands between the slide's headline and the
+      // plot: the plot is the figure's first row, or follows the legend.
+      const above = await chart.evaluate((figure) => {
+        const first = figure.firstElementChild!;
+        return first.querySelector("svg") || first.hasAttribute("data-legend")
+          ? "plot or legend"
+          : (first.textContent ?? "");
+      });
+      expect(above, slide.id).toBe("plot or legend");
       if (block.source)
         await expect(chart.locator("[data-source]")).toHaveText(
           block.source[langs[0]],
@@ -257,13 +303,57 @@ test("the stat cards show each value as written", async ({ page }) => {
   expect(entry, "stat").toBeTruthy();
   const slides = gallery.presetSlides(entry!.name);
   for (const slide of [slides.example!, slides.alternate!]) {
-    const block = gallery.content[slide.id].blocks[0];
+    const block = shown(slide.id);
     if (block.type !== "stat") throw new Error(`${slide.id}: not a stat`);
     await openGallery(page, at(slide.id));
     const main = page.locator("main:not([aria-hidden])");
     await expect(main.locator("[data-preset-pending]")).toHaveCount(0);
     const values = main.locator("[data-stat-value]");
     await expect(values, slide.id).toHaveText(block.items.map((i) => i.value));
+    // T051 (owner on T050: "the stat is too crammed"): each card breathes.
+    // Measured in slide units (--u) on a landscape stage, in px on a phone.
+    const cards = await main.locator("[data-stat]").evaluateAll((cards) =>
+      cards.map((card) => {
+        const u =
+          parseFloat(getComputedStyle(card).getPropertyValue("--u")) ||
+          Math.min(
+            document.documentElement.clientWidth / 100,
+            (document.documentElement.clientHeight * 1.7778) / 100,
+          );
+        const s = getComputedStyle(card);
+        const value = card.querySelector("[data-stat-value]")!;
+        const label = card.querySelector("[data-stat-label]")!;
+        return {
+          u,
+          pad: Math.min(parseFloat(s.paddingTop), parseFloat(s.paddingLeft)),
+          gap:
+            label.getBoundingClientRect().top -
+            value.getBoundingClientRect().bottom,
+          size: parseFloat(getComputedStyle(value).fontSize),
+        };
+      }),
+    );
+    expect(cards, slide.id).toHaveLength(block.items.length);
+    const phone = (page.viewportSize()?.width ?? 0) < 700;
+    for (const card of cards) {
+      if (phone) {
+        // The card's padding stays as before (owner: "Just revert the padding").
+        expect(card.pad, `${slide.id}: padding`).toBeLessThanOrEqual(16);
+        expect(card.gap, `${slide.id}: value to label`).toBeGreaterThanOrEqual(
+          8,
+        );
+      } else {
+        expect(card.pad / card.u, `${slide.id}: padding`).toBeCloseTo(2.2, 1);
+        expect(
+          card.gap / card.u,
+          `${slide.id}: value to label`,
+        ).toBeGreaterThanOrEqual(1.2);
+        expect(
+          card.size / card.u,
+          `${slide.id}: value size`,
+        ).toBeLessThanOrEqual(5);
+      }
+    }
   }
 });
 
@@ -348,7 +438,7 @@ for (const [key, layout] of [
         layout,
       );
       await expect(
-        main.locator(`[data-block="${entry.block}"]`),
+        main.locator(`[data-block="${entry.block}"]`).first(),
         slide.id,
       ).toBeVisible();
       await expect(main.locator("[data-preset-pending]")).toHaveCount(0);
@@ -361,7 +451,7 @@ test("the quote shows its text, and who said it when given", async ({
 }) => {
   const { slides } = v3Slides("quote");
   for (const slide of slides) {
-    const block = gallery.content[slide.id].blocks[0];
+    const block = shown(slide.id);
     if (block.type !== "quote") throw new Error(`${slide.id}: not a quote`);
     await openGallery(page, at(slide.id));
     const quote = page.locator("main:not([aria-hidden]) [data-quote]");
@@ -379,7 +469,7 @@ test("the quote shows its text, and who said it when given", async ({
 test("the agenda numbers its items in order", async ({ page }) => {
   const { slides } = v3Slides("agenda");
   for (const slide of slides) {
-    const block = gallery.content[slide.id].blocks[0];
+    const block = shown(slide.id);
     if (block.type !== "agenda") throw new Error(`${slide.id}: not an agenda`);
     await openGallery(page, at(slide.id));
     const agenda = page.locator("main:not([aria-hidden]) [data-agenda]");
@@ -392,6 +482,29 @@ test("the agenda numbers its items in order", async ({ page }) => {
     await expect(agenda.locator("[data-agenda-label]")).toHaveText(
       block.items.map((item) => item.label[langs[0]]),
     );
+    // Each number is the muted step label, above its label (spec 001, after
+    // the final build: "No circles, muted step labels").
+    const muted = await tokenColour(agenda, "--color-muted");
+    const numbers = await items.evaluateAll((items) =>
+      items.map((item) => {
+        const number = item.querySelector("[data-agenda-number]")!;
+        const label = item.querySelector("[data-agenda-label]")!;
+        const s = getComputedStyle(number);
+        return {
+          step: number.hasAttribute("data-step-label"),
+          look: [s.color, s.fontWeight, s.fontVariantNumeric],
+          above:
+            number.getBoundingClientRect().bottom <=
+            label.getBoundingClientRect().top + 1,
+        };
+      }),
+    );
+    for (const number of numbers)
+      expect(number, slide.id).toEqual({
+        step: true,
+        look: [muted, "400", "tabular-nums"],
+        above: true,
+      });
   }
 });
 
@@ -400,7 +513,7 @@ test("the compare shows both sides, each with its title and every point", async 
 }) => {
   const { slides } = v3Slides("compare");
   for (const slide of slides) {
-    const block = gallery.content[slide.id].blocks[0];
+    const block = shown(slide.id);
     if (block.type !== "compare") throw new Error(`${slide.id}: not a compare`);
     await openGallery(page, at(slide.id));
     const compare = page.locator("main:not([aria-hidden]) [data-compare]");
@@ -420,7 +533,7 @@ test("the compare shows both sides, each with its title and every point", async 
 
 /** The images a gallery image block holds. */
 const imagesOf = (id: string) => {
-  const block = gallery.content[id].blocks[0];
+  const block = shown(id);
   if (block.type === "image") return [block];
   if (block.type === "imageGrid") return block.images;
   throw new Error(`${id}: not an image block`);
@@ -532,7 +645,7 @@ function diagramSlides<T extends DiagramBlock>(block: T) {
   expect(entry, block).toBeTruthy();
   const { example, alternate } = gallery.presetSlides(entry!.name);
   return [example!, alternate!].map((slide) => {
-    const b = gallery.content[slide.id].blocks[0];
+    const b = shown(slide.id);
     if (b.type !== block) throw new Error(`${slide.id}: not a ${block}`);
     return { slide, block: b as Extract<typeof b, { type: T }> };
   });
@@ -885,5 +998,26 @@ test("the print view draws every diagram", async ({ page }) => {
     const box = await diagrams.nth(i).boundingBox();
     expect(box?.width ?? 0, `print diagram ${i}`).toBeGreaterThan(200);
     expect(box?.height ?? 0, `print diagram ${i}`).toBeGreaterThan(60);
+  }
+});
+
+test("chart category labels sit centred under their bars, never turned", async ({
+  page,
+}) => {
+  // Owner: "center the x axis always".
+  for (const slide of gallery.slides.filter((s) => /bar/i.test(s.id))) {
+    await page.goto(`/gallery?s=${at(slide.id)}&intro=off`);
+    await page
+      .locator("main:not([aria-hidden]) [data-category]")
+      .first()
+      .waitFor();
+    const turned = await page
+      .locator("main:not([aria-hidden]) [data-category]")
+      .evaluateAll(
+        (labels) =>
+          labels.filter((l) => /rotate/.test(l.getAttribute("transform") ?? ""))
+            .length,
+      );
+    expect(turned, slide.id).toBe(0);
   }
 });

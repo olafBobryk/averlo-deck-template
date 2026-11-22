@@ -1,7 +1,8 @@
 "use client";
 // The donut chart preset (feature 002, T111): parts of a whole, one slice
 // per category of its one series, drawn with recharts in the Averlo tokens,
-// with each category keyed beside the ring with its value as given. No
+// with each category keyed beside the ring with its value as given, and
+// the unit after each value (T051). No
 // tooltip and no interactive legend; no animation, so the slide's own
 // entrance is the only motion and print and the strips stay still.
 import { Pie, PieChart, Sector } from "recharts";
@@ -25,6 +26,7 @@ export function DonutPreset({ block, lang }: PresetProps<"chart">) {
   const values = block.series[0].values;
   const colours = labels.map((_, j) => seriesColour(j, labels.length));
   const rows = labels.map((_, j) => ({ i: j, value: values[j] }));
+  const unit = block.unit ? say(block.unit, lang) : undefined;
 
   function plot(b: Box) {
     const size = Math.min(b.width, b.height);
@@ -69,7 +71,6 @@ export function DonutPreset({ block, lang }: PresetProps<"chart">) {
   return (
     <ChartFrame
       kind="donut"
-      unit={block.unit}
       source={block.source}
       lang={lang}
       plot={
@@ -95,8 +96,10 @@ export function DonutPreset({ block, lang }: PresetProps<"chart">) {
                   variant="body-m"
                   tone="secondary"
                   className={styles.keyValue}
+                  data-key-value=""
                 >
                   {formatNumber(values[j], lang)}
+                  {unit && <span className={styles.keyUnit}> {unit}</span>}
                 </Text>
               </li>
             ))}

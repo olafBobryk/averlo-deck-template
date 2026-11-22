@@ -22,6 +22,8 @@ import {
   leftRoom,
   formatNumber,
   seriesColour,
+  unitLabel,
+  unitRoom,
   useBox,
 } from "./frame";
 import { say } from "../say";
@@ -32,6 +34,7 @@ export function BarPreset({ block, lang }: PresetProps<"chart">) {
   const labels = block.categories.map((c) => say(c, lang));
   const n = block.series.length;
   const colours = block.series.map((_, i) => seriesColour(i, n));
+  const unit = block.unit ? say(block.unit, lang) : undefined;
   const rows = labels.map((label, j) => ({
     i: j,
     ...Object.fromEntries(block.series.map((s, k) => [`s${k}`, s.values[j]])),
@@ -39,7 +42,6 @@ export function BarPreset({ block, lang }: PresetProps<"chart">) {
   return (
     <ChartFrame
       kind="bar"
-      unit={block.unit}
       source={block.source}
       legend={block.series.map((s, i) => ({
         name: s.name,
@@ -56,7 +58,7 @@ export function BarPreset({ block, lang }: PresetProps<"chart">) {
 
   function plot(b: Box) {
     // The y axis's room, estimated before recharts lays out its ticks.
-    const axis = b.font * 4;
+    const axis = b.font * 4 + unitRoom(unit, b);
     const band = (b.width - axis) / labels.length;
     const ticks = categoryTicks(labels, band, b);
     const radius = Math.max(2, b.font * 0.2);
@@ -69,7 +71,7 @@ export function BarPreset({ block, lang }: PresetProps<"chart">) {
           top: b.font * 0.6,
           right: 0,
           bottom: 0,
-          left: leftRoom(ticks, band, b),
+          left: unitRoom(unit, b) + leftRoom(ticks, band, b),
         }}
         barCategoryGap="24%"
         barGap={Math.max(2, b.font * 0.2)}
@@ -99,6 +101,7 @@ export function BarPreset({ block, lang }: PresetProps<"chart">) {
           axisLine={false}
           tick={{ fill: MUTED, fontSize: b.font }}
           tickFormatter={(v: number) => formatNumber(v, lang)}
+          label={unitLabel(unit, b)}
         />
         {block.series.map((_, k) => (
           <Bar

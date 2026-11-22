@@ -6,15 +6,17 @@
 - `kind`: `title` | `divider` | `slide` | `closing`.
 - `section?`, `parent?`, `title`: `Text` (one string per configured language).
 - Content lives in a separate map keyed by slide id, read through the carried `slideContent(id)` (types in carried `src/deck/content.ts`): `{ headline?, blocks: Block[], layout?: "stack" | "split" | "split-end" | "center" | "statement" | "module", notes? }`.
+- In a `split` or `split-end` layout, a plain `lead` that comes first, before another block, is the slide's body text: it is drawn under the headline, in the heading's column, beside the visual (T051). The preset slides of the showcase and the gallery each carry such a body text (`presetBlocks` in `src/presets/registry.ts`).
 - `Block`, the generic types kept from the origin:
   - `lead`, `note`
   - `points` (2 to 5 columns; cards, numbered or chips)
-  - `steps` (rail or nodes)
+  - `steps` (rail or across; `nodes`, the old name, draws across)
   - `facts`
   - `org`
   - `fork`, `week`
   - `plan` (a YYYY-MM axis)
 - Validation: every `Text` has every configured language. The template ships placeholder text only (FR-002).
+- Before its closing slide, the placeholder deck shows every preset (feature 002): a divider "Presets" and one slide per registry preset with its example, built by `showcase()` in `src/presets/showcase.ts`. Their section and titles are the preset names; the rest is the registry's placeholder content.
 
 ## Languages (`langs` and `Lang`, in template-owned `src/deck/langs.ts`)
 
