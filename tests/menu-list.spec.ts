@@ -155,6 +155,10 @@ test.describe("the popup's slide list", () => {
     // Each section in turn, so every row is seen.
     for (let k = 0; k <= sections.length; k++) {
       if (k < sections.length) await openSection(page, k);
+      // The pointer leaves the list, and no row keeps a hover fill (in a
+      // long deck the opened section scrolls a row under the chevron).
+      await page.mouse.move(0, 0);
+      await page.waitForTimeout(400);
       for (let n = 1; n <= N; n++) {
         const button = row(page, n);
         if (!looks.has(n) && (await button.isVisible()))

@@ -195,7 +195,12 @@ async function contrast(page: Page) {
         ].includes("text")
       )
         painter = painter.parentElement;
-      const solid = parse(style.webkitTextFillColor || style.color);
+      // SVG text (a chart's labels) is painted by its fill.
+      const solid = parse(
+        el instanceof SVGElement
+          ? style.fill
+          : style.webkitTextFillColor || style.color,
+      );
       const colors =
         painter && (solid[0]?.[3] ?? 1) === 0
           ? parse(getComputedStyle(painter).backgroundImage)
@@ -221,7 +226,8 @@ async function contrast(page: Page) {
     hide.id = "contrast-hide";
     hide.textContent = `*, *::before, *::after { color: transparent !important;
       -webkit-text-fill-color: transparent !important; text-shadow: none !important;
-      caret-color: transparent !important; }`;
+      caret-color: transparent !important; }
+      svg text, svg tspan { fill: transparent !important; }`;
     document.head.append(hide);
     return items;
   }, HORIZON);

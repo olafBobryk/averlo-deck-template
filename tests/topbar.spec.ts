@@ -159,7 +159,15 @@ async function pressTrack(
     },
     [nav.moundButton, String(step)] as const,
   );
-  await page.locator(nav.moundButton).click();
+  // Pressed where the pointer already is, so the mound stays on the step
+  // (a long deck's steps are narrower than the button).
+  const button = await boxOf(page, nav.moundButton);
+  await page.locator(nav.moundButton).click({
+    position: {
+      x: Math.min(Math.max(x - button.x, 1), button.width - 1),
+      y: button.height / 2,
+    },
+  });
 }
 
 /** A finger drag along the step track from step `from` to step `to`, through

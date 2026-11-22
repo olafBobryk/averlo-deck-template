@@ -304,6 +304,7 @@
 }
 .cellColumn.cellColumn {
   display: none;
+  font-size: calc(var(--u) * 1.1);
 }
 .cellText.cellText {
   display: block;
