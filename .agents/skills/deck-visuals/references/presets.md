@@ -114,6 +114,7 @@ Each preset is a block in a slide's `blocks`, in `src/deck/slides.ts`. Every `Te
 
 - Family: `text`
 - Block: `quote`
+- Layout: `split`
 - Fits: A quotation, word for word, with who said it.
 
 ```json
@@ -135,6 +136,7 @@ Each preset is a block in a slide's `blocks`, in `src/deck/slides.ts`. Every `Te
 
 - Family: `text`
 - Block: `agenda`
+- Layout: `split`
 - Fits: A list of topics, in the order they come.
 
 ```json

@@ -2,15 +2,19 @@
 // edits. Each slide's content is keyed by its id and read through
 // `slideContent` (content.ts). The template ships placeholders only: every
 // kind and every layout, and every generic block in each of its styles
-// (tests/deck.spec.ts checks it). Every `Text` has a string for each
-// language in `langs` (langs.ts).
+// (tests/deck.spec.ts checks it), then, before the closing slide, a
+// showcase of every preset visual built from the preset registry
+// (src/presets/showcase.ts). Every `Text` has a string for each language in
+// `langs` (langs.ts).
 
+import { showcase } from "../presets/showcase";
 import type { SlideContent } from "./content";
 import type { Slide, Text } from "./model";
 
 const title: Text = { en: "Placeholder title" };
 const text: Text = { en: "Placeholder text" };
 const bold: Text = { en: "Placeholder **text**" };
+const presets = showcase();
 
 export const slides: Slide[] = [
   { id: "title", kind: "title", title },
@@ -25,6 +29,7 @@ export const slides: Slide[] = [
   { id: "divider-2", kind: "divider", section: text, title },
   { id: "week", kind: "slide", section: text, title },
   { id: "plan", kind: "slide", section: text, title },
+  ...presets.slides,
   { id: "closing", kind: "closing", title },
 ];
 
@@ -129,7 +134,7 @@ export const content: Record<string, SlideContent> = {
       },
       {
         type: "steps",
-        style: "nodes",
+        style: "across",
         items: [
           { label: title, text, status: "done" },
           { label: text, text, status: "current" },
@@ -152,6 +157,7 @@ export const content: Record<string, SlideContent> = {
       },
     ],
   },
+  ...presets.content,
   closing: {
     headline: { text },
     blocks: [

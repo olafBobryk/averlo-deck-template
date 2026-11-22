@@ -98,14 +98,17 @@ The other rules outside `@scope` all select inside `.aq` (lines 332â€“404, 451â€
 
 ## Ported files
 
-42 files from 3 sources, each a byte-identical copy of its source at the pinned commit. `npm run check:ports` compares them with the source (scripts/ports.lock.json).
+45 files from 3 sources, each a byte-identical copy of its source at the pinned commit. `npm run check:ports` compares them with the source (scripts/ports.lock.json).
 
 ### averlo-web-transition @ `cfa3d61`
 
-Entries: `src/components/ui/foundations/focus.ts`, `src/components/ui/foundations/library.css`, `src/components/ui/foundations/iconAnimations.css`, `src/components/ui/foundations/motionTiming.ts`, `src/components/ui/foundations/spring.ts`, `src/components/ui/foundations/motionDisableOverride.ts`, `src/components/ui/foundations/settingsContext.tsx`, `src/components/ui/foundations/appearance.ts`, `src/components/ui/foundations/MotionProvider.tsx`, `src/components/ui/foundations/motionDriverContext.tsx`, `src/components/ui/primitives/Button.tsx`, `src/components/ui/primitives/Text.tsx`, `src/components/ui/primitives/Panel.tsx`, `src/components/ui/primitives/Dropdown.tsx`, `src/components/ui/primitives/Listbox.tsx`, `src/components/ui/primitives/dropdownStyles.ts`, `src/components/ui/primitives/Collapse.tsx`, `src/components/ui/overlays/Portal.tsx`, `src/components/ui/icons/Icon.tsx`, `src/components/ui/helpers/IconSwap.tsx`, `src/components/branding/Logo.tsx`.
+Entries: `src/components/ui/foundations/focus.ts`, `src/components/ui/foundations/library.css`, `src/components/ui/foundations/iconAnimations.css`, `src/components/ui/foundations/motionTiming.ts`, `src/components/ui/foundations/spring.ts`, `src/components/ui/foundations/motionDisableOverride.ts`, `src/components/ui/foundations/settingsContext.tsx`, `src/components/ui/foundations/appearance.ts`, `src/components/ui/foundations/MotionProvider.tsx`, `src/components/ui/foundations/motionDriverContext.tsx`, `src/components/ui/primitives/Button.tsx`, `src/components/ui/primitives/Text.tsx`, `src/components/ui/primitives/Panel.tsx`, `src/components/ui/primitives/Dropdown.tsx`, `src/components/ui/primitives/Listbox.tsx`, `src/components/ui/primitives/dropdownStyles.ts`, `src/components/ui/primitives/Collapse.tsx`, `src/components/ui/overlays/Portal.tsx`, `src/components/ui/icons/Icon.tsx`, `src/components/ui/helpers/IconSwap.tsx`, `src/components/branding/Logo.tsx`, `public/favicon.svg`, `public/favicon.ico`, `public/favicon-96x96.png`.
 
 | Source repository     | Commit    | Source path                                                           | Target path                                                           |
 | --------------------- | --------- | --------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| averlo-web-transition | `cfa3d61` | `public/favicon-96x96.png`                                            | `public/favicon-96x96.png`                                            |
+| averlo-web-transition | `cfa3d61` | `public/favicon.ico`                                                  | `public/favicon.ico`                                                  |
+| averlo-web-transition | `cfa3d61` | `public/favicon.svg`                                                  | `public/favicon.svg`                                                  |
 | averlo-web-transition | `cfa3d61` | `src/components/branding/Logo.tsx`                                    | `src/components/branding/Logo.tsx`                                    |
 | averlo-web-transition | `cfa3d61` | `src/components/ui/foundations/MotionProvider.tsx`                    | `src/components/ui/foundations/MotionProvider.tsx`                    |
 | averlo-web-transition | `cfa3d61` | `src/components/ui/foundations/appearance.ts`                         | `src/components/ui/foundations/appearance.ts`                         |

@@ -18,6 +18,10 @@ import body from "./content.module.css";
  *  come from the nearest size container (--u), so the same slide renders
  *  full-bleed, in a thumbnail and on a PDF page.
  *
+ *  In a split layout, a plain lead that comes first, before a visual, is
+ *  the slide's body text: it stands under the headline, in the heading's
+ *  column, beside the visual (`aside`; T051).
+ *
  *  Live, the heading group is the page's first section and each block its
  *  own second section (`PageSection`, the page step's entrance): a block of
  *  glass cards fades each card on its own glass. Text that changes language
@@ -36,6 +40,16 @@ export function SlideView({
   const { headline } = content;
   const big = !headline;
   const Section = still ? StillSection : PageSection;
+  const [first] = content.blocks;
+  const aside =
+    !big &&
+    (content.layout === "split" || content.layout === "split-end") &&
+    content.blocks.length > 1 &&
+    first.type === "lead" &&
+    !first.size
+      ? first
+      : null;
+  const blocks = aside ? content.blocks.slice(1) : content.blocks;
 
   const title = big ? (
     still ? (
@@ -82,12 +96,23 @@ export function SlideView({
       >
         {title}
       </Section>
-      {content.blocks.length > 0 && (
+      {aside && (
+        <Section
+          index={1}
+          fade="self"
+          className={`${body.block} ${body.aside}`}
+          data-block={aside.type}
+          data-aside=""
+        >
+          <BlockView block={aside} lang={lang} still={still} />
+        </Section>
+      )}
+      {blocks.length > 0 && (
         <div
           className={`${body.body} ${big ? body.centred : ""}`}
           data-slide-body=""
         >
-          {content.blocks.map((block, i) => (
+          {blocks.map((block, i) => (
             <Section
               key={i}
               index={1}

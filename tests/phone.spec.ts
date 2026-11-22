@@ -214,6 +214,8 @@ test.describe("phone: overview thumbnails stay 16:9", () => {
     const overview = page.getByRole("dialog", { name: "Overview" });
     await expect(overview).toBeVisible();
     await expect(overview.locator("[data-thumb]")).toHaveCount(TOTAL);
+    // A long deck draws its later thumbnails once the card has settled.
+    await expect(overview.locator("[data-thumbs-drawn]")).toHaveCount(1);
     return overview.locator("[data-thumb]").evaluateAll((thumbs) =>
       thumbs.map((thumb) => {
         const stage = thumb.firstElementChild!.getBoundingClientRect();

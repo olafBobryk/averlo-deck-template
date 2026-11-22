@@ -3,6 +3,7 @@ import { RouteDirectionTracker } from "@/motion/route-transition";
 import { MotionProvider } from "@/components/ui/foundations/MotionProvider";
 import { inter } from "@/font";
 import { config } from "@/brand/config";
+import { iconLinks } from "@/brand/marks";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,6 +18,9 @@ export const metadata: Metadata = {
     title: config.deckTitle,
   },
   other: { "apple-mobile-web-app-capable": "yes" },
+  // Averlo's favicon for the Averlo brand; otherwise none, and Next links
+  // the generated icons (src/brand/marks.ts).
+  icons: iconLinks(config.brand),
 };
 
 export const viewport: Viewport = {

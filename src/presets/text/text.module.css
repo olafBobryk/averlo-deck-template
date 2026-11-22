@@ -41,7 +41,7 @@
 .byRole.byRole {
   margin: 0;
   font-size: calc(var(--u) * 1.6);
-  font-weight: 450;
+  font-weight: var(--deck-type-body-weight);
   line-height: 1.3;
 }
 
@@ -59,21 +59,15 @@
 }
 .agendaItem {
   display: grid;
-  grid-template-columns: calc(var(--u) * 4.4) minmax(0, 1fr);
-  column-gap: calc(var(--u) * 1.6);
-  row-gap: calc(var(--u) * 0.3);
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: calc(var(--u) * 0.4);
   align-content: start;
-  padding: calc(var(--u) * 1) 0;
+  padding: calc(var(--u) * 1.2) 0;
   border-top: 1px solid var(--deck-border-subtle);
 }
-.number.number {
-  grid-row: 1 / span 2;
-  font-size: calc(var(--u) * 2.2);
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  color: var(--deck-text-accent);
+/* The number: the deck's muted step label (`.when`), above the label. */
+.number {
+  display: block;
 }
 .agendaLabel.agendaLabel {
   margin: 0;
@@ -82,10 +76,9 @@
   text-wrap: balance;
 }
 .agendaText.agendaText {
-  grid-column: 2;
   margin: 0;
   font-size: calc(var(--u) * 1.4);
-  font-weight: 450;
+  font-weight: var(--deck-type-body-weight);
   line-height: 1.5;
   text-wrap: pretty;
 }
@@ -123,7 +116,7 @@
   margin: 0;
   padding-left: calc(var(--u) * 1.8);
   font-size: calc(var(--u) * 1.6);
-  font-weight: 450;
+  font-weight: var(--deck-type-body-weight);
   line-height: 1.45;
   text-wrap: pretty;
 }
@@ -166,13 +159,8 @@
     grid-auto-flow: row;
   }
   :global(:where([data-deck-title])) .agendaItem {
-    grid-template-columns: 32px minmax(0, 1fr);
-    column-gap: 10px;
     row-gap: 2px;
     padding: 10px 0;
-  }
-  :global(:where([data-deck-title])) .number.number {
-    font-size: max(16px, 4.4cqw);
   }
   :global(:where([data-deck-title])) .agendaLabel.agendaLabel {
     font-size: max(16px, 4.4cqw);

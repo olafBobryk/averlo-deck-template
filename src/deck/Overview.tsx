@@ -1,5 +1,6 @@
 "use client";
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import {
   staggerDelay,
   useMotionTokens,
@@ -14,6 +15,16 @@ import { useDeck } from "./version";
 import styles from "./menu.module.css";
 
 const two = (n: number) => String(n).padStart(2, "0");
+
+/** Thumbnails drawn as the card expands; the rest show their frame and
+ *  label at once and draw their slide, fading it in, once the card has
+ *  settled. Drawing every slide at once held the expansion's first frames
+ *  in a long deck; this many is what the placeholder deck drew when its
+ *  motion was recorded, so the expansion and the thumbnails' entrance keep
+ *  their recorded motion (the menu-expand and overview strips). */
+const EAGER = 13;
+/** When the rest are drawn: after the card's expansion has settled. */
+const SETTLED_MS = 700;
 
 /** The menu card's expanded content: every slide as a thumbnail, sized by its
  *  own 16:9 container. The thumbnails enter by the list recipe, their fade
@@ -30,8 +41,18 @@ export function Overview({
 }) {
   const t = useMotionTokens();
   const { slides } = useDeck();
+  const [settled, setSettled] = useState(slides.length <= EAGER);
+  useEffect(() => {
+    if (settled) return;
+    const timer = setTimeout(() => setSettled(true), SETTLED_MS);
+    return () => clearTimeout(timer);
+  }, [settled]);
   return (
-    <ol className={styles.grid} aria-label={ui.slides[lang]}>
+    <ol
+      className={styles.grid}
+      aria-label={ui.slides[lang]}
+      data-thumbs-drawn={settled ? "" : undefined}
+    >
       {slides.map((slide, i) => (
         <motion.li
           key={slide.id}
@@ -49,7 +70,18 @@ export function Overview({
             {/* The picture is not read out; the label line names the button,
                 as the menu's slide list does (WCAG 2.5.3, label in name). */}
             <span className={styles.thumbStage} aria-hidden="true">
-              <SlideView slide={slide} lang={lang} still />
+              {i < EAGER ? (
+                <SlideView slide={slide} lang={lang} still />
+              ) : settled ? (
+                <motion.span
+                  className={styles.thumbLate}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={t.fade}
+                >
+                  <SlideView slide={slide} lang={lang} still />
+                </motion.span>
+              ) : null}
             </span>
             <span className={styles.thumbLabel}>
               <span>{two(i + 1)}</span>

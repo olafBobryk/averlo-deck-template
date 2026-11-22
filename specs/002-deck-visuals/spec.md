@@ -21,6 +21,10 @@
 - Q: Where does the skill live? → A: "Both, in the repo": for Claude Code and for Codex, shipped with the template.
 - Q: Can the skill invent new visual types? → A: "Compose, keep per deck": when no preset fits, it composes a new visual from Averlo parts in that deck only; the owner confirms it, and it can be promoted to a preset later.
 
+### Session 2026-11-22 (owner, after the final build)
+
+- Q: The presets live in a separate /gallery deck, so the demo shows none. → A: "Put them in the demo": the template's own placeholder deck gets a showcase section with one slide per preset; /gallery stays as the full reference.
+
 ### Session 2026-11-22 (owner review of the diagram presets)
 
 - Q: The diagram connectors read faint. Make them stronger? → A: "as is but round corner and splitting zones": the connector colour stays; branching lines get rounded corners.

@@ -24,7 +24,8 @@ export type PresetEntry = {
   alternate: Block;
   /** The slide layout its gallery slides use; without one, `stack`. The
    *  statement is the `statement` layout, and image + text the `split`
-   *  layout. */
+   *  layout; the quote and the agenda are `split` too, with their body
+   *  text beside them (T051). */
   layout?: SlideContent["layout"];
 };
 
@@ -44,6 +45,17 @@ const longText: Text = {
 const categories = (n: number) => Array.from({ length: n }, () => text);
 /** `n` copies of an item. */
 const times = <T>(n: number, item: T) => Array.from({ length: n }, () => item);
+
+/** A preset slide's body text (T051; owner on T050: "all these slides dont
+ *  come with slide body text, they porbably should"): a plain lead of
+ *  placeholder text, so each preset slide shows text and a visual together.
+ *  In a split layout it stands under the headline, beside the visual. */
+export const bodyText: Block = { type: "lead", item: { text } };
+
+/** A preset slide's blocks: its body text, then the preset's block; on the
+ *  statement, whose block is the claim itself, the body text comes after. */
+export const presetBlocks = (entry: PresetEntry, block: Block): Block[] =>
+  entry.layout === "statement" ? [block, bodyText] : [bodyText, block];
 
 /** The presets. Later phases add one entry per preset. */
 export const registry: PresetEntry[] = [
@@ -261,6 +273,7 @@ export const registry: PresetEntry[] = [
     family: "text",
     block: "quote",
     fits: "A quotation, word for word, with who said it.",
+    layout: "split",
     example: { type: "quote", text, by: title, role: text },
     alternate: { type: "quote", text: longText, by: title },
   },
@@ -278,6 +291,7 @@ export const registry: PresetEntry[] = [
     family: "text",
     block: "agenda",
     fits: "A list of topics, in the order they come.",
+    layout: "split",
     example: {
       type: "agenda",
       items: times(4, { label: title, text }),
