@@ -22,14 +22,14 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` means it may run in p
 
 ## Phase V0: Model, registry and gallery (branch `v0-model`, base `main`)
 
-- [ ] T100 [US2] Tests first:
+- [x] T100 [US2] Tests first:
   - `tests/presets/gallery.spec.ts`: every registry entry has a gallery slide; each gallery slide fits its stage at 390 and 1440 (visible content inside the stage, as feature 001's SC-005 check); 4.5:1 contrast via axe; the gallery PDF has one page per slide; each preset also renders with a second, different example and still fits (SC-005).
   - `tests/tools/presets_test.mjs`: the registry's names are unique, every family is one of the four, and every example validates against its block type.
 
   Done when both are recorded failing.
-- [ ] T101 [US2] Add the block types of data-model.md to `Block` in `src/deck/content.ts` (compose rows): `chart`, `stat`, `flow`, `timeline`, `cycle`, `orgchart`, `table`, `matrix`, `quote`, `agenda`, `compare`, `image`, `imageGrid`, `custom`, with their field limits. `SlideBody.tsx` dispatches each new block type to its preset component through `src/presets/index.ts` (compose row). Done when `npm run check` passes and the default deck renders unchanged.
-- [ ] T102 [US2] `src/presets/registry.ts`: the registry entry type `{ name, family, block, fits, example }`, starting empty. `src/presets/gallery.ts` builds the gallery's slides from the registry: one divider per family, then one slide per preset with its example. Done when the registry test passes for an empty registry.
-- [ ] T103 [US2] The `/gallery` route (`src/app/gallery/`, template-owned) renders the deck engine with the gallery's slides through `DeckContext`. The carried print page takes `?deck=gallery` (compose row), and the PDF script also renders `gallery-<lang>.pdf` (compose row). Done when `/gallery` opens and its PDF builds.
+- [x] T101 [US2] Add the block types of data-model.md to `Block` in `src/deck/content.ts` (compose rows): `chart`, `stat`, `flow`, `timeline`, `cycle`, `orgchart`, `table`, `matrix`, `quote`, `agenda`, `compare`, `image`, `imageGrid`, `custom`, with their field limits. `SlideBody.tsx` dispatches each new block type to its preset component through `src/presets/index.ts` (compose row). Done when `npm run check` passes and the default deck renders unchanged.
+- [x] T102 [US2] `src/presets/registry.ts`: the registry entry type `{ name, family, block, fits, example }`, starting empty. `src/presets/gallery.ts` builds the gallery's slides from the registry: one divider per family, then one slide per preset with its example. Done when the registry test passes for an empty registry.
+- [x] T103 [US2] The `/gallery` route (`src/app/gallery/`, template-owned) renders the deck engine with the gallery's slides through `DeckContext`. The carried print page takes `?deck=gallery` (compose row), and the PDF script also renders `gallery-<lang>.pdf` (compose row). Done when `/gallery` opens and its PDF builds.
 - **Gate V0:** `npm run gate`. The default deck's smoke and strip tests are unchanged and pass.
 
 ## Phase V1: Charts and stats (branch `v1-charts`, base `v0-model`)
