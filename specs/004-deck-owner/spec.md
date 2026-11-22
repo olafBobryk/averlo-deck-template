@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-22
 
-**Status**: Draft
+**Status**: Approved by the owner on 2026-11-22 ("Approve, build after 003").
 
 **Input**: Owner: "grill me on the fixes and spec out an implementer friendly side". The template is to be sent to a friend: "one setup prompt for his codex and the rest codex handles in a non technical way for him".
 

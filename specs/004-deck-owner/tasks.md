@@ -2,7 +2,7 @@
 
 **Input**: [spec.md](spec.md), [plan.md](plan.md), [research.md](research.md).
 
-**Status**: Draft, waiting for the owner's approval. Starts after feature 003 lands.
+**Status**: Approved by the owner on 2026-11-22 ("Approve, build after 003"). Starts after feature 003 lands; merge-green permission as for 003.
 
 ## Rules for every task
 
