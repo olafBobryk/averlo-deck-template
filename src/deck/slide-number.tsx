@@ -99,7 +99,8 @@ export function SlideNumber({
       ref={button}
       type="button"
       className={`${styles.number} ${focusRing.visibleDefault}`}
-      aria-label={ui.goSlide[lang].replace("{count}", String(n))}
+      // Its name holds the number as shown (WCAG's label in name).
+      aria-label={ui.goSlide[lang].replace("{count}", pad(n))}
       onClick={begin}
     >
       {pad(n)}
