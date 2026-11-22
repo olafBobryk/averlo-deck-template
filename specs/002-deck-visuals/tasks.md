@@ -56,13 +56,13 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` means it may run in p
 
 ## Phase V4: The skill (branch `v4-skill`, from `v1-charts` with V2 and V3 merged in)
 
-- [ ] T140 [US1] [US3] Tests first:
+- [x] T140 [US1] [US3] Tests first:
   - `tests/tools/skill_test.mjs`: the Claude and Codex copies of the skill are identical; `references/presets.md` matches the registry (generated); every preset in the registry is named in the selection rules.
   - `tests/docs/workflow-trace.spec.ts` extended so chart values and every visual's labels must trace (FR-016).
   - A `custom` block naming a missing visual fails validation.
-- [ ] T141 [US1] `.claude/skills/deck-visuals/SKILL.md` (copied to `.agents/skills/deck-visuals/`), as in contracts/skill.md: the selection rules of research D5, the confirm loop, the trace rule, asking for missing values, units and periods, and the image rule (ask which generator the owner has; generate only on a yes; licence row).
-- [ ] T142 [US1] `scripts/presets-doc.mjs` writes `references/presets.md` (name, family, fits, an example) from the registry into both skill copies. Add an `npm run presets:doc` script.
-- [ ] T143 [US3] Compose-per-deck: `src/deck/visuals/index.ts` (empty export map) and one example composed visual shown in the gallery, built only from Averlo parts. Also "Promote a visual to a preset" in `process/workflows.md` (move it to `src/presets/`, add a registry entry, an example and a gallery slide, run the tests).
+- [x] T141 [US1] `.claude/skills/deck-visuals/SKILL.md` (copied to `.agents/skills/deck-visuals/`), as in contracts/skill.md: the selection rules of research D5, the confirm loop, the trace rule, asking for missing values, units and periods, and the image rule (ask which generator the owner has; generate only on a yes; licence row).
+- [x] T142 [US1] `scripts/presets-doc.mjs` writes `references/presets.md` (name, family, fits, an example) from the registry into both skill copies. Add an `npm run presets:doc` script.
+- [x] T143 [US3] Compose-per-deck: `src/deck/visuals/index.ts` (empty export map) and one example composed visual shown in the gallery, built only from Averlo parts. Also "Promote a visual to a preset" in `process/workflows.md` (move it to `src/presets/`, add a registry entry, an example and a gallery slide, run the tests).
 - [ ] T144 [US1] Dry run: use the skill on `tests/fixtures/sample-source.md`, ask the owner to confirm the proposed visuals through the question tool, and save the result as `tests/fixtures/drafted-visuals.json` and the answers in `tests/fixtures/answers.md`. Done when the trace test passes over it.
 - **Gate V4:** `npm run gate`.
 
