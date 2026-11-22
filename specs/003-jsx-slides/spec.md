@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-22
 
-**Status**: Draft
+**Status**: Approved by the owner on 2026-11-22 ("Approve, start run").
 
 **Input**: User description: "Looking at the presets structure it's too harsh. I was thinking these are just JSX that an agent can copy and change freely; we're forcing too much structure that isn't versatile enough. Slides are JSX with metadata for the deck."
 

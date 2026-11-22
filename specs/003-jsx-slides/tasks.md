@@ -2,7 +2,7 @@
 
 **Input**: [spec.md](spec.md), [plan.md](plan.md), [research.md](research.md), [data-model.md](data-model.md), [contracts/slide-file.md](contracts/slide-file.md), [quickstart.md](quickstart.md).
 
-**Status**: Draft, waiting for the owner's approval.
+**Status**: Approved by the owner on 2026-11-22 ("Approve, start run"). J0 branches from `feat/003-jsx-slides`, so the spec lands with it.
 
 ## Rules for every task
 
