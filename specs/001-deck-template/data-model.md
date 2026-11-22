@@ -11,7 +11,7 @@
   - `points` (2 to 5 columns; cards, numbered or chips)
   - `steps` (rail or nodes)
   - `facts`
-  - `org` (tree; the ledger style is dropped, owner 2026-11-21)
+  - `org`
   - `fork`, `week`
   - `plan` (a YYYY-MM axis)
 - Validation: every `Text` has every configured language. The template ships placeholder text only (FR-002).
