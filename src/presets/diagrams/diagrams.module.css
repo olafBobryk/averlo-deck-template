@@ -227,19 +227,12 @@
   font-size: calc(var(--u) * 1.5);
 }
 
-/* ---------- Org chart: a root, a bar, the nodes and their own nodes ---------- */
+/* ---------- Org chart: a root over its nodes, over theirs ---------- */
 
-/* As the deck's org block draws its bracket: the stem drops from the root
-   to the bar at mid-gap; each node's stub (`trunk`) rises to the bar and
-   draws its share of it (`twig`). A node's own nodes hang from a line down
-   its left: each draws its share of that line (`trunk`) and the arm to its
-   middle (`twig`). */
+/* The lines are the deck's branching (`.split` in content.module.css), in
+   the border token. */
 .org {
-  --line: max(1px, calc(var(--u) * 0.12));
-  --reach: calc(var(--u) * 2.4);
-  --between: calc(var(--u) * 1.4);
-  --indent: calc(var(--u) * 2.4);
-  --drop: calc(var(--u) * 0.8);
+  --split-line: var(--color-border);
   display: grid;
   justify-items: center;
 }
@@ -248,92 +241,25 @@
   align-items: center;
   text-align: center;
 }
-.stem {
-  width: var(--line);
-  height: calc(var(--reach) / 2);
-  background: var(--color-border);
-}
-.branches {
-  display: grid;
-  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-  column-gap: var(--between);
+.org > ul {
   width: 100%;
-  margin: 0;
-  padding: 0;
-  list-style: none;
 }
 .branch {
-  position: relative;
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  padding-top: calc(var(--reach) / 2);
-}
-.branch > .trunk,
-.branch > .twig {
-  position: absolute;
-  background: var(--color-border);
-}
-.branch > .trunk {
-  top: 0;
-  left: 50%;
-  width: var(--line);
-  height: calc(var(--reach) / 2);
-  translate: -50% 0;
-}
-.branch > .twig {
-  top: 0;
-  left: calc(var(--between) / -2);
-  right: calc(var(--between) / -2);
-  height: var(--line);
-}
-.branch:first-child > .twig {
-  left: calc(50% - var(--line) / 2);
-}
-.branch:last-child > .twig {
-  right: calc(50% - var(--line) / 2);
 }
 .orgNode {
   align-items: center;
   text-align: center;
 }
-.leaves {
-  display: grid;
-  gap: var(--drop);
-  margin: var(--drop) 0 0;
-  padding: 0 0 0 var(--indent);
-  list-style: none;
-}
 .leaf {
-  position: relative;
   display: grid;
-}
-.leaf > .trunk,
-.leaf > .twig {
-  position: absolute;
-  background: var(--color-border);
-}
-.leaf > .trunk {
-  top: calc(var(--drop) * -1);
-  bottom: 0;
-  left: calc(var(--indent) / -2);
-  width: var(--line);
-  translate: -50% 0;
-}
-.leaf:last-child > .trunk {
-  bottom: calc(50% - var(--line) / 2);
-}
-.leaf > .twig {
-  top: calc(50% - var(--line) / 2);
-  left: calc(var(--indent) / -2);
-  width: calc(var(--indent) / 2);
-  height: var(--line);
 }
 .orgLeaf {
-  padding: calc(var(--u) * 1) calc(var(--u) * 1.3);
+  padding: calc(var(--u) * 1) calc(var(--u) * 1.2);
 }
 .orgLeaf .label.label {
-  font-size: calc(var(--u) * 1.5);
+  font-size: calc(var(--u) * 1.4);
 }
 
 /* ---------- Comparison table: one card, hairlines between rows ---------- */
@@ -647,57 +573,9 @@
     rotate: 90deg;
   }
 
-  /* The org chart stacks, each node indented under the one it reports
-     to, its line down the left and its arm to the node's first line. */
-  :global(:where([data-deck-title])) .org {
-    --line: 1px;
-    --indent: 20px;
-    --drop: 8px;
-    --arm: 21px;
-    justify-items: stretch;
-  }
+  /* The org chart on a phone: the root across the slide. */
   :global(:where([data-deck-title])) .orgRoot {
     width: 100%;
-  }
-  :global(:where([data-deck-title])) .orgRoot,
-  :global(:where([data-deck-title])) .orgNode {
-    align-items: start;
-    text-align: start;
-  }
-  :global(:where([data-deck-title])) .stem {
-    display: none;
-  }
-  :global(:where([data-deck-title])) .branches {
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: var(--drop);
-    padding: var(--drop) 0 0 var(--indent);
-  }
-  :global(:where([data-deck-title])) .branch {
-    padding-top: 0;
-  }
-  :global(:where([data-deck-title])) .branch > .trunk,
-  :global(:where([data-deck-title])) .leaf > .trunk {
-    top: calc(var(--drop) * -1);
-    bottom: 0;
-    left: calc(var(--indent) / -2);
-    width: var(--line);
-    height: auto;
-    translate: -50% 0;
-  }
-  :global(:where([data-deck-title])) .branch:last-child > .trunk,
-  :global(:where([data-deck-title])) .leaf:last-child > .trunk {
-    bottom: auto;
-    height: calc(var(--drop) + var(--arm));
-  }
-  :global(:where([data-deck-title])) .branch > .twig,
-  :global(:where([data-deck-title])) .branch:first-child > .twig,
-  :global(:where([data-deck-title])) .branch:last-child > .twig,
-  :global(:where([data-deck-title])) .leaf > .twig {
-    top: calc(var(--arm) - var(--line) / 2);
-    left: calc(var(--indent) / -2);
-    right: auto;
-    width: calc(var(--indent) / 2);
-    height: var(--line);
   }
   :global(:where([data-deck-title])) .orgLeaf {
     padding: 8px 12px;

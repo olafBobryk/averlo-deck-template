@@ -182,14 +182,19 @@ export const registry: PresetEntry[] = [
       root: { label: title, text },
       children: [
         { node: { label: title }, children: times(2, { label: title }) },
+        { node: { label: title } },
         { node: { label: title }, children: times(1, { label: title }) },
-        { node: { label: title }, children: times(2, { label: title }) },
       ],
     },
     alternate: {
       type: "orgchart",
-      root: { label: title },
-      children: times(4, { node: { label: title, text } }),
+      root: { label: title, text },
+      children: [
+        { node: { label: title }, children: times(2, { label: title }) },
+        { node: { label: title } },
+        { node: { label: title }, children: times(1, { label: title }) },
+        { node: { label: title }, children: times(2, { label: title }) },
+      ],
     },
   },
   {
