@@ -193,11 +193,18 @@ async function dragTrack(
   await cdp.detach();
 }
 
-/** WCAG contrast of two `rgb()`/`rgba()` colours (the first over the
- *  second, alpha ignored). */
+/** WCAG contrast of two computed colours, `rgb()`/`rgba()` or
+ *  `color(srgb …)` (as a `color-mix()` computes), the first over the second,
+ *  alpha ignored. */
 function contrast(a: string, b: string) {
-  const channels = (color: string) =>
-    (color.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+  const channels = (color: string) => {
+    const values = (color.replace(/^color\(srgb/, "").match(/[\d.]+/g) ?? [])
+      .slice(0, 3)
+      .map(Number);
+    return color.startsWith("color(srgb")
+      ? values.map((value) => value * 255)
+      : values;
+  };
   const luminance = (color: string) => {
     const [r, g, b] = channels(color).map((value) => {
       const c = value / 255;
@@ -263,9 +270,10 @@ test.describe("where the top overlay shows", () => {
         layout.viewport.width,
         0,
       );
-      expect(layout.brandOnTop, `slide ${n}: nothing covers the brand's link`).toBe(
-        true,
-      );
+      expect(
+        layout.brandOnTop,
+        `slide ${n}: nothing covers the brand's link`,
+      ).toBe(true);
       // An overlay: the slides take the whole stage, from the top edge.
       expect(
         layout.stage.top,
@@ -577,7 +585,9 @@ test.describe("the navigator at the bottom edge", () => {
     }) => {
       await page.emulateMedia({ reducedMotion: "reduce" });
       await openDeck(page, "s=1");
-      const to = TOTAL - 1;
+      // Clear of the menu button at the right end, where a finger near the
+      // button presses the button (the browser's touch adjustment).
+      const to = Math.ceil(TOTAL * 0.7);
       await dragTrack(page, deckNav, 2, to, TOTAL, true);
       await expectSlide(page, to);
       await dragTrack(page, deckNav, to, 3, TOTAL, true);

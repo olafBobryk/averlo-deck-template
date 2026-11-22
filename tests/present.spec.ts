@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { langs } from "../src/deck/langs";
 import { pdfHref, sectionLabel } from "../src/deck/model";
 import { slides } from "../src/deck/slides";
+import { progressFillPosition } from "../src/questionnaire/progress-model";
 import { evidence } from "./evidence";
 
 // User Story 1, presenting the deck. Runs at 390
@@ -112,7 +113,9 @@ async function sampleStep(page: Page, key: string, ms = 900) {
         oldX = matrixX(oldStyle.transform);
         oldOpacity = Number(oldStyle.opacity);
       }
-      const fill = document.querySelector<HTMLElement>("[data-progress-fill]");
+      const fill = document.querySelector<HTMLElement>(
+        "[data-progress] .progress-track > div",
+      );
       const filtered: string[] = [];
       const dimmed: string[] = [];
       const boot = document.getElementById("deck-boot");
@@ -162,7 +165,7 @@ async function sampleStep(page: Page, key: string, ms = 900) {
 
 const progressWidth = (page: Page) =>
   page
-    .locator("[data-progress-fill]")
+    .locator("[data-progress] .progress-track > div")
     .evaluate((fill) => fill.getBoundingClientRect().width);
 
 /** The page step, sampled per frame. `target` is the entering slide's
@@ -354,9 +357,7 @@ test("a shared link opens its slide; steps keep it", async ({ page }) => {
 });
 
 test.describe("footer", () => {
-  test("wordmark, section label, slide number and progress", async ({
-    page,
-  }) => {
+  test("section label, slide number and progress", async ({ page }) => {
     // The full row is landscape's; portrait keeps the number and Menu only
     // (tests/portrait.spec.ts), so the phone is turned here.
     const size = page.viewportSize()!;
@@ -366,31 +367,37 @@ test.describe("footer", () => {
     const footer = page.getByRole("contentinfo");
     const label = sectionLabel(slides[sectioned - 1], lang);
     const number = `${pad(sectioned)} / ${pad(TOTAL)}`;
-    // The wordmark: the row's first part.
-    const wordmark = footer
+    // The section label: the row's first part (no wordmark: "no branding
+    // in the footer").
+    const first = footer
       .locator(":scope > div")
       .first()
       .locator(":scope > *")
       .first();
-    await expect(wordmark).toBeVisible();
-    await expect(wordmark).toHaveText(/\S/);
-    await expect(footer.getByText(label)).toBeVisible();
+    await expect(first).toBeVisible();
+    await expect(first).toHaveText(label);
     await expect(footer.getByText(number)).toBeVisible();
     await expect(footer.locator("[data-footer-menu]")).toHaveCount(1);
-    // One row: wordmark, label and number share a line.
+    // One row: label and number share a line.
     const tops = await Promise.all(
-      [wordmark, footer.getByText(label), footer.getByText(number)].map(
-        async (part) => {
-          const box = (await part.boundingBox())!;
-          return box.y + box.height / 2;
-        },
-      ),
+      [first, footer.getByText(number)].map(async (part) => {
+        const box = (await part.boundingBox())!;
+        return box.y + box.height / 2;
+      }),
     );
     expect(Math.max(...tops) - Math.min(...tops)).toBeLessThan(4);
-    // The bar under the row, its real width at its share of the track.
-    const track = (await page.locator("[data-progress]").boundingBox())!;
-    const fill = (await page.locator("[data-progress-fill]").boundingBox())!;
-    expect(fill.width).toBeCloseTo((track.width * sectioned) / TOTAL, 0);
+    // The navigator under the row, its fill at its share of the track, as
+    // the questionnaire's model places it.
+    const track = (await page
+      .locator("[data-progress] .progress-track")
+      .boundingBox())!;
+    const fill = (await page
+      .locator("[data-progress] .progress-track > div")
+      .boundingBox())!;
+    expect(fill.width).toBeCloseTo(
+      progressFillPosition((sectioned / TOTAL) * 100, track.width, TOTAL),
+      0,
+    );
     const counter = (await footer.getByText(number).boundingBox())!;
     expect(track.y).toBeGreaterThan(counter.y + counter.height - 1);
     await page.keyboard.press("Home");
