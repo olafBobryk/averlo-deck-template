@@ -34,9 +34,9 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` means it may run in p
 
 ## Phase V1: Charts and stats (branch `v1-charts`, base `v0-model`)
 
-- [ ] T110 [US2] Tests first: gallery entries for `chart` bar, line and donut and for `stat` render and fit. A chart's colours come from Averlo tokens: no colour literal in `src/presets/charts/`. A series with fewer values than categories is rejected by the example validator.
-- [ ] T111 [US2] Add `recharts` 3.10.1 (research D1), with its licence row. Build `src/presets/charts/{Bar,Line,Donut}.tsx` from Averlo tokens (accent and muted scale, Inter, the border token for the grid), with no tooltip and no interactive legend. Each draws `categories` and `series` exactly as given, shows `unit`, and shows `source` muted under the chart. "At most 12 categories": a validator error, never truncation.
-- [ ] T112 [P] [US2] `src/presets/charts/Stat.tsx`: 1 to 4 big-number cards from `Panel` and `Text`. `value` is shown as written. Add its registry entry and example.
+- [x] T110 [US2] Tests first: gallery entries for `chart` bar, line and donut and for `stat` render and fit. A chart's colours come from Averlo tokens: no colour literal in `src/presets/charts/`. A series with fewer values than categories is rejected by the example validator.
+- [x] T111 [US2] Add `recharts` 3.10.1 (research D1), with its licence row. Build `src/presets/charts/{Bar,Line,Donut}.tsx` from Averlo tokens (accent and muted scale, Inter, the border token for the grid), with no tooltip and no interactive legend. Each draws `categories` and `series` exactly as given, shows `unit`, and shows `source` muted under the chart. "At most 12 categories": a validator error, never truncation.
+- [x] T112 [P] [US2] `src/presets/charts/Stat.tsx`: 1 to 4 big-number cards from `Panel` and `Text`. `value` is shown as written. Add its registry entry and example.
 - **Gate V1:** `npm run gate`, plus gallery screenshots.
 
 ## Phase V2: Diagrams (branch `v2-diagrams`, base `v0-model`) [parallel with V1]
