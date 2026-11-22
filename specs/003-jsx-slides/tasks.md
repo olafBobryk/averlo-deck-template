@@ -37,9 +37,10 @@ These are the same as feature 002's rules:
 
 ## Phase J2: The placeholder deck as files (branch `j2-deck`, base `j1-components`)
 
-- [ ] T320 Tests first: the deck's slides come from `src/slides/`; every placeholder slide keeps its look and order; the coverage test reads the files.
-- [ ] T321 Rewrite the placeholder deck as `src/slides/01-…tsx` to `32-…tsx`, with placeholder words in `copy` and the same slides in the same order.
-- [ ] T322 Remove the data model: `slides.ts` data, the `content.ts` block types and `SlideBody`'s block switch. These are detach rows. Keep `langs.ts`.
+- [x] T320 Tests first: the deck's slides come from `src/slides/`; every placeholder slide keeps its look and order; the coverage test reads the files.
+- [x] T321 Rewrite the placeholder deck as `src/slides/01-…tsx` to `32-…tsx`, with placeholder words in `copy` and the same slides in the same order.
+- [x] T322 Remove the data model: `slides.ts` data, the `content.ts` block types and `SlideBody`'s block switch. These are detach rows. Keep `langs.ts`.
+  - J2 removed the deck's data: the `slides.ts` data, the showcase generator and the deck's content map. The preset gallery still draws data blocks until T331 points it at the preset files, so `content.ts`'s block types, `SlideBody`'s switch and the `src/presets` adapters go then.
 - **Gate J2:** `npm run gate`, with the strips within tolerance.
 
 ## Phase J3: Preset examples (branch `j3-presets`, base `j2-deck`)

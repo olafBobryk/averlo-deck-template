@@ -1,6 +1,6 @@
-import { existsSync } from "node:fs";
-import { expect, test, type Page } from "@playwright/test";
-import { slideContent } from "../../src/deck/content";
+import { existsSync, readdirSync } from "node:fs";
+import { dirname } from "node:path";
+import { expect, test, type Page, type TestInfo } from "@playwright/test";
 import type { Slide } from "../../src/deck/model";
 import { slides } from "../../src/deck/slides";
 import { gallery } from "../../src/presets/gallery";
@@ -19,6 +19,11 @@ import { gallery } from "../../src/presets/gallery";
 // them on the J0 build with
 // `npx playwright test tests/slides/components.spec.ts --update-snapshots`;
 // a copy is kept in .local/baselines/j0-components/.
+//
+// The blocks a slide should show are its baselines: their number and type
+// come from the recorded files, not from the slide's data, so the spec
+// compares the placeholder deck as slide files (J2) with the J0 build's
+// data slides. A slide with no baseline holds no block.
 
 type Target = { deck: "deck" | "gallery"; path: string; list: Slide[] };
 const decks: Target[] = [
@@ -64,18 +69,24 @@ const dom = (html: string) =>
     .replace(/url\(#[^)]*\)/g, "url(#…)")
     .replace(/></g, ">\n<");
 
-/** The slide's first block's type, as its baseline is named. */
-const firstType = (deck: Target["deck"], slide: Slide) =>
-  slideContent(slide.id, deck === "gallery" ? gallery.content : undefined)
-    .blocks[0].type;
+/** A slide's recorded blocks, in order: their types, from the baselines'
+ *  names (`<deck>-<id>-<n>-<type>-<project>-<platform>.png`). */
+function recorded(info: TestInfo, deck: Target["deck"], id: string): string[] {
+  const dir = dirname(info.snapshotPath("any.png"));
+  if (!existsSync(dir)) return [];
+  const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const name = new RegExp(
+    `^${deck}-${escape(id)}-(\\d+)-([a-zA-Z]+)-${escape(info.project.name)}-${escape(info.snapshotSuffix)}\\.png$`,
+  );
+  return readdirSync(dir)
+    .map((file) => name.exec(file))
+    .filter((match) => match !== null)
+    .sort((a, b) => Number(a[1]) - Number(b[1]))
+    .map((match) => match[2]);
+}
 
 for (const { deck, path, list } of decks)
   list.forEach((slide, i) => {
-    const count = slideContent(
-      slide.id,
-      deck === "gallery" ? gallery.content : undefined,
-    ).blocks.length;
-    if (count === 0) return;
     test(`${deck} ${i + 1} (${slide.id}): every block renders as before`, async ({
       page,
     }) => {
@@ -83,21 +94,19 @@ for (const { deck, path, list } of decks)
       const recording = ["all", "changed"].includes(
         info.config.updateSnapshots,
       );
+      const types = recorded(info, deck, slide.id);
       test.skip(
-        !recording &&
-          !existsSync(
-            info.snapshotPath(
-              `${deck}-${slide.id}-1-${firstType(deck, slide)}.html`,
-            ),
-          ),
+        !recording && !existsSync(dirname(info.snapshotPath("any.png"))),
         "no J0 baseline on this machine (see the comment at the top)",
       );
       await open(page, path, i + 1);
       const blocks = page.locator("main:not([aria-hidden]) [data-block]");
-      await expect(blocks).toHaveCount(count);
+      if (!recording) await expect(blocks).toHaveCount(types.length);
+      const count = await blocks.count();
       for (let b = 0; b < count; b++) {
         const block = blocks.nth(b);
         const type = await block.getAttribute("data-block");
+        if (!recording) expect(type, `block ${b + 1}`).toBe(types[b]);
         const name = `${deck}-${slide.id}-${b + 1}-${type}`;
         expect(dom(await block.evaluate((el) => el.outerHTML))).toMatchSnapshot(
           `${name}.html`,

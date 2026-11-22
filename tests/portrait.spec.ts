@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
-import { slideContent } from "../src/deck/content";
 import { langs } from "../src/deck/langs";
 import { sectionLabel } from "../src/deck/model";
 import { slides } from "../src/deck/slides";
+import { slideData } from "../src/slides/data";
 
 // The phone: portrait reading, the menu on a
 // phone, the home-screen app. Each test sets its
@@ -16,9 +16,7 @@ const EDGE = 12; // the phone menu's edge and inset
  *  whose footer names a section. Its title's size in 16:9 units, by kind
  *  (deck.module.css). */
 const TITLED =
-  slides.findIndex(
-    (slide) => slide.section && !slideContent(slide.id).headline,
-  ) + 1;
+  slideData.findIndex((slide) => slide.meta.section && !slide.meta.layout) + 1;
 const titleUnits = { title: 10, divider: 7.2, slide: 4.4, closing: 6 };
 
 function watchConsole(page: Page) {

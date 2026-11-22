@@ -54,21 +54,22 @@ function Node({
  *  any of them has); wider, they are listed down under it. */
 const ACROSS = 6;
 
-/** A root, its nodes, and theirs: two levels below the root at most. */
+/** A root, its nodes (`branches`), and theirs: two levels below the root
+ *  at most. */
 export type OrgChartProps = {
   root: PointItem;
-  children: { node: PointItem; children?: PointItem[] }[];
+  branches: { node: PointItem; children?: PointItem[] }[];
 };
 
 export function OrgChart(props: OrgChartProps) {
-  const n = props.children.length;
-  const most = Math.max(...props.children.map((c) => c.children?.length ?? 0));
+  const n = props.branches.length;
+  const most = Math.max(...props.branches.map((c) => c.children?.length ?? 0));
   const leaves: SplitMode = n * most <= ACROSS ? "across" : "down";
   return (
     <div className={styles.org} data-diagram="orgchart">
       <Node point={props.root} className={styles.orgRoot} data-org-root="" />
       <ul className={deck.split} {...splitList(n, "across", phoneSplit(n))}>
-        {props.children.map((child, i) => (
+        {props.branches.map((child, i) => (
           <li
             key={i}
             className={`${deck.splitItem} ${styles.branch}`}

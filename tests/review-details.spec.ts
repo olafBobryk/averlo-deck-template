@@ -1,6 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { slideContent } from "../src/deck/content";
-import { slides } from "../src/deck/slides";
+import { findBlock } from "./printed";
 
 // The owner's second look at the merged build (spec 001, "After reviewing
 // the merged build"): branching lines in solid colours, so overlapping
@@ -22,11 +21,6 @@ async function openDeck(page: Page, s: number) {
   );
 }
 
-const forkSlide =
-  slides.findIndex((slide) =>
-    slideContent(slide.id).blocks.some((block) => block.type === "fork"),
-  ) + 1;
-
 /** The alpha of a computed colour (1 when the colour has none). */
 function alphaOf(colour: string) {
   const slash = /\/\s*([\d.]+)\s*\)$/.exec(colour);
@@ -36,6 +30,8 @@ function alphaOf(colour: string) {
 }
 
 test("branching lines are drawn in solid colours", async ({ page }) => {
+  // The first slide with a fork, as the deck draws it.
+  const forkSlide = (await findBlock(page, (b) => b.type === "fork"))?.n ?? 0;
   expect(forkSlide, "a slide with a fork").toBeGreaterThan(0);
   await openDeck(page, forkSlide);
   const colours = await page

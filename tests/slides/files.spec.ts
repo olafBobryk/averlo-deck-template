@@ -1,42 +1,56 @@
-import { spawn, type ChildProcess } from "node:child_process";
-import { createServer } from "node:net";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { expect, test, type Page } from "@playwright/test";
 import { langs } from "../../src/deck/langs";
 import { slides } from "../../src/deck/slides";
 import { copy } from "./fixtures/13-file-example";
+import { devDeck, removeScratch, scratchDeck } from "./scratch";
 
 // A slide given as a file (feature 003, US1, T300): a numbered file in the
 // deck's slide folder shows in its numbered place, appears in the menu and
 // the overview, prints, and keeps its `?s=` link.
 //
-// The template's deck has no slide files yet (J2 moves it into files), so
-// the default build stays as it was. This spec runs a second deck whose
-// slide folder is tests/slides/fixtures/ (SLIDES_DIR), with one file,
-// 13-file-example.tsx, after the placeholder deck's first 12 slides: a dev
-// server on its own port, which builds into .next/dev and leaves the
-// production build the other specs use alone. Next allows one dev server per
-// folder, so the spec runs in one project and sets both widths itself.
+// The template's deck is its slide files (src/slides/, J2). This spec runs a
+// second deck (./scratch): a copy of those files with one more,
+// tests/slides/fixtures/13-file-example.tsx, put in at number 13, the files
+// from 13 on moved one number up. It runs on a dev server on its own port,
+// which builds into .next/dev and leaves the production build the other
+// specs use alone. Next allows one dev server per folder, so the spec runs
+// in one project and sets both widths itself.
 
+const root = fileURLToPath(new URL("../../", import.meta.url));
 const lang = langs[0];
 const port = Number(process.env.FILES_PORT ?? 3195);
-const origin = `http://127.0.0.1:${port}`;
 const AT = 13;
 const N = slides.length + 1;
 const words = copy[lang];
 const pad = (n: number) => String(n).padStart(2, "0");
-/** Rejects when something already listens on the port. */
-const portFree = () =>
-  new Promise<void>((resolve, reject) => {
-    const probe = createServer();
-    probe.once("error", () =>
-      reject(new Error(`port ${port} is busy; stop it or set FILES_PORT`)),
-    );
-    probe.listen(port, "127.0.0.1", () => probe.close(() => resolve()));
-  });
 const widths = [
   { width: 390, height: 844 },
   { width: 1440, height: 900 },
 ];
+
+/** The deck's slide files, those from `AT` on one number up, and the
+ *  example at `AT`. */
+function withExample() {
+  const files: Record<string, string> = {};
+  const deck = join(root, "src", "slides");
+  for (const name of readdirSync(deck)) {
+    const match = /^(\d+)-(.+\.tsx)$/.exec(name);
+    if (!match) continue;
+    const n = Number(match[1]);
+    files[`${pad(n >= AT ? n + 1 : n)}-${match[2]}`] = readFileSync(
+      join(deck, name),
+      "utf8",
+    );
+  }
+  files[`${AT}-file-example.tsx`] = readFileSync(
+    join(root, "tests", "slides", "fixtures", "13-file-example.tsx"),
+    "utf8",
+  );
+  return files;
+}
 
 test("the default deck has no file slide", async ({ page }) => {
   await page.goto("/print");
@@ -45,42 +59,23 @@ test("the default deck has no file slide", async ({ page }) => {
 });
 
 test.describe("a deck with a slide file", () => {
-  let server: ChildProcess | undefined;
+  let deck: { origin: string; stop: () => void } | undefined;
+  let dir = "";
+  let origin = "";
   test.beforeAll(async ({}, info) => {
     test.skip(
       info.project.name !== "desktop",
       "one dev server per folder: the desktop project sets both widths",
     );
     test.setTimeout(300_000);
-    await portFree();
-    server = spawn(
-      "npx",
-      ["next", "dev", "--hostname", "127.0.0.1", "--port", String(port)],
-      {
-        env: { ...process.env, SLIDES_DIR: "tests/slides/fixtures" },
-        detached: true,
-        stdio: "ignore",
-      },
-    );
+    dir = scratchDeck("files", withExample());
     // Compile both routes before the first test.
-    for (const path of ["/print", "/?intro=off"]) {
-      const deadline = Date.now() + 240_000;
-      for (;;) {
-        try {
-          const response = await fetch(`${origin}${path}`);
-          if (response.ok) break;
-        } catch {}
-        if (Date.now() > deadline)
-          throw new Error(`the dev server did not answer ${path}`);
-        await new Promise((r) => setTimeout(r, 1000));
-      }
-    }
+    deck = await devDeck(dir, port, ["/print", "/?intro=off"]);
+    origin = deck.origin;
   });
   test.afterAll(() => {
-    if (!server?.pid) return;
-    try {
-      process.kill(-server.pid, "SIGTERM");
-    } catch {}
+    deck?.stop();
+    if (dir) removeScratch(dir);
   });
 
   const current = (page: Page) => page.locator("main:not([aria-hidden])");

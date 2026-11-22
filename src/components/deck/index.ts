@@ -2,9 +2,20 @@
 // evidence pattern in the Averlo look, from the ports (Panel, Text, Icon)
 // and the deck's CSS. A slide file (src/slides/NN-name.tsx) imports them
 // from `@/components/deck` and passes its words from `copy` as plain
-// strings; body text may mark key phrases `**…**`, drawn bold. The data
+// strings; body text may mark key phrases `**…**`, drawn bold. A slide
+// places them in its parts (`Title` or `Heading`, `Aside`, `Body`, `Block`;
+// J2), which keep the deck's frame and entrance. The preset gallery's data
 // blocks (src/deck/SlideBody.tsx, src/presets/index.ts) draw through them
 // too.
+export {
+  Aside,
+  Block,
+  Body,
+  Heading,
+  SlideContext,
+  Title,
+  type BlockType,
+} from "./Slide";
 export { Lead, Note } from "./Lead";
 export { Points, type PointsProps } from "./Points";
 export { Steps, type StepItem, type StepsProps } from "./Steps";

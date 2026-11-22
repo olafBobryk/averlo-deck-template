@@ -1,8 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
-import { slideContent, stepsStyle, type Block } from "../src/deck/content";
+import { stepsStyle } from "../src/deck/content";
+import { langs } from "../src/deck/langs";
 import { slides } from "../src/deck/slides";
 import { gallery } from "../src/presets/gallery";
+import { slideData } from "../src/slides/data";
 import { expectSplitAcross, expectSplitDown, measureSplit } from "./branching";
+import { findBlock, type PrintedBlock } from "./printed";
 
 // The slide blocks the owner reviewed in the merged build (spec, "After
 // reviewing the merged build"; T043, T047), at 390 and 1440 (the two
@@ -23,15 +26,11 @@ import { expectSplitAcross, expectSplitDown, measureSplit } from "./branching";
 //     Averlo design system: their cards are the same Averlo `Panel` as the
 //     points cards (the owner did not flag those), every word of the block
 //     sits on a card, no card is empty, and nothing is drawn dashed.
+//
+// The placeholder deck is slide files (feature 003): each test finds the
+// first slide holding its block as /print draws it (./printed).
 
-/** The first slide (1-based) holding a block that matches, and its block. */
-function find(match: (block: Block) => boolean) {
-  for (let i = 0; i < slides.length; i++) {
-    const block = slideContent(slides[i].id).blocks.find(match);
-    if (block) return { n: i + 1, block };
-  }
-  return null;
-}
+type Block = PrintedBlock;
 
 const openDeck = (page: Page, s: number) => openPath(page, `/?s=${s}`);
 
@@ -68,9 +67,14 @@ const tokenColor = (page: Page, token: string) =>
 
 // ------------------------------------------------------------ step labels ---
 
-/** A step's label as drawn: its `when`, or its number, zero-padded. */
-const stepLabel = (when: string | undefined, i: number) =>
-  when ?? String(i + 1).padStart(2, "0");
+/** A step's label as drawn: its `when`, a word of the slide's copy, or its
+ *  number, zero-padded. */
+const stepLabels = (n: number, i: number) => [
+  String(i + 1).padStart(2, "0"),
+  ...Object.values(slideData[n - 1].copy[langs[0]]).filter(
+    (word): word is string => typeof word === "string",
+  ),
+];
 
 /** How a live steps block is laid out: per step, its dot, its label, title
  *  and text boxes and their looks; and the block's line pieces. */
@@ -177,20 +181,20 @@ for (const style of ["rail", "across"] as const) {
   test(`steps (${style}): every step has the muted step label, its \`when\` or its number`, async ({
     page,
   }) => {
-    const found = find(
-      (block) => block.type === "steps" && stepsStyle(block.style) === style,
+    const found = await findBlock(
+      page,
+      (block) => block.type === "steps" && block.style === style,
     );
     expect(found, `a steps block in the ${style} style`).not.toBeNull();
     const { n, block } = found!;
-    if (block.type !== "steps") throw new Error("not steps");
     await openDeck(page, n);
     const muted = await tokenColor(page, "--color-muted");
-    const m = await measureSteps(page);
+    const m = await measureSteps(page, block.nth);
     expect(m.style).toBe(style);
-    expect(m.steps).toHaveLength(block.items.length);
+    expect(m.steps).toHaveLength(block.items);
     for (const [i, step] of m.steps.entries()) {
       const at = `step ${i + 1}: ${JSON.stringify(step)}`;
-      expect(step.labelText, at).toBe(stepLabel(block.items[i].when?.en, i));
+      expect(stepLabels(n, i), at).toContain(step.labelText);
       const look = step.labelLook!;
       expect(look.color, at).toBe(muted);
       expect(look.weight, at).toBe("400");
@@ -217,16 +221,16 @@ for (const style of ["rail", "across"] as const) {
   test(`steps (${style}): a small round dot per step on a thin solid line, the current one the accent`, async ({
     page,
   }, info) => {
-    const found = find(
-      (block) => block.type === "steps" && stepsStyle(block.style) === style,
+    const found = await findBlock(
+      page,
+      (block) => block.type === "steps" && block.style === style,
     );
     const { n, block } = found!;
-    if (block.type !== "steps") throw new Error("not steps");
     await openDeck(page, n);
     const accent = await tokenColor(page, "--deck-text-accent");
     const muted = await tokenColor(page, "--color-muted");
     const strong = await tokenColor(page, "--deck-border-strong");
-    const m = await measureSteps(page);
+    const m = await measureSteps(page, block.nth);
     const at = JSON.stringify(m);
     // Across stacks as a rail on a phone.
     const down = style === "rail" || info.project.name === "mobile";
@@ -237,7 +241,7 @@ for (const style of ["rail", "across"] as const) {
       expect(dot.width, `${at}: about 8px`).toBeGreaterThanOrEqual(5);
       expect(dot.width, `${at}: about 8px`).toBeLessThanOrEqual(10);
       expect(step.dotLook!.radius, at).toMatch(/50%|^\d{2,}px|9999/);
-      const status = block.items[i].status ?? "upcoming";
+      const status = block.statuses[i] ?? "upcoming";
       expect(step.status, at).toBe(status);
       expect(step.dotLook!.background, at).toBe(
         status === "current" ? accent : muted,
@@ -307,15 +311,15 @@ test("the steps block's styles: rail by default, and the old nodes name draws ac
 test("numbered points: each number a muted step label above its title, no badge", async ({
   page,
 }) => {
-  const found = find((b) => b.type === "points" && b.style === "numbered");
+  const found = await findBlock(
+    page,
+    (b) => b.type === "points" && b.style === "numbered",
+  );
   expect(found, "a numbered points block").not.toBeNull();
   const { n, block } = found!;
-  if (block.type !== "points") throw new Error("not points");
   await openDeck(page, n);
   const muted = await tokenColor(page, "--color-muted");
-  const nth = slideContent(slides[n - 1].id)
-    .blocks.filter((b) => b.type === "points")
-    .indexOf(block);
+  const { nth } = block;
   const items = await page
     .locator(blockOn("points", nth))
     .locator("ol > li")
@@ -344,7 +348,7 @@ test("numbered points: each number a muted step label above its title, no badge"
         };
       }),
     );
-  expect(items).toHaveLength(block.items.length);
+  expect(items).toHaveLength(block.items);
   for (const [i, item] of items.entries()) {
     const at = `point ${i + 1}: ${JSON.stringify(item)}`;
     expect(item.text, at).toBe(String(i + 1).padStart(2, "0"));
@@ -443,19 +447,10 @@ test("the facts, numbered points, week and plan blocks are Averlo cards, like th
   page,
 }) => {
   // The reference: a points card (the default style), which the owner kept.
-  const cardsStyle = (b: Block) =>
-    b.type === "points" && (b.style ?? "cards") === "cards";
-  const points = find(cardsStyle);
+  const cardsStyle = (b: Block) => b.type === "points" && b.style === "cards";
+  const points = await findBlock(page, cardsStyle);
   expect(points, "a points block in the cards style").not.toBeNull();
   await openDeck(page, points!.n);
-  const nthOf = (
-    n: number,
-    type: Block["type"],
-    match: (b: Block) => boolean,
-  ) =>
-    slideContent(slides[n - 1].id)
-      .blocks.filter((b) => b.type === type)
-      .findIndex(match);
   const look = (selector: string) =>
     page.locator(selector).evaluate((block) => {
       const card = [...block.querySelectorAll<HTMLElement>("*")].find(
@@ -472,16 +467,16 @@ test("the facts, numbered points, week and plan blocks are Averlo cards, like th
       };
     });
   const reference = (await look(
-    blockOn("points", nthOf(points!.n, "points", cardsStyle)),
+    blockOn("points", points!.block.nth),
   )) as Look | null;
   expect(reference, "the points card").not.toBeNull();
 
   for (const item of cases) {
-    const found = find(item.match);
+    const found = await findBlock(page, item.match);
     expect(found, `a ${item.name} block`).not.toBeNull();
-    const { n } = found!;
+    const { n, block } = found!;
     await openDeck(page, n);
-    const selector = blockOn(item.type, nthOf(n, item.type, item.match));
+    const selector = blockOn(item.type, block.nth);
     const report = await page.locator(selector).evaluate((block) => {
       const visible = (el: Element) =>
         el.checkVisibility({ opacityProperty: true });
@@ -564,12 +559,11 @@ test("the facts, numbered points, week and plan blocks are Averlo cards, like th
 test("facts and numbered points sit cleanly beside the headline", async ({
   page,
 }, info) => {
-  const facts = find((b) => b.type === "facts");
+  const facts = await findBlock(page, (b) => b.type === "facts");
   expect(facts).not.toBeNull();
   const n = facts!.n;
-  const content = slideContent(slides[n - 1].id);
   test.skip(
-    !content.layout?.startsWith("split"),
+    !slideData[n - 1].meta.layout?.startsWith("split"),
     "the facts are not in a split slide",
   );
   await openDeck(page, n);
@@ -646,16 +640,16 @@ for (const type of ["org", "fork"] as const) {
   test(`${type}: the children sit below the root, the line splitting down to them with rounded corners`, async ({
     page,
   }, testInfo) => {
-    const found = find((block) => block.type === type);
+    const found = await findBlock(page, (block) => block.type === type);
     expect(found, type).toBeTruthy();
-    const block = found!.block as Extract<Block, { type: typeof type }>;
+    const { block } = found!;
     await openDeck(page, found!.n);
     const strong = await tokenColor(page, "--deck-border-strong");
     const split = await measureSplit(
       page.locator(blockOn(type)).locator("[data-split]").first(),
     );
-    expect(split.items).toHaveLength(block.items.length);
-    if (testInfo.project.name !== "mobile" || block.items.length <= 2)
+    expect(split.items).toHaveLength(block.items);
+    if (testInfo.project.name !== "mobile" || block.items <= 2)
       expectSplitAcross(split, strong, type);
     else expectSplitDown(split, strong, type);
   });

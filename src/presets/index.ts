@@ -50,7 +50,10 @@ const presets: { [T in PresetType]?: ComponentType<PresetProps<T>> } = {
   flow: ({ block, lang }) => createElement(Flow, fields(block, lang)),
   timeline: ({ block, lang }) => createElement(Timeline, fields(block, lang)),
   cycle: ({ block, lang }) => createElement(Cycle, fields(block, lang)),
-  orgchart: ({ block, lang }) => createElement(OrgChart, fields(block, lang)),
+  orgchart: ({ block, lang }) => {
+    const { root, children } = fields(block, lang);
+    return createElement(OrgChart, { root, branches: children });
+  },
   table: ({ block, lang }) => createElement(Table, fields(block, lang)),
   matrix: ({ block, lang }) => createElement(Matrix, fields(block, lang)),
   quote: ({ block, lang }) => createElement(Quote, fields(block, lang)),

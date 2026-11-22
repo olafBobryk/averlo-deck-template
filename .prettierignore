@@ -8,6 +8,7 @@ public/
 test-results/
 playwright-report/
 docs/context/
+tests/slides/.scratch/
 
 # Preserve upstream Spec Kit assets and their generated-file manifest hashes.
 .claude/

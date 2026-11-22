@@ -1,9 +1,10 @@
-// The slides' content types. Each slide's content is kept in a map keyed by
-// slide id (the template's is in slides.ts) and read through `slideContent`.
+// The data slides' content types. Each slide's content is kept in a map
+// keyed by slide id and read through `slideContent`. The template's deck is
+// slide files (src/slides/, feature 003) and has no content map; the preset
+// gallery's slides are still data (src/presets/gallery.ts).
 
 import type { IconName } from "@/components/ui/icons/Icon";
 import type { Text } from "./model";
-import { content } from "./slides";
 
 export type Item = { text: Text };
 type Labelled = { label: Text };
@@ -147,11 +148,11 @@ export type SlideContent = {
   notes?: Text;
 };
 
-/** A slide's content, from the template's map or another deck's (the
- *  preset gallery's, through `DeckContext`). */
+/** A slide's content, from a deck's map (the preset gallery's, through
+ *  `DeckContext`). */
 export function slideContent(
   id: string,
-  from: Record<string, SlideContent> = content,
+  from: Record<string, SlideContent> = {},
 ): SlideContent {
   return from[id] ?? { blocks: [] };
 }
