@@ -23,7 +23,7 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` means it may run in p
 ## Phase V0: Model, registry and gallery (branch `v0-model`, base `main`)
 
 - [ ] T100 [US2] Tests first:
-  - `tests/presets/gallery.spec.ts`: every registry entry has a gallery slide; each gallery slide fits its stage at 390 and 1440 (visible content inside the stage, as feature 001's SC-005 check); 4.5:1 contrast via axe; the gallery PDF has one page per slide.
+  - `tests/presets/gallery.spec.ts`: every registry entry has a gallery slide; each gallery slide fits its stage at 390 and 1440 (visible content inside the stage, as feature 001's SC-005 check); 4.5:1 contrast via axe; the gallery PDF has one page per slide; each preset also renders with a second, different example and still fits (SC-005).
   - `tests/tools/presets_test.mjs`: the registry's names are unique, every family is one of the four, and every example validates against its block type.
 
   Done when both are recorded failing.
@@ -71,6 +71,8 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` means it may run in p
 - **Gate V5:** `npm run gate`; a Vercel preview of `/gallery` once the owner says to deploy.
 
 ## Dependencies
+
+- T121 uses the muted step style from feature 001's phase P8, so V2 starts after P8 is merged.
 
 - V0 blocks everything.
 - V1, V2 and V3 depend only on V0, and V1 and V2 may run in parallel; at most 2 at once.

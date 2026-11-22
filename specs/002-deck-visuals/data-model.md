@@ -42,7 +42,7 @@ All new blocks extend `Block` in the carried `src/deck/content.ts` (compose rows
 
 ## Preset registry (`src/presets/registry.ts`)
 
-- `{ name, family: "charts" | "diagrams" | "text" | "images", block: Block["type"], fits: string (one line: the source structure it suits), example: Block }`.
+- `{ name, family: "charts" | "diagrams" | "text" | "images", block: Block["type"], fits: string (one line: the source structure it suits), example: Block, alternate: Block }`: `alternate` is a second, different example, used to check that a preset needs no polishing with new content (SC-005).
 - One entry per preset. The gallery and the skill's reference are generated from it.
 
 ## Image licence
