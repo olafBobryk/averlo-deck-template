@@ -255,6 +255,13 @@
 /* A thumbnail draws its slide's cards without glass blur: the overview fades
    its items, and opacity never animates over a backdrop filter. Important,
    so no slide class outranks it. */
+/* A later thumbnail's slide, drawn once the card has settled (Overview):
+   it fills the stage as the slide itself would. */
+.thumbLate {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
 .thumbStage * {
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
