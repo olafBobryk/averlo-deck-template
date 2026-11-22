@@ -9,6 +9,7 @@ import { Pending } from "./Pending";
 import { BarPreset } from "./charts/Bar";
 import { DonutPreset } from "./charts/Donut";
 import { LinePreset } from "./charts/Line";
+import { StatPreset } from "./charts/Stat";
 
 type PresetType = PresetBlock["type"];
 
@@ -30,6 +31,7 @@ const charts = { bar: BarPreset, line: LinePreset, donut: DonutPreset };
 /** Each preset block type's component. */
 const presets: { [T in PresetType]?: ComponentType<PresetProps<T>> } = {
   chart: ChartPreset,
+  stat: StatPreset,
 };
 
 /** A preset block, drawn by its component, or by the pending stub while it

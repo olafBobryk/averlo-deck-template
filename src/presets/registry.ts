@@ -106,4 +106,29 @@ export const registry: PresetEntry[] = [
       source: text,
     },
   },
+  {
+    name: "Stat cards",
+    family: "charts",
+    block: "stat",
+    fits: "One to four headline figures, each with its label.",
+    example: {
+      type: "stat",
+      items: [
+        // Placeholder values, written as a source would write them.
+        { value: "10", label: title, note: text },
+        { value: "20", label: title, note: text },
+        { value: "30", label: title, note: text },
+      ],
+    },
+    alternate: {
+      type: "stat",
+      items: [
+        // Placeholder values.
+        { value: "40", label: title, unit: text },
+        { value: "50", label: title, unit: text },
+        { value: "60", label: title },
+        { value: "70", label: title, note: text },
+      ],
+    },
+  },
 ];

@@ -104,6 +104,52 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- Stats ---------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  gap: calc(var(--u) * 1.4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 0.8);
+  padding: calc(var(--u) * 2.2);
+}
+.figure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: calc(var(--u) * 0.6);
+  margin: 0;
+}
+.value.value {
+  font-size: calc(var(--u) * 6);
+  overflow-wrap: anywhere;
+}
+.statUnit.statUnit {
+  font-size: calc(var(--u) * 1.9);
+  font-weight: 450;
+  line-height: 1.2;
+}
+.statLabel.statLabel {
+  margin: 0;
+  font-size: calc(var(--u) * 1.9);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.statNote.statNote {
+  margin: 0;
+  font-size: calc(var(--u) * 1.4);
+  font-weight: 450;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
 /* ---------- Phones: portrait and narrow (the live deck's reflow) ---------- */
 
 @media (orientation: portrait) and (max-width: 699px) {
@@ -145,5 +191,26 @@
   :global(:where([data-deck-title])) .key {
     gap: 8px 10px;
     max-width: none;
+  }
+  :global(:where([data-deck-title])) .stats {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  :global(:where([data-deck-title])) .stat {
+    gap: 4px;
+    padding: 14px 16px;
+  }
+  :global(:where([data-deck-title])) .figure {
+    column-gap: 8px;
+  }
+  :global(:where([data-deck-title])) .value.value {
+    font-size: max(36px, 10cqw);
+  }
+  :global(:where([data-deck-title])) .statUnit.statUnit,
+  :global(:where([data-deck-title])) .statLabel.statLabel {
+    font-size: max(16px, 4.4cqw);
+  }
+  :global(:where([data-deck-title])) .statNote.statNote {
+    font-size: max(14px, 3.8cqw);
   }
 }
