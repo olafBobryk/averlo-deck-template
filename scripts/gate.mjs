@@ -493,12 +493,18 @@ function cleanUpAndExit(code) {
   }, 2000).unref();
 }
 
-async function main() {
+/** Stops every check's and server's process group when this process ends
+ *  or is interrupted (used by the gate and by scripts/check-deck.mjs). */
+export function stopGroupsOnExit() {
   process.on("SIGINT", () => cleanUpAndExit(130));
   process.on("SIGTERM", () => cleanUpAndExit(143));
   process.on("exit", () => {
     for (const pid of liveGroups) killGroup(pid, "SIGKILL");
   });
+}
+
+async function main() {
+  stopGroupsOnExit();
 
   const { found, missing } = loadEnv(join(repoRoot, ".local", "env"));
   if (!found) console.log("gate: .local/env is missing");

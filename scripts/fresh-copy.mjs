@@ -3,33 +3,47 @@
 // template" to a running placeholder deck in under 10 minutes.
 //
 //   node scripts/fresh-copy.mjs --source <path or url> [--branch <name>]
-//                               [--port <n>] [--keep]
+//                               [--port <n>] [--keep] [--deck]
+//                               [--folder <empty or new folder>]
 //
-// It clones the source into a new temporary folder, copies this checkout's
-// ignored .local/ into it (it stays ignored there), runs `npm ci` and
-// `npm run build`, starts the production server, and steps through every
-// slide with Playwright. It prints the time each step took and the total
-// against SC-001's 10 minutes. A clone of a local path holds its committed
-// HEAD only, not uncommitted changes.
+// It clones the source into a new temporary folder (or --folder), copies
+// this checkout's ignored .local/ into it (it stays ignored there), runs
+// `npm ci` and `npm run build`, starts the production server, and steps
+// through every slide with Playwright. It prints the time each step took and
+// the total against SC-001's 10 minutes. A clone of a local path holds its
+// committed HEAD only, not uncommitted changes.
+//
+// With --deck (feature 004, T400; FR-004) it is a deck owner's copy: no
+// .local/ is copied, and after `npm ci` it runs `npm run check:deck`, which
+// must pass without one. A machine whose browser needs LD_LIBRARY_PATH sets
+// it in the environment it runs this from.
 //
 // Exit codes: 0 passed, 1 a step failed or the total was over 10 minutes,
 // 2 usage error.
-import { cpSync, existsSync, mkdtempSync, rmSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  rmSync,
+} from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { loadEnv, runCommand, startServer } from "./gate.mjs";
 
 const LIMIT_MS = 10 * 60 * 1000;
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 function parseArgs(argv) {
-  const args = { port: 3496, keep: false };
+  const args = { port: 3496, keep: false, deck: false };
   for (let i = 0; i < argv.length; i++) {
     const flag = argv[i];
     if (flag === "--keep") args.keep = true;
-    else if (["--source", "--branch", "--port"].includes(flag)) {
+    else if (flag === "--deck") args.deck = true;
+    else if (["--source", "--branch", "--port", "--folder"].includes(flag)) {
       const value = argv[++i];
       if (!value) throw new Error(`${flag} needs a value`);
       args[flag.slice(2)] = value;
@@ -38,6 +52,20 @@ function parseArgs(argv) {
   if (!args.source) throw new Error("--source <path or url> is required");
   args.port = Number(args.port);
   return args;
+}
+
+/** The steps a run takes, in order: the template's, or a deck owner's. */
+export function freshCopySteps({ deck }) {
+  return deck
+    ? ["clone", "npm ci", "npm run check:deck"]
+    : [
+        "clone",
+        "copy .local/",
+        "npm ci",
+        "npm run build",
+        "start",
+        "step through the deck",
+      ];
 }
 
 const seconds = (ms) => {
@@ -95,17 +123,29 @@ async function main() {
     return 2;
   }
   const local = join(repoRoot, ".local");
-  if (!existsSync(local)) {
+  if (!args.deck && !existsSync(local)) {
     console.error("fresh-copy: this checkout has no .local/ to copy");
     return 2;
   }
+  if (args.folder && existsSync(args.folder)) {
+    if (readdirSync(args.folder).length) {
+      console.error(`fresh-copy: ${args.folder} is not empty`);
+      return 2;
+    }
+  }
 
-  const folder = mkdtempSync(join(tmpdir(), "deck-fresh-copy-"));
+  let folder;
+  if (args.folder) {
+    folder = resolve(args.folder);
+    mkdirSync(folder, { recursive: true });
+  } else folder = mkdtempSync(join(tmpdir(), "deck-fresh-copy-"));
+  const plan = freshCopySteps(args);
   const started = Date.now();
   const times = [];
   let stop = null;
   let failed = null;
   const step = async (name, run) => {
+    if (!plan.includes(name)) throw new Error(`no step ${name}`);
     const at = Date.now();
     console.log(`\n=== fresh-copy: ${name} ===`);
     await run();
@@ -135,6 +175,22 @@ async function main() {
         { cwd: tmpdir() },
       ),
     );
+    if (args.deck) await deckSteps();
+    else await templateSteps();
+  } catch (error) {
+    failed = error.message;
+  } finally {
+    await stop?.();
+  }
+
+  async function deckSteps() {
+    if (existsSync(join(folder, ".local")))
+      throw new Error("the clone has a .local/");
+    await step("npm ci", () => exec(["npm", "ci"]));
+    await step("npm run check:deck", () => exec(["npm", "run", "check:deck"]));
+  }
+
+  async function templateSteps() {
     await step("copy .local/", async () => {
       cpSync(local, join(folder, ".local"), { recursive: true });
       await exec(["git", "check-ignore", "-q", ".local/env"]);
@@ -164,26 +220,28 @@ async function main() {
       const total = await stepThrough(folder, url);
       console.log(`fresh-copy: stepped through ${total} slides`);
     });
-  } catch (error) {
-    failed = error.message;
-  } finally {
-    await stop?.();
   }
 
+  // SC-001's 10 minutes are the template's run; a deck's checks have no limit.
   const elapsed = Date.now() - started;
-  console.log("\n# Fresh-copy check\n");
+  const over = !args.deck && elapsed > LIMIT_MS;
+  console.log(`\n# Fresh-copy check${args.deck ? " (deck)" : ""}\n`);
   for (const [name, ms] of times) console.log(`- ${name}: ${seconds(ms)}`);
   console.log(
-    `- total: ${seconds(elapsed)} (SC-001: under ${seconds(LIMIT_MS)})`,
+    `- total: ${seconds(elapsed)}${args.deck ? "" : ` (SC-001: under ${seconds(LIMIT_MS)})`}`,
   );
   if (failed) console.log(`\nResult: failed — ${failed}`);
-  else if (elapsed > LIMIT_MS)
-    console.log("\nResult: failed — over 10 minutes");
+  else if (over) console.log("\nResult: failed — over 10 minutes");
   else console.log("\nResult: passed");
 
   if (args.keep) console.log(`The copy is kept at ${folder}`);
   else rmSync(folder, { recursive: true, force: true });
-  return failed || elapsed > LIMIT_MS ? 1 : 0;
+  return failed || over ? 1 : 0;
 }
 
-process.exitCode = await main();
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  process.exitCode = await main();
+}

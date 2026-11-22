@@ -346,32 +346,41 @@ test("/gallery opens on its title slide", async ({ page }) => {
   ).toBeVisible();
 });
 
-test("every gallery slide fits its stage (SC-002)", async ({ page }) => {
-  test.setTimeout(30_000 + N * 10_000);
-  for (let s = 1; s <= N; s++) {
-    await openGallery(page, s);
-    await expectFits(page, `gallery slide ${s} (${gallery.slides[s - 1].id})`);
-  }
-});
-
-test("each preset renders its example and its alternate, and both fit (SC-005)", async ({
-  page,
-}) => {
-  test.setTimeout(30_000 + registry.length * 20_000);
-  for (const entry of registry) {
-    const slides = gallery.presetSlides(entry.name);
-    for (const slide of [slides.example!, slides.alternate!]) {
-      await openGallery(page, at(slide.id));
-      await expect(
-        page
-          .locator(`main:not([aria-hidden]) [data-block="${entry.block}"]`)
-          .first(),
-        `${entry.name}: ${slide.id}`,
-      ).toBeVisible();
-      await expectFits(page, `${entry.name}: ${slide.id}`);
+test(
+  "every gallery slide fits its stage (SC-002)",
+  { tag: "@deck" },
+  async ({ page }) => {
+    test.setTimeout(30_000 + N * 10_000);
+    for (let s = 1; s <= N; s++) {
+      await openGallery(page, s);
+      await expectFits(
+        page,
+        `gallery slide ${s} (${gallery.slides[s - 1].id})`,
+      );
     }
-  }
-});
+  },
+);
+
+test(
+  "each preset renders its example and its alternate, and both fit (SC-005)",
+  { tag: "@deck" },
+  async ({ page }) => {
+    test.setTimeout(30_000 + registry.length * 20_000);
+    for (const entry of registry) {
+      const slides = gallery.presetSlides(entry.name);
+      for (const slide of [slides.example!, slides.alternate!]) {
+        await openGallery(page, at(slide.id));
+        await expect(
+          page
+            .locator(`main:not([aria-hidden]) [data-block="${entry.block}"]`)
+            .first(),
+          `${entry.name}: ${slide.id}`,
+        ).toBeVisible();
+        await expectFits(page, `${entry.name}: ${slide.id}`);
+      }
+    }
+  },
+);
 
 test("every gallery slide passes axe's colour contrast (SC-002)", async ({
   page,

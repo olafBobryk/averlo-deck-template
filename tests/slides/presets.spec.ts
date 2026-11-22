@@ -65,7 +65,7 @@ test("src/presets/slides/ holds slide files", () => {
   expect(files.length).toBeGreaterThan(0);
 });
 
-test.describe("every preset file, copied into a deck", () => {
+test.describe("every preset file, copied into a deck", { tag: "@deck" }, () => {
   let deck: { origin: string; stop: () => void } | undefined;
   let dir = "";
   test.beforeAll(async ({}, info) => {
@@ -73,7 +73,8 @@ test.describe("every preset file, copied into a deck", () => {
       info.project.name !== "desktop",
       "one dev server per folder: the desktop project sets both widths",
     );
-    test.setTimeout(300_000);
+    // Up to 9 minutes waiting for the other dev server spec's turn.
+    test.setTimeout(840_000);
     dir = scratchDeck(
       "presets",
       Object.fromEntries(copies.map((copy) => [copy.name, copy.source])),
