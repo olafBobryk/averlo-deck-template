@@ -10,6 +10,9 @@ import { BarPreset } from "./charts/Bar";
 import { DonutPreset } from "./charts/Donut";
 import { LinePreset } from "./charts/Line";
 import { StatPreset } from "./charts/Stat";
+import { AgendaPreset } from "./text/Agenda";
+import { ComparePreset } from "./text/Compare";
+import { QuotePreset } from "./text/Quote";
 
 type PresetType = PresetBlock["type"];
 
@@ -32,6 +35,9 @@ const charts = { bar: BarPreset, line: LinePreset, donut: DonutPreset };
 const presets: { [T in PresetType]?: ComponentType<PresetProps<T>> } = {
   chart: ChartPreset,
   stat: StatPreset,
+  quote: QuotePreset,
+  agenda: AgendaPreset,
+  compare: ComparePreset,
 };
 
 /** A preset block, drawn by its component, or by the pending stub while it

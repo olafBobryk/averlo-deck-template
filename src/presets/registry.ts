@@ -34,8 +34,14 @@ export type PresetEntry = {
 // `Text` (tests/languages.spec.ts adds it to each `en: "…"` it finds).
 const title: Text = { en: "Placeholder title" };
 const text: Text = { en: "Placeholder text" };
+/** A longer placeholder, for an alternate that wraps over more lines. */
+const longText: Text = {
+  en: "Placeholder text, placeholder text, placeholder text, placeholder text.",
+};
 /** `n` placeholder categories. */
 const categories = (n: number) => Array.from({ length: n }, () => text);
+/** `n` copies of an item. */
+const times = <T>(n: number, item: T) => Array.from({ length: n }, () => item);
 
 /** The presets. Later phases add one entry per preset. */
 export const registry: PresetEntry[] = [
@@ -134,6 +140,51 @@ export const registry: PresetEntry[] = [
         { value: "60", label: title },
         { value: "70", label: title, note: text },
       ],
+    },
+  },
+  // Text layouts (phase V3).
+  {
+    name: "Quote",
+    family: "text",
+    block: "quote",
+    fits: "A quotation, word for word, with who said it.",
+    example: { type: "quote", text, by: title, role: text },
+    alternate: { type: "quote", text: longText, by: title },
+  },
+  {
+    name: "Statement",
+    family: "text",
+    block: "lead",
+    fits: "One claim, said large, with a line under it.",
+    layout: "statement",
+    example: { type: "lead", item: { text }, size: "statement" },
+    alternate: { type: "lead", item: { text: longText }, size: "statement" },
+  },
+  {
+    name: "Agenda",
+    family: "text",
+    block: "agenda",
+    fits: "A list of topics, in the order they come.",
+    example: {
+      type: "agenda",
+      items: times(4, { label: title, text }),
+    },
+    alternate: { type: "agenda", items: times(8, { label: title }) },
+  },
+  {
+    name: "Compare",
+    family: "text",
+    block: "compare",
+    fits: "Two options side by side, each with its points.",
+    example: {
+      type: "compare",
+      left: { title, points: times(3, text) },
+      right: { title, points: times(3, text) },
+    },
+    alternate: {
+      type: "compare",
+      left: { title, points: times(2, longText) },
+      right: { title, points: times(5, text) },
     },
   },
 ];
