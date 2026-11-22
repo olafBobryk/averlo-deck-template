@@ -1,9 +1,9 @@
 // The deck's components (feature 003, T310): each block's renderer is a
 // named, typed component in the template-owned src/components/deck/,
 // exported from its index, so a slide file imports it from
-// `@/components/deck`; the block switch (src/deck/SlideBody.tsx) and the
-// preset view (src/presets/index.ts) draw blocks through them; and they
-// take their colours from the Averlo tokens only.
+// `@/components/deck`; the deck's slide files and the preset files draw
+// them (the data blocks' switch is gone, J3); and they take their colours
+// from the Averlo tokens only.
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -97,31 +97,33 @@ describe("src/components/deck", () => {
   });
 });
 
-describe("the block switch delegates to the components", () => {
-  test("src/deck/SlideBody.tsx draws its blocks with @/components/deck", () => {
-    const source = read("src/deck/SlideBody.tsx");
-    assert.match(source, /from "@\/components\/deck"/);
-    for (const name of [
-      "Lead",
-      "Note",
-      "Points",
-      "Steps",
-      "Facts",
-      "Org",
-      "Fork",
-      "Week",
-      "Plan",
-    ])
+describe("slide files compose the components", () => {
+  /** Every slide file of the deck and of the presets. */
+  const slideSources = () =>
+    [join(root, "src", "slides"), join(root, "src", "presets", "slides")]
+      .flatMap((folder) => files(folder))
+      .filter((file) => file.endsWith(".tsx"))
+      .map((file) => readFileSync(file, "utf8"));
+
+  test("every component is drawn by a slide file of the deck or the presets", () => {
+    const sources = slideSources().join("\n");
+    for (const name of components)
       assert.match(
-        source,
+        sources,
         new RegExp(`<${name}\\b`),
-        `SlideBody draws <${name}>`,
+        `no slide draws <${name}>`,
       );
   });
 
-  test("src/presets/index.ts draws the presets with @/components/deck", () => {
-    const source = read("src/presets/index.ts");
-    assert.match(source, /from "@\/components\/deck"/);
+  test("the data blocks' switch and the presets' adapters are gone (J3)", () => {
+    for (const file of [
+      "src/deck/SlideBody.tsx",
+      "src/presets/index.ts",
+      "src/presets/say.ts",
+      "src/presets/visuals.tsx",
+      "src/presets/Pending.tsx",
+    ])
+      assert.ok(!existsSync(join(root, file)), `${file} still exists`);
   });
 
   test("the ported src/components/ui/ holds no template file", () => {

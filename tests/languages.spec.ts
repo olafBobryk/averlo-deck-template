@@ -290,15 +290,21 @@ function writeCopy(second: string) {
   expect(changed, "files whose Text gains the second language").toBeGreaterThan(
     1,
   );
-  // Every slide file's words, and the slide data generated from them.
-  const slideFiles = readdirSync(join(copy, "src", "slides")).filter((name) =>
-    /^\d+-.+\.tsx$/.test(name),
+  // Every slide file's words, the deck's and the presets' (a showcase slide
+  // re-exports a preset file's), and the slide data generated from them.
+  const slideFiles = [
+    ...sources("src/slides"),
+    ...sources("src/presets/slides"),
+  ].filter(
+    (file) =>
+      file.endsWith(".tsx") &&
+      /^export const copy\b/m.test(readFileSync(join(copy, file), "utf8")),
   );
   expect(slideFiles.length, "slide files").toBeGreaterThan(0);
-  for (const name of slideFiles)
+  for (const file of slideFiles)
     expect(
-      edit(`src/slides/${name}`, (text) => addToCopy(text, lang, second)),
-      `${name} gains the second language`,
+      edit(file, (text) => addToCopy(text, lang, second)),
+      `${file} gains the second language`,
     ).toBe(true);
   const indexed = spawnSync(
     process.execPath,
