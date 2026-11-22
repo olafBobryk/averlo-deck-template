@@ -73,6 +73,17 @@ The procedures are [Change the brand](process/workflows.md#change-the-brand) and
 
 Hand your material (notes, documents, transcripts) to an agent and follow [Draft a deck from any source](process/workflows.md#draft-a-deck-from-any-source). The agent talks it through with you and uses only your words. Every procedure is listed in [`WORKFLOWS.md`](WORKFLOWS.md).
 
+## Visuals
+
+The deck ships 18 preset visuals, each filled with content only. Open `/gallery` to see them all, with its own PDF:
+
+- **Charts and stats:** bar, line and donut charts; stat cards.
+- **Diagrams:** process flow, timeline, cycle, org chart, comparison table, 2×2 matrix.
+- **Text layouts:** quote, statement, agenda, compare, image and text.
+- **Image slides:** full-bleed image, captioned image, image grid. Your own images go in `public/images/`, each with a row in `docs/licences.md`; without one, a placeholder shows.
+
+The `deck-visuals` skill (`.claude/skills/deck-visuals/`, with the same skill for Codex in `.agents/skills/deck-visuals/`) reads your material, proposes a preset for each slide and keeps only what you confirm. When no preset fits, it composes one for your deck in `src/deck/visuals/`. When you have no image, it offers to generate one with whatever generator you have, and only on your yes.
+
 ## The drift test
 
 The template is built on Averlo design-system files ported unchanged at a pinned commit: averlo-web-transition at `cfa3d61`, averlo-next-template at `dc3b01d`, and the top bar from averlo-questionnaire-template at `756be64`. Font files whose licence forbids redistribution are listed under `exclude` and never copied. `npm run check:ports` checks every port, byte for byte, against its source. It needs clones of the sources in the folder named by `PORT_SOURCES_DIR`; without them it reports "not run".

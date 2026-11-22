@@ -5,5 +5,6 @@ The procedures, by name. Each one is in [`process/workflows.md`](process/workflo
 - [Draft a deck from any source](process/workflows.md#draft-a-deck-from-any-source)
 - [Change the brand](process/workflows.md#change-the-brand)
 - [Add a language](process/workflows.md#add-a-language)
+- [Promote a visual to a preset](process/workflows.md#promote-a-visual-to-a-preset)
 - [Run the gate](process/workflows.md#run-the-gate)
 - [Port the design system](process/workflows.md#port-the-design-system)

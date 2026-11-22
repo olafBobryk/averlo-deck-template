@@ -41,7 +41,7 @@ Add a library of preset visuals and a skill that picks them:
 - No blocked terms.
 - Every image has a licence row.
 
-**Scale/Scope**: 21 presets in 4 families, about 21 gallery slides, 1 skill in two copies, about 8 test files.
+**Scale/Scope**: 18 presets in 4 families, about 40 gallery slides (an example and an alternate each), 1 skill in two copies, about 8 test files.
 
 ## Constitution Check
 

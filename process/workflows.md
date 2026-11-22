@@ -6,6 +6,8 @@ The procedures behind the names in the workflow menu, [`WORKFLOWS.md`](../WORKFL
 
 How an agent turns a deck owner's material into slides (FR-016, User Story 3). The deck's words come from its owner (constitution, Principle III): the agent arranges them, and never writes slide text, figures or claims of its own.
 
+To pick each slide's visual, use the `deck-visuals` skill (`.claude/skills/deck-visuals/SKILL.md`): it proposes a preset per slide from the material's structure, and the owner confirms each one.
+
 ### What you need
 
 - The source material, in any form: notes, documents, transcripts, an old deck, a recording's text. Keep the owner's files in `docs/context/`, which is ignored, so they are never committed.
@@ -121,6 +123,19 @@ One language is the default (FR-007). A deck adds one by configuration and strin
 3. Run the gate. With two or more languages the menu shows the language switcher, and links carry `?lang=` for every language but the first. The build renders one PDF per language, `<slug>-<lang>.pdf` (`src/deck/pdf-name.ts`).
 
 To remove a language, remove its code from `langs`, its name and its strings.
+
+The preset registry's placeholder texts (`src/presets/registry.ts`) get a string in the new language too. Then run `npm run presets:doc`, which regenerates the deck-visuals skill's preset reference from them.
+
+## Promote a visual to a preset
+
+A deck's composed visual lives in `src/deck/visuals/` and is drawn through a `custom` block (feature 002, research D3). When the owner asks for it to become a shared preset (FR-011), make it one. Promotion is a feature change to the template, so it takes the spec path unless the owner has already approved it (constitution, Principle IV).
+
+1. **Move the file.** Move the component from `src/deck/visuals/` to `src/presets/<family>/`, where `<family>` is `charts`, `diagrams`, `text` or `images`, with its styles. It stays composed from Averlo parts only, with no colour literal; ports are never edited.
+2. **Give it a block.** Add its block type and fields to `PresetBlock` in `src/deck/content.ts` (a compose row in `docs/carried/deck.md`), its limits to `validateBlock` and its name to `presetTypes` in `src/presets/validate.ts`, and its component to the `presets` map in `src/presets/index.ts`. Remove its export from `src/deck/visuals/index.ts`, and change each `custom` block that drew it to the new block.
+3. **Add a registry entry** in `src/presets/registry.ts`: its `name`, `family`, `block`, one line of what it `fits`, an `example` and a different `alternate`, with placeholder words and placeholder numbers only. The gallery draws both from the entry.
+4. **Name it in the skill's selection rules**: a row in the table of `.claude/skills/deck-visuals/SKILL.md`, copied to `.agents/skills/deck-visuals/SKILL.md` so the two stay identical.
+5. **Regenerate the reference:** `npm run presets:doc`.
+6. **Run the tests.** `npm run test:tools` checks the registry, the validator and the skill; the gallery spec (`tests/presets/gallery.spec.ts`) checks that the new slides render and fit at 390 and 1440 and pass contrast. Add the preset's own tests to `tests/tools/presets_test.mjs` (its limits) and to the gallery spec, then [run the gate](#run-the-gate).
 
 ## Run the gate
 

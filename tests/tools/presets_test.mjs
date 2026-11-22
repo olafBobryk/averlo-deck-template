@@ -585,12 +585,36 @@ describe("the validator", () => {
   });
 
   describe("custom", () => {
-    test("names a visual and passes its props", () =>
-      ok({ type: "custom", visual: "Example", props: {} }));
+    // The deck's own visuals are the names src/deck/visuals/index.ts
+    // exports (T140, research D3); the caller passes them.
+    const visuals = ["Example"];
+    const check = (block) => validateBlock(block, langs, visuals);
+    test("names a visual of the deck and passes its props", () =>
+      assert.deepEqual(
+        check({ type: "custom", visual: "Example", props: {} }),
+        [],
+      ));
     test("needs a visual name and a props object", () => {
-      bad({ type: "custom", visual: "", props: {} }, /visual/);
-      bad({ type: "custom", visual: "Example" }, /props/);
+      assert.ok(
+        check({ type: "custom", visual: "", props: {} }).some((p) =>
+          /visual/.test(p),
+        ),
+      );
+      assert.ok(
+        check({ type: "custom", visual: "Example" }).some((p) =>
+          /props/.test(p),
+        ),
+      );
     });
+    test("a visual missing from src/deck/visuals/index.ts is rejected", () => {
+      const problems = check({ type: "custom", visual: "Missing", props: {} });
+      assert.ok(
+        problems.some((p) => /Missing/.test(p) && /src\/deck\/visuals/.test(p)),
+        problems.join("; ") || "no problem reported",
+      );
+    });
+    test("without the deck's visuals, no custom block validates: the template's map is empty", () =>
+      bad({ type: "custom", visual: "Example", props: {} }, /visual/));
   });
 
   test("feature 001's blocks pass as they are; an unknown type is rejected", () => {

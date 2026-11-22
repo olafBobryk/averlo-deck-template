@@ -3,7 +3,7 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 import { langs } from "../../src/deck/langs";
 import { galleryPdfName } from "../../src/deck/pdf-name";
 import { slideContent } from "../../src/deck/content";
-import { gallery } from "../../src/presets/gallery";
+import { composedExamples, gallery } from "../../src/presets/gallery";
 import { registry } from "../../src/presets/registry";
 import { expectSplitAcross, expectSplitDown, measureSplit } from "../branching";
 import { expectFits } from "./fit";
@@ -33,10 +33,12 @@ const at = (id: string) => gallery.slides.findIndex((s) => s.id === id) + 1;
 
 test("the gallery has a title slide, a divider per family in use and two slides per preset", () => {
   const families = new Set(registry.map((entry) => entry.family));
+  // Then a divider and a slide for each composed visual example (T143).
+  const composed = composedExamples.length ? 1 + composedExamples.length : 0;
   expect(gallery.slides[0].kind).toBe("title");
-  expect(N).toBe(1 + families.size + 2 * registry.length);
+  expect(N).toBe(1 + families.size + 2 * registry.length + composed);
   expect(gallery.slides.filter((s) => s.kind === "divider")).toHaveLength(
-    families.size,
+    families.size + (composed ? 1 : 0),
   );
   const ids = gallery.slides.map((s) => s.id);
   expect(new Set(ids).size).toBe(ids.length);
@@ -51,6 +53,33 @@ test("every registry entry has a gallery slide for its example and its alternate
     expect(gallery.content[alternate!.id].blocks).toContainEqual(
       entry.alternate,
     );
+  }
+});
+
+// Compose-per-deck (feature 002, T143; research D3): the template's one
+// composed visual is shown in the gallery as "Composed visual (example)",
+// drawn from its `custom` block through the gallery's own visuals; it is
+// not a preset, so not in the registry.
+test("the composed visual example has its gallery slide, drawn and fitting", async ({
+  page,
+}) => {
+  const names = composedExamples.map((example) => example.name);
+  expect(names).toEqual(["Composed visual (example)"]);
+  expect(registry.map((entry) => entry.name)).not.toContain(names[0]);
+  for (const example of composedExamples) {
+    const s = gallery.slides.findIndex(
+      (slide) => slide.title[langs[0]] === example.name,
+    );
+    expect(s, example.name).toBeGreaterThan(0);
+    expect(gallery.content[gallery.slides[s].id].blocks).toEqual([
+      example.block,
+    ]);
+    await openGallery(page, s + 1);
+    const main = page.locator("main:not([aria-hidden])");
+    await expect(main.locator('[data-block="custom"]')).toBeVisible();
+    await expect(main.locator("[data-composed-example]")).toBeVisible();
+    await expect(main.locator("[data-visual-missing]")).toHaveCount(0);
+    await expectFits(page, example.name);
   }
 });
 

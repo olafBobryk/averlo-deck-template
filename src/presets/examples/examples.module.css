@@ -1,0 +1,40 @@
+/* The composed visual example (feature 002, T143): a funnel of Averlo Panel
+   cards, on the deck's tokens only, sized in --u like the presets, so it is
+   the same full-bleed, in a thumbnail and on a PDF page. On a portrait
+   phone the live deck reflows, and it follows the deck's sizes. */
+
+.funnel {
+  display: grid;
+  justify-items: center;
+  gap: calc(var(--u) * 0.8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stage {
+  width: var(--width);
+}
+.card {
+  display: flex;
+  justify-content: center;
+  padding: calc(var(--u) * 1.4) calc(var(--u) * 2);
+}
+.label.label {
+  margin: 0;
+  font-size: calc(var(--u) * 1.9);
+  line-height: 1.2;
+  text-align: center;
+  text-wrap: balance;
+}
+
+@media (orientation: portrait) and (max-width: 699px) {
+  :global(:where([data-deck-title])) .funnel {
+    gap: 8px;
+  }
+  :global(:where([data-deck-title])) .card {
+    padding: 10px 14px;
+  }
+  :global(:where([data-deck-title])) .label.label {
+    font-size: max(16px, 4.4cqw);
+  }
+}
