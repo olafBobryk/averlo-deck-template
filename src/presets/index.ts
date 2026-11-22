@@ -6,6 +6,9 @@ import { createElement, type ComponentType } from "react";
 import type { PresetBlock } from "@/deck/content";
 import type { Lang } from "@/deck/langs";
 import { Pending } from "./Pending";
+import { BarPreset } from "./charts/Bar";
+import { DonutPreset } from "./charts/Donut";
+import { LinePreset } from "./charts/Line";
 
 type PresetType = PresetBlock["type"];
 
@@ -17,8 +20,17 @@ export type PresetProps<T extends PresetType = PresetType> = {
   still?: boolean;
 };
 
+/** A chart, drawn by its kind's component. */
+function ChartPreset(props: PresetProps<"chart">) {
+  const Kind = charts[props.block.kind];
+  return createElement(Kind, props);
+}
+const charts = { bar: BarPreset, line: LinePreset, donut: DonutPreset };
+
 /** Each preset block type's component. */
-const presets: { [T in PresetType]?: ComponentType<PresetProps<T>> } = {};
+const presets: { [T in PresetType]?: ComponentType<PresetProps<T>> } = {
+  chart: ChartPreset,
+};
 
 /** A preset block, drawn by its component, or by the pending stub while it
  *  has none. */
