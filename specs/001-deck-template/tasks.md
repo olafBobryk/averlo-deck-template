@@ -148,6 +148,7 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
   - brand `owner` without a mark shows the "your logo" placeholder;
   - the hard-load screen keeps its 400 ms minimum and 3 s cap (FR-004a, FR-005).
 - [x] T033 [US3] The intro and the hard-load screen compose the brand mark in the placeholder's box (as an `<img>` on the hard-load screen): the ported Averlo `Logo` variant `mark`, or the owner's mark. Every timing value is kept (R9). Rows go in `docs/carried/{gate,boot}.md`.
+- [x] T033a [US3] Follow-up after the merge (light path, owner-approved): the browser tab's title, the Apple web-app title and the manifest's name follow `config.deckTitle`; the app icons follow the brand (the Averlo mark, the owner's `mark`, or the "your logo" placeholder), drawn by the template-owned `src/app/icon.tsx` and `apple-icon.tsx` through `next/og` in place of the fixed Averlo PNGs (compose rows in `docs/carried/app.md`). Tests in `tests/brand.spec.ts`.
 - **Gate P5:** `npm run gate`, including the intro strips and constants.
 
 ## Phase P6: Slides and languages (branch `p6-slides`, as in plan.md)
