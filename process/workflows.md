@@ -8,6 +8,8 @@ How an agent turns a deck owner's material into slides (FR-016, User Story 3). T
 
 To pick each slide's visual, use the `deck-visuals` skill (`.claude/skills/deck-visuals/SKILL.md`): it proposes a preset per slide from the material's structure, and the owner confirms each one.
 
+Each slide is a numbered file in `src/slides/`, `NN-name.tsx` (feature 003, `specs/003-jsx-slides/contracts/slide-file.md`). It exports `meta` (its kind, section and layout), `copy` (every word and figure it shows, for each language, its title among them) and a default component, free JSX from `@/components/deck` that reads its words from `t`. A preset is an example slide file in `src/presets/slides/`: copy it into `src/slides/` with a number, put the owner's words and figures in its `copy`, and change its JSX freely.
+
 ### What you need
 
 - The source material, in any form: notes, documents, transcripts, an old deck, a recording's text. Keep the owner's files in `docs/context/`, which is ignored, so they are never committed.
@@ -35,7 +37,7 @@ To pick each slide's visual, use the `deck-visuals` skill (`.claude/skills/deck-
    - until they arrive, the intro, the hard-load screen and the top bar's brand slot show the "your logo" placeholder, and the brand slot shows the name beside it. Say so to the owner;
    - when they arrive, follow [Change the brand](#change-the-brand).
 4. **Agree the outline.** Propose sections and slide titles taken from the source's own headings and phrases. The owner confirms, cuts, adds or reorders. Write their answer down.
-5. **Draft each slide.** Pick its kind, layout and blocks from the tables below, and fill each text with the owner's words. Keep speaker prompts in `notes`; they are not drawn.
+5. **Draft each slide.** Copy the fitting preset file into `src/slides/` with the slide's number (the skill picks it), or start from the placeholder slide whose kind and layout fit (the tables below). Put the owner's words and figures in its `copy`, replacing every placeholder, and change the JSX freely: drop a part the owner gave no words for, add, rearrange or mix components. Never type a word or a figure into the JSX: the inline-text check fails on it. Remove the placeholder slides the deck does not use, and renumber so the files run in the agreed order.
 6. **Show the owner** the deck (`npm run dev`), slide by slide, and ask about every slide you were unsure of. Change only what they answer.
 7. **Check the draft** (below).
 
@@ -43,55 +45,58 @@ To pick each slide's visual, use the `deck-visuals` skill (`.claude/skills/deck-
 
 | What                                    | Where                                                  |
 | --------------------------------------- | ------------------------------------------------------ |
-| Slides, their order and their text      | `slides` and `content` in `src/deck/slides.ts`         |
+| Slides, their order and their text      | `src/slides/NN-name.tsx`: `meta`, `copy` and the JSX   |
 | Languages                               | `langs` and `langNames` in `src/deck/langs.ts`         |
 | Brand, deck title, top-bar accent       | `config` in `src/brand/config.ts`                      |
 | The owner's logo and mark               | `public/brand/`, each with a row in `docs/licences.md` |
 | The source and the answers (never sent) | `docs/context/` (ignored)                              |
 
-### Slide kinds, layouts and blocks
+### Slide kinds, layouts and components
 
-The types are in `src/deck/model.ts` and `src/deck/content.ts`; the placeholder deck in `src/deck/slides.ts` uses each of them in 13 slides.
+The types are in `src/deck/slide.ts` (`SlideMeta`, `Copy`, `SlideProps`); the placeholder deck in `src/slides/` uses each kind, layout and component, and its showcase re-exports every preset file.
 
-A **slide** has an `id`, a `kind`, a `title`, and on dividers and content slides a `section` (shown in the footer) and an optional `parent`.
+A slide's **`meta`** has a `kind`, on dividers and content slides a `section` (shown in the footer) and an optional `parent`, each naming a key of `copy`, and a `layout`.
 
 | Kind      | Use                                                                                                              |
 | --------- | ---------------------------------------------------------------------------------------------------------------- |
 | `title`   | The first slide: the deck's title, with an optional lead.                                                        |
 | `divider` | Opens a section. In the menu's slide list, its row opens and closes the slides after it with the same `section`. |
-| `slide`   | A content slide: an optional `headline` over its blocks.                                                         |
+| `slide`   | A content slide: a headline over its components.                                                                 |
 | `closing` | The last slide.                                                                                                  |
 
-A slide's **content** has an optional `headline` (its point, with an optional `muted` lead-in), its `blocks`, a `layout` and optional `notes`. Without a headline, the title shows large.
+A slide with a `layout` draws `Heading` (its title small over its `headline`, the point it makes, with an optional `muted` lead-in) and its components in that composition. Without a `layout`, it draws `Title`, the title large.
 
-| Layout            | Draws                                             |
-| ----------------- | ------------------------------------------------- |
-| `stack` (default) | The heading over the blocks.                      |
-| `split`           | The heading on the left, the blocks on the right. |
-| `split-end`       | `split`, mirrored.                                |
-| `center`          | A quote or a closing line in the middle.          |
-| `statement`       | One large claim at the bottom left.               |
-| `module`          | Draws as `stack`: it has no rules of its own.     |
+| Layout      | Draws                                          |
+| ----------- | ---------------------------------------------- |
+| `stack`     | The heading over the components.               |
+| `split`     | The heading on the left, the components right. |
+| `split-end` | `split`, mirrored.                             |
+| `center`    | A quote or a closing line in the middle.       |
+| `statement` | One large claim at the bottom left.            |
+| `module`    | Draws as `stack`: it has no rules of its own.  |
 
-| Block    | Shows                                                                                                                  |
-| -------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `lead`   | One line of text; `size: "statement"` makes it large.                                                                  |
-| `points` | Labelled points in 2 to 5 columns (3 by default), as cards (the default), numbered rows or chips, with optional icons. |
-| `steps`  | Steps with a status (done, current, upcoming), as a rail (the default) or nodes.                                       |
-| `facts`  | Label and value pairs.                                                                                                 |
-| `note`   | A short note; `**bold**` marks emphasis.                                                                               |
-| `org`    | One node over the roles that report to it.                                                                             |
-| `fork`   | One stage branching into options.                                                                                      |
-| `week`   | A working week with its fixed moments.                                                                                 |
-| `plan`   | A time axis from `start` to `end` (YYYY-MM), with dated marks and spans.                                               |
+Each component sits in a `Block` (`<Block type="points">`) inside `Body`, which keep the deck's frame and entrance. The preset components (charts, stats, diagrams, text layouts and images) are in the skill's [preset reference](../.claude/skills/deck-visuals/references/presets.md). Feature 001's components:
+
+| Component | Shows                                                                                                                  |
+| --------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `Lead`    | One line of text; `size="statement"` makes it large.                                                                   |
+| `Points`  | Labelled points in 2 to 5 columns (3 by default), as cards (the default), numbered rows or chips, with optional icons. |
+| `Steps`   | Steps with a status (done, current, upcoming), as a rail (the default) or across.                                      |
+| `Facts`   | Label and value pairs.                                                                                                 |
+| `Note`    | A short note; `**bold**` marks emphasis.                                                                               |
+| `Org`     | One node over the roles that report to it.                                                                             |
+| `Fork`    | One stage branching into options.                                                                                      |
+| `Week`    | A working week with its fixed moments.                                                                                 |
+| `Plan`    | A time axis from `start` to `end` (YYYY-MM), with dated marks and spans.                                               |
 
 ### Check the draft
 
-1. **Every text traces.** Each sentence or phrase of slide text appears, ignoring case and spacing, in the source or the answers file (SC-006). Read the draft against both; anything that does not trace goes back to the owner as a question. `tests/docs/workflow-trace.spec.ts` applies the same rule to the template's sample (`tests/fixtures/sample-source.md`).
-2. **Brand.** With Averlo, the intro, the hard-load screen and the top bar's brand slot show the Averlo mark; with another brand and no assets yet, the "your logo" placeholder.
-3. **Fit.** Every slide's visible text and blocks fit inside its stage at 390 px and 1440 px (`tests/deck.spec.ts` checks it). In development, an overflowing slide is named in the browser console.
-4. **Public.** If the repository is public, `npm run scan:public` passes.
-5. **Gate.** [Run the gate](#run-the-gate) before offering the deck to land.
+1. **Every word and figure traces.** Each sentence or phrase in a slide's `copy`, labels included, appears, ignoring case and spacing, in the source or the answers file (SC-006), and each figure is one they write. Read the draft against both; anything that does not trace goes back to the owner as a question. `tests/docs/workflow-trace.spec.ts` applies the same rule to every slide file's `copy`, and to the template's dry run on its sample (`tests/fixtures/drafted-slides/` from `tests/fixtures/sample-source.md`).
+2. **No inline text.** `node scripts/check-inline-text.mjs` passes: no word or figure is typed into a slide's JSX (it runs in `npm run test:tools` too).
+3. **Brand.** With Averlo, the intro, the hard-load screen and the top bar's brand slot show the Averlo mark; with another brand and no assets yet, the "your logo" placeholder.
+4. **Fit.** Every slide's visible text and components fit inside its stage at 390 px and 1440 px (`tests/deck.spec.ts` checks it). In development, an overflowing slide, and a component over its limits (`src/components/deck/limits.ts`), are named in the browser console.
+5. **Public.** If the repository is public, `npm run scan:public` passes.
+6. **Gate.** [Run the gate](#run-the-gate) before offering the deck to land.
 
 ## Change the brand
 
