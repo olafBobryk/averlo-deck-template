@@ -22,6 +22,7 @@ src/motion/
 src/app/
 src/deck/*
 !src/deck/slides.ts
+!src/deck/slide.ts
 !src/deck/langs.ts
 !src/deck/pdf-name.ts
 !src/deck/icon.tsx
