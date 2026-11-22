@@ -262,8 +262,10 @@ test.describe("the app's title and icons", () => {
     // file each app icon draws, relative to the repository.
     const { iconMarkFor } = await import("../src/brand/marks");
     const placeholder = "src/brand/placeholder/your-logo.svg";
+    // Averlo's icons draw its real favicon, the round gradient badge
+    // ported unchanged from averlo-web-transition (T051).
     expect(iconMarkFor({ kind: "averlo" })).toEqual({
-      file: "public/brand/averlo-mark.svg",
+      file: "public/favicon.svg",
       kind: "averlo",
     });
     expect(iconMarkFor({ kind: "owner", name: "Example" })).toEqual({
@@ -335,10 +337,15 @@ test.describe("the app's title and icons", () => {
     await page.goto("/?intro=off");
     const manifest = await (await request.get("/manifest.webmanifest")).json();
     for (const { path, rel, size } of expected) {
-      const link = page.locator(`head link[rel="${rel}"]`);
-      await expect(link).toHaveCount(1);
-      const href = (await link.getAttribute("href")) ?? "";
-      expect(pathOf(new URL(href, page.url()).href)).toBe(path);
+      // The Averlo brand links its ported favicon as the tab's icon (the
+      // next test); the generated icon is still served, for the manifest.
+      if (!(averlo && rel === "icon")) {
+        const link = page.locator(`head link[rel="${rel}"]`);
+        await expect(link).toHaveCount(1);
+        const href = (await link.getAttribute("href")) ?? "";
+        expect(pathOf(new URL(href, page.url()).href)).toBe(path);
+      }
+      const href = path;
       expect(manifest.icons).toContainEqual({
         src: path,
         sizes: `${size}x${size}`,
@@ -351,6 +358,85 @@ test.describe("the app's title and icons", () => {
         width: size,
         height: size,
       });
+    }
+  });
+
+  // T051 (owner on T050: "the favicon needs updating too. following the
+  // questionaire"): for the Averlo brand the tab's icon is Averlo's real
+  // favicon, ported unchanged from averlo-web-transition @ cfa3d61
+  // (public/favicon.svg, with its PNG and ICO as fallbacks), and the
+  // generated app icons draw that badge, filling the canvas. An owner's
+  // brand keeps its own mark, or the placeholder.
+  test("the Averlo brand links its ported favicon, with fallbacks", async ({
+    page,
+    request,
+  }) => {
+    test.skip(!averlo, "an owner's brand links its own mark");
+    await page.goto("/?intro=off");
+    const icons = page.locator('head link[rel="icon"]');
+    const links = await icons.evaluateAll((nodes) =>
+      nodes.map((n) => ({
+        href: new URL(n.getAttribute("href") ?? "", location.href).pathname,
+        type: n.getAttribute("type"),
+      })),
+    );
+    // The SVG first, so a browser that draws SVG icons takes it.
+    expect(links[0]).toEqual({ href: "/favicon.svg", type: "image/svg+xml" });
+    expect(links).toContainEqual({
+      href: "/favicon-96x96.png",
+      type: "image/png",
+    });
+    const shortcut = page.locator('head link[rel="shortcut icon"]');
+    await expect(shortcut).toHaveAttribute("href", "/favicon.ico");
+    for (const file of ["favicon.svg", "favicon-96x96.png", "favicon.ico"]) {
+      const response = await request.get(`/${file}`);
+      expect(response.status(), file).toBe(200);
+      const ported = readFileSync(
+        new URL(`../public/${file}`, import.meta.url),
+      );
+      expect((await response.body()).equals(ported), file).toBe(true);
+    }
+  });
+
+  test("the app icons draw the Averlo badge, filling the canvas", async ({
+    page,
+  }) => {
+    test.skip(!averlo, "an owner's brand draws its own mark");
+    await page.goto("/?intro=off");
+    for (const path of ["/icon", "/apple-icon"]) {
+      const pixels = await page.evaluate(async (src) => {
+        const image = new Image();
+        image.src = src;
+        await image.decode();
+        const canvas = document.createElement("canvas");
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
+        const context = canvas.getContext("2d")!;
+        context.drawImage(image, 0, 0);
+        const at = (x: number, y: number) =>
+          Array.from(
+            context.getImageData(
+              Math.round(x * canvas.width),
+              Math.round(y * canvas.height),
+              1,
+              1,
+            ).data,
+          );
+        // A corner outside the round badge; its rim near the top; and
+        // near its lower-right edge, past the white mark.
+        return {
+          corner: at(0.02, 0.02),
+          top: at(0.5, 0.04),
+          rim: at(0.82, 0.82),
+        };
+      }, path);
+      // The badge is round: its corners are clear.
+      expect(pixels.corner[3], `${path}: corner`).toBeLessThan(20);
+      // Its gradient runs from deep red at the top to a pale tint.
+      const [r, g, b, a] = pixels.top;
+      expect(a, `${path}: top`).toBeGreaterThan(200);
+      expect(r - Math.max(g, b), `${path}: top is red`).toBeGreaterThan(60);
+      expect(pixels.rim[3], `${path}: rim`).toBeGreaterThan(200);
     }
   });
 });
