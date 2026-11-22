@@ -332,6 +332,124 @@ test.describe("the popup's slide list", () => {
     await expect(menuButton(page)).toBeFocused();
   });
 
+  // Owner, after reviewing the merged build: the chevron is a bare ghost
+  // button with no hover background of its own; a row's hover covers its
+  // whole width, chevron included ("purely visual").
+  test("a section's row: one hover fill across its whole width, the chevron bare", async ({
+    page,
+  }) => {
+    await openMenu(page, 1);
+    // A section that is not the current slide's, so nothing is filled yet.
+    const k = sections.findIndex(
+      (s) => s.head !== 1 && !s.children.includes(1),
+    );
+    expect(k, "a section the first slide is not in").toBeGreaterThanOrEqual(0);
+    const head = row(page, sections[k].head);
+    const chevron = chevrons(page).nth(k);
+    /** Every element from the chevron and the row up to the list item that
+     *  draws a fill, and the chevron's and the row's own fills. */
+    const fills = () =>
+      chevron.evaluate((chevron) => {
+        const item = chevron.closest("li")!;
+        const rowButton = item.querySelector("button:not([aria-expanded])")!;
+        const filled = (el: Element) =>
+          !/rgba\(.*,\s*0\)$|transparent/.test(
+            getComputedStyle(el).backgroundColor,
+          );
+        const boxOf = (el: Element) => {
+          const r = el.getBoundingClientRect();
+          return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+        };
+        const drawn: {
+          left: number;
+          right: number;
+          top: number;
+          bottom: number;
+        }[] = [];
+        const seen = new Set<Element>();
+        for (const start of [chevron, rowButton])
+          for (
+            let el: Element | null = start;
+            el && el !== item;
+            el = el.parentElement
+          )
+            if (!seen.has(el)) {
+              seen.add(el);
+              if (filled(el)) drawn.push(boxOf(el));
+            }
+        return {
+          drawn,
+          chevron: boxOf(chevron),
+          row: boxOf(rowButton),
+          chevronFilled: filled(chevron),
+          rowFilled: filled(rowButton),
+          hover: getComputedStyle(document.documentElement)
+            .getPropertyValue("--color-background-hover")
+            .trim(),
+          colors: [chevron, rowButton].map(
+            (el) => getComputedStyle(el).backgroundColor,
+          ),
+        };
+      });
+    const settle = () =>
+      page.evaluate(
+        () =>
+          new Promise((r) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => r(null))),
+          ),
+      );
+
+    // At rest: nothing filled.
+    await page.mouse.move(0, 0);
+    await settle();
+    expect((await fills()).drawn, "at rest").toEqual([]);
+
+    for (const [what, target] of [
+      ["the chevron", chevron],
+      ["the row", head],
+    ] as const) {
+      await target.hover();
+      await settle();
+      const it = await fills();
+      expect(it.chevronFilled, `${what} hovered: the chevron has no fill`).toBe(
+        false,
+      );
+      expect(
+        it.rowFilled,
+        `${what} hovered: the row has no fill of its own`,
+      ).toBe(false);
+      expect(it.drawn, `${what} hovered: one fill`).toHaveLength(1);
+      const [fill] = it.drawn;
+      expect(
+        fill.left,
+        `${what} hovered: from the row's left`,
+      ).toBeLessThanOrEqual(it.row.left + 0.5);
+      expect(
+        fill.right,
+        `${what} hovered: to the chevron's right`,
+      ).toBeGreaterThanOrEqual(it.chevron.right - 0.5);
+    }
+
+    // Focus from the keyboard: a visible ring, still no fill of its own.
+    await page.mouse.move(0, 0);
+    await chevron.focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    await expect(chevron).toBeFocused();
+    await settle();
+    const focus = await chevron.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return {
+        visible: el.matches(":focus-visible"),
+        ring:
+          (s.boxShadow !== "none" && s.boxShadow !== "") ||
+          (s.outlineStyle !== "none" && parseFloat(s.outlineWidth) > 0),
+        filled: !/rgba\(.*,\s*0\)$|transparent/.test(s.backgroundColor),
+      };
+    });
+    expect(focus).toEqual({ visible: true, ring: true, filled: false });
+  });
+
   test("reduced motion: a section opens and closes at once", async ({
     page,
   }) => {
