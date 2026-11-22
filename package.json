@@ -27,7 +27,8 @@
     "check:ports": "node scripts/check-ports.mjs",
     "scan:public": "node scripts/scan-public.mjs",
     "presets:doc": "node scripts/presets-doc.mjs",
-    "gate": "node scripts/gate.mjs"
+    "gate": "node scripts/gate.mjs",
+    "check:deck": "node scripts/check-deck.mjs"
   },
   "dependencies": {
     "@phosphor-icons/react": "2.1.10",
