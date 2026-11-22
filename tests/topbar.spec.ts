@@ -389,12 +389,76 @@ test.describe("where the top overlay shows", () => {
       await expect(page.locator(`${top} ${part}`), part).toHaveCount(0);
   });
 
+  // Owner, after reviewing the merged build: "align to slide text and create
+  // padding / margins".
+  test("the logo lines up with the slide text, with a margin above it", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    for (const size of [
+      { width: 1440, height: 900 },
+      { width: 1280, height: 720 },
+      { width: 1024, height: 768 },
+      { width: 1920, height: 1080 },
+      { width: 600, height: 900 },
+    ]) {
+      await page.setViewportSize(size);
+      await openDeck(page, "s=3");
+      const m = await page.evaluate((header) => {
+        const logo = document
+          .querySelector(header)!
+          .querySelector(".brand-logo")!
+          .getBoundingClientRect();
+        const brand = document
+          .querySelector(header)!
+          .querySelector(".brand")!
+          .getBoundingClientRect();
+        const slide = document.querySelector(
+          "main:not([aria-hidden]) [data-kind]",
+        )!;
+        const box = slide.getBoundingClientRect();
+        const style = getComputedStyle(slide);
+        // The slide's content box: where its text starts.
+        const left = box.left + parseFloat(style.paddingLeft);
+        const top = box.top + parseFloat(style.paddingTop);
+        const eyebrow = slide
+          .querySelector("h1, [data-variant='label-l']")!
+          .getBoundingClientRect();
+        return {
+          logo: { left: logo.left, top: logo.top },
+          brandBottom: brand.bottom,
+          contentLeft: left,
+          contentTop: top,
+          textLeft: eyebrow.left,
+        };
+      }, header);
+      const at = `${size.width}×${size.height}: ${JSON.stringify(m)}`;
+      expect(m.logo.left, `${at}: the logo's left edge`).toBeCloseTo(
+        m.contentLeft,
+        0,
+      );
+      expect(m.textLeft, `${at}: the slide text's left edge`).toBeCloseTo(
+        m.contentLeft,
+        0,
+      );
+      expect(
+        m.logo.top,
+        `${at}: a margin above the logo`,
+      ).toBeGreaterThanOrEqual(16);
+      expect(
+        m.brandBottom,
+        `${at}: the brand ends above the slide's content`,
+      ).toBeLessThanOrEqual(m.contentTop);
+    }
+  });
+
   test("no slide's text runs under the brand", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     for (const size of [
       { width: 1440, height: 900 },
       { width: 1280, height: 720 },
       { width: 1024, height: 768 },
+      { width: 600, height: 900 },
     ]) {
       await page.setViewportSize(size);
       await openDeck(page, "s=1");
@@ -680,6 +744,96 @@ test("the footer keeps its section, number and menu, with no wordmark and no div
   expect(lines, `${info.project.name}: divider lines`).toEqual([]);
 });
 
+// ----------------------------------------------- the footer's slide number ---
+
+// Owner, after reviewing the merged build: "Yes, in the footer": the slide
+// number can be pressed to type a slide number and jump, as the
+// questionnaire's step label could.
+test.describe("the footer's slide number jumps to a typed slide", () => {
+  const pad = (k: number) => String(k).padStart(2, "0");
+  const number = (page: Page) =>
+    page.locator("footer").getByRole("button", { name: /^Go to slide \d+$/ });
+  const field = (page: Page) =>
+    page.locator("footer").getByRole("textbox", { name: "Slide number" });
+
+  test("pressed, it takes a number; Enter goes there", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openDeck(page, "s=3");
+    await expect(number(page)).toHaveText(pad(3));
+    await expect(number(page)).toHaveAccessibleName("Go to slide 3");
+    await number(page).click();
+    await expect(field(page)).toBeFocused();
+    await expect(field(page)).toHaveValue("3");
+    const to = TOTAL - 2;
+    await field(page).fill(String(to));
+    await field(page).press("Enter");
+    await expectSlide(page, to);
+    await expect(field(page)).toHaveCount(0);
+    await expect(number(page)).toHaveText(pad(to));
+    await expect(
+      page.locator("footer").getByText(`${pad(to)} / ${pad(TOTAL)}`),
+    ).toBeVisible();
+  });
+
+  test("Escape cancels and gives the focus back; a number out of range is ignored", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openDeck(page, "s=4");
+    await number(page).click();
+    await field(page).fill("2");
+    await field(page).press("Escape");
+    await expect(field(page)).toHaveCount(0);
+    await expect(number(page)).toBeFocused();
+    await expect.poll(() => slideParam(page)).toBe("4");
+    for (const typed of ["0", "99"]) {
+      await number(page).click();
+      await field(page).fill(typed);
+      await field(page).press("Enter");
+      await expect(field(page)).toHaveCount(0);
+      await expect.poll(() => slideParam(page)).toBe("4");
+      await expect(number(page)).toHaveText(pad(4));
+    }
+    // Letters never get in.
+    await number(page).click();
+    await field(page).pressSequentially("a5");
+    await expect(field(page)).toHaveValue("5");
+    await field(page).press("Enter");
+    await expectSlide(page, 5);
+  });
+
+  test("from the keyboard: a stop with a visible focus ring; Enter opens it", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openDeck(page, "s=2");
+    await number(page).focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    await expect(number(page)).toBeFocused();
+    const ring = async (selector: "button" | "input") =>
+      page.locator(`footer ${selector}:focus`).evaluate((el) => {
+        const s = getComputedStyle(el);
+        return {
+          visible: el.matches(":focus-visible"),
+          drawn:
+            (s.boxShadow !== "none" && s.boxShadow !== "") ||
+            (s.outlineStyle !== "none" && parseFloat(s.outlineWidth) > 0),
+        };
+      });
+    expect(await ring("button")).toEqual({ visible: true, drawn: true });
+    await page.keyboard.press("Enter");
+    await expect(field(page)).toBeFocused();
+    expect(await ring("input")).toEqual({ visible: true, drawn: true });
+    // Typing in it never steps the deck.
+    await page.keyboard.press("ArrowRight");
+    await expect.poll(() => slideParam(page)).toBe("2");
+    await page.keyboard.type("6");
+    await page.keyboard.press("Enter");
+    await expectSlide(page, 6);
+  });
+});
+
 // ------------------------------------------------------------ brand slot ---
 
 test("the brand slot shows the Averlo logo (default brand, FR-005)", async ({
@@ -808,17 +962,17 @@ const parts = [
   { deck: deckNav.inline, ref: refNav.inline, drop: [], empty: [] },
 ];
 
-/** The header band's boxes compared between the deck and the reference, and
- *  which sides: the parts whose size follows their text keep only their
- *  position. */
+/** The header band's boxes compared between the deck and the reference:
+ *  the brand's parts keep the reference's sizes. Their positions are the
+ *  deck's own: the brand lines up with the slide text, with margins of its
+ *  own (owner, after reviewing the merged build: "align to slide text and
+ *  create padding / margins"), so the band's position and size, and the
+ *  pixel comparison, are no longer the reference's. */
 const boxes: [string, ("x" | "y" | "width" | "height")[]][] = [
-  [header, ["x", "y", "width", "height"]],
-  [`${header} .header-surface`, ["x", "y", "width", "height"]],
-  [`${header} .top-inner`, ["x", "y", "width", "height"]],
-  [`${header} .brand`, ["x", "y", "height"]],
-  [`${header} .brand-logo`, ["x", "y", "width", "height"]],
-  [`${header} .brand-divider`, ["x", "y", "width", "height"]],
-  [`${header} .brand-sub`, ["x", "y", "height"]],
+  [`${header} .brand`, ["height"]],
+  [`${header} .brand-logo`, ["width", "height"]],
+  [`${header} .brand-divider`, ["width", "height"]],
+  [`${header} .brand-sub`, ["height"]],
 ];
 
 const wrapperVariables = [
@@ -960,7 +1114,7 @@ test.describe("parity with the questionnaire's own top", () => {
     await ref.context().close();
   });
 
-  test("boxes: every part of the header band sits and sizes as in the reference", async ({
+  test("boxes: the brand's parts size as in the reference", async ({
     page,
     browser,
   }, info) => {
