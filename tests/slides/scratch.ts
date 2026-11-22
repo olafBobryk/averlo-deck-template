@@ -1,7 +1,7 @@
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 // A scratch deck (feature 003): a slide folder of its own under
@@ -46,10 +46,61 @@ const portFree = (port: number) =>
     probe.listen(port, "127.0.0.1", () => probe.close(() => resolve()));
   });
 
+const turnLock = join(root, "tests", "slides", ".scratch", ".dev-turn");
+
+const alive = (pid: number) => {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/** Next runs one dev server per folder: a second `next dev` exits at once.
+ *  So the specs that start one (files, presets) take turns, through a lock
+ *  of their own that holds the worker's pid. Waits for the turn, and
+ *  resolves its release. A lock whose worker is gone is taken over. */
+async function takeTurn(timeoutMs = 540_000) {
+  mkdirSync(dirname(turnLock), { recursive: true });
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    try {
+      mkdirSync(turnLock);
+      writeFileSync(join(turnLock, "pid"), String(process.pid));
+      let held = true;
+      return () => {
+        if (held) rmSync(turnLock, { recursive: true, force: true });
+        held = false;
+      };
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+    }
+    let holder = 0;
+    try {
+      holder = Number(readFileSync(join(turnLock, "pid"), "utf8"));
+    } catch {}
+    if (holder && !alive(holder)) {
+      rmSync(turnLock, { recursive: true, force: true });
+      continue;
+    }
+    if (Date.now() > deadline)
+      throw new Error("another scratch deck's dev server kept its turn");
+    await new Promise((r) => setTimeout(r, 1000));
+  }
+}
+
 /** A dev server running the deck of slide folder `dir` on `port`, with
- *  `paths` compiled before it resolves. `stop` ends its process group. */
+ *  `paths` compiled before it resolves. `stop` ends its process group; the
+ *  next spec's dev server starts once this one has exited. */
 export async function devDeck(dir: string, port: number, paths: string[]) {
-  await portFree(port);
+  const release = await takeTurn();
+  try {
+    await portFree(port);
+  } catch (error) {
+    release();
+    throw error;
+  }
   const origin = `http://127.0.0.1:${port}`;
   const server: ChildProcess = spawn(
     "npx",
@@ -61,6 +112,8 @@ export async function devDeck(dir: string, port: number, paths: string[]) {
       stdio: "ignore",
     },
   );
+  server.on("exit", release);
+  server.on("error", release);
   const stop = () => {
     if (!server.pid) return;
     try {

@@ -73,7 +73,8 @@ test.describe("every preset file, copied into a deck", { tag: "@deck" }, () => {
       info.project.name !== "desktop",
       "one dev server per folder: the desktop project sets both widths",
     );
-    test.setTimeout(300_000);
+    // Up to 9 minutes waiting for the other dev server spec's turn.
+    test.setTimeout(840_000);
     dir = scratchDeck(
       "presets",
       Object.fromEntries(copies.map((copy) => [copy.name, copy.source])),
