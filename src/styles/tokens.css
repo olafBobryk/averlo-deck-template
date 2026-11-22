@@ -33,10 +33,20 @@
   /* Colour: borders and focus */
   --deck-border-subtle: var(--color-border);
   --deck-border-glass-top: var(--color-border);
+  /* Solid, mixed into the page's colour rather than laid over it, so lines
+     that meet or overlap never add up (owner: "should use solid color mixes
+     to avoid this"). */
+  /* The header's divider: the border's weight, computed here so the
+     questionnaire's own --color-border (its light theme's) can't replace it. */
+  --deck-divider: color-mix(
+    in srgb,
+    var(--color-foreground) 15%,
+    var(--color-background)
+  );
   --deck-border-strong: color-mix(
     in srgb,
     var(--color-foreground) 35%,
-    transparent
+    var(--color-background)
   );
   --deck-border-focus: color-mix(
     in srgb,

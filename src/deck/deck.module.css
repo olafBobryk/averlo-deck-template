@@ -127,6 +127,15 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+/* The slide number in the style of the questionnaire's step label, moved
+   down from the header (owner: "the x/x step never received the styling i
+   asked to move down from the header"): small, regular, muted. */
+.count.count {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+}
 /* MenuCard's button and card. It stays when the footer leaves: the card
    it opens is the overview. Above the navigator, whose touch zone and mound
    reach up beside it; only its own contents (the button, the card) take
