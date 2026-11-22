@@ -13,6 +13,8 @@
     "src/boot/",
     "src/motion/",
     "src/brand/",
+    "src/components/deck/",
+    "src/slides/",
     "src/styles/",
     "src/_origin-temp/"
   ],

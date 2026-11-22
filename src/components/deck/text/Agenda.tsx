@@ -1,16 +1,22 @@
+"use client";
 // The agenda preset (feature 002, T131): two to eight topics in order, each
 // led by its number as the muted step label above its label (feature 001,
 // T050: "No circles, muted step labels"), with an optional line in Averlo
 // Text. Up to four run in one column; more fill two, read down each column
 // in turn.
+// A deck component (feature 003, T311): moved here from src/presets/ with
+// its markup unchanged; its words are plain strings.
 import deck from "@/deck/content.module.css";
 import { Text } from "@/deck/text";
-import type { PresetProps } from "..";
-import { say } from "../say";
-import styles from "./text.module.css";
+import type { Entry } from "../diagrams/parts";
+import { words } from "../words";
+import styles from "@/presets/text/text.module.css";
 
-export function AgendaPreset({ block, lang }: PresetProps<"agenda">) {
-  const n = block.items.length;
+/** Two to eight items. */
+export type AgendaProps = { items: Entry[] };
+
+export function Agenda(props: AgendaProps) {
+  const n = props.items.length;
   const columns = n > 4 ? 2 : 1;
   return (
     <ol
@@ -19,7 +25,7 @@ export function AgendaPreset({ block, lang }: PresetProps<"agenda">) {
       data-columns={columns}
       style={{ ["--rows" as string]: Math.ceil(n / columns) }}
     >
-      {block.items.map((item, i) => (
+      {props.items.map((item, i) => (
         <li key={i} className={styles.agendaItem} data-agenda-item="">
           <Text
             as="span"
@@ -38,7 +44,7 @@ export function AgendaPreset({ block, lang }: PresetProps<"agenda">) {
             className={styles.agendaLabel}
             data-agenda-label=""
           >
-            {say(item.label, lang)}
+            {words(item.label)}
           </Text>
           {item.text && (
             <Text
@@ -47,7 +53,7 @@ export function AgendaPreset({ block, lang }: PresetProps<"agenda">) {
               tone="secondary"
               className={styles.agendaText}
             >
-              {say(item.text, lang)}
+              {words(item.text)}
             </Text>
           )}
         </li>

@@ -1,3 +1,4 @@
+"use client";
 // The image placeholder (feature 002, T132), template-owned and neutral: an
 // Averlo Panel on the surface token with a picture glyph and the word
 // "Image" in the muted tone, shown wherever an image has no file yet. It is
@@ -5,7 +6,7 @@
 // its name, so a reader hears what the image will be.
 import { Panel } from "@/components/ui/primitives/Panel";
 import { Text } from "@/deck/text";
-import styles from "./images.module.css";
+import styles from "@/presets/images/images.module.css";
 
 export function ImagePlaceholder({
   alt,

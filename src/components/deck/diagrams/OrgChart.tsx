@@ -1,3 +1,4 @@
+"use client";
 // The org chart preset (feature 002, T122): a root over the nodes that
 // report to it, each over its own nodes, two levels below the root at most.
 // Every node is an Averlo Panel card with its label and an optional line.
@@ -9,24 +10,22 @@
 // listed down under it otherwise. Reporting lines carry no order, so they
 // have no arrows. On a phone the nodes split across while two fit; more,
 // and a node's own nodes, are listed down, each below its parent.
-import type { Lang } from "@/deck/langs";
-import type { Point } from "@/deck/content";
+// A deck component (feature 003, T311): moved here from src/presets/ with
+// its markup unchanged; its words are plain strings.
 import deck from "@/deck/content.module.css";
 import { phoneSplit, splitItem, splitList, type SplitMode } from "@/deck/split";
 import { Text } from "@/deck/text";
-import type { PresetProps } from "..";
-import { say } from "../say";
+import type { PointItem } from "../parts";
+import { words } from "../words";
 import { Card } from "./parts";
-import styles from "./diagrams.module.css";
+import styles from "@/presets/diagrams/diagrams.module.css";
 
 function Node({
   point,
-  lang,
   className,
   ...data
 }: {
-  point: Point;
-  lang: Lang;
+  point: PointItem;
   className: string;
   [data: `data-${string}`]: string;
 }) {
@@ -39,11 +38,11 @@ function Node({
         className={styles.label}
         data-org-label=""
       >
-        {say(point.label, lang)}
+        {words(point.label)}
       </Text>
       {point.text && (
         <Text as="p" variant="body-m" tone="secondary" className={styles.text}>
-          {say(point.text, lang)}
+          {words(point.text)}
         </Text>
       )}
     </Card>
@@ -55,20 +54,21 @@ function Node({
  *  any of them has); wider, they are listed down under it. */
 const ACROSS = 6;
 
-export function OrgChartPreset({ block, lang }: PresetProps<"orgchart">) {
-  const n = block.children.length;
-  const most = Math.max(...block.children.map((c) => c.children?.length ?? 0));
+/** A root, its nodes, and theirs: two levels below the root at most. */
+export type OrgChartProps = {
+  root: PointItem;
+  children: { node: PointItem; children?: PointItem[] }[];
+};
+
+export function OrgChart(props: OrgChartProps) {
+  const n = props.children.length;
+  const most = Math.max(...props.children.map((c) => c.children?.length ?? 0));
   const leaves: SplitMode = n * most <= ACROSS ? "across" : "down";
   return (
     <div className={styles.org} data-diagram="orgchart">
-      <Node
-        point={block.root}
-        lang={lang}
-        className={styles.orgRoot}
-        data-org-root=""
-      />
+      <Node point={props.root} className={styles.orgRoot} data-org-root="" />
       <ul className={deck.split} {...splitList(n, "across", phoneSplit(n))}>
-        {block.children.map((child, i) => (
+        {props.children.map((child, i) => (
           <li
             key={i}
             className={`${deck.splitItem} ${styles.branch}`}
@@ -77,7 +77,6 @@ export function OrgChartPreset({ block, lang }: PresetProps<"orgchart">) {
           >
             <Node
               point={child.node}
-              lang={lang}
               className={styles.orgNode}
               data-org-node=""
             />
@@ -93,7 +92,7 @@ export function OrgChartPreset({ block, lang }: PresetProps<"orgchart">) {
                     data-org-leaf=""
                     {...splitItem(j, child.children!.length)}
                   >
-                    <Node point={leaf} lang={lang} className={styles.orgLeaf} />
+                    <Node point={leaf} className={styles.orgLeaf} />
                   </li>
                 ))}
               </ul>

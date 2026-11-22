@@ -1,17 +1,22 @@
+"use client";
 // The timeline preset (feature 002, T121): two to eight events in date
 // order on one Averlo Panel card, like the deck's plan. Each event is led
 // by its date in the muted step label, then its dot on the axis, its label
 // and an optional line. The axis, in the border token, runs through every
 // dot and ends in an arrow, pointing on in time. The events run across a
 // slide; on a phone they run down, the axis down their left.
+// A deck component (feature 003, T311): moved here from src/presets/ with
+// its markup unchanged; its words are plain strings.
 import { Text } from "@/deck/text";
-import type { PresetProps } from "..";
-import { say } from "../say";
-import { ArrowHead, Card, StepLabel } from "./parts";
-import styles from "./diagrams.module.css";
+import { words } from "../words";
+import { ArrowHead, Card, StepLabel, type Entry } from "./parts";
+import styles from "@/presets/diagrams/diagrams.module.css";
 
-export function TimelinePreset({ block, lang }: PresetProps<"timeline">) {
-  const n = block.events.length;
+/** Two to eight events, in date order. */
+export type TimelineProps = { events: (Entry & { when: string })[] };
+
+export function Timeline(props: TimelineProps) {
+  const n = props.events.length;
   return (
     <Card className={styles.timeline} data-diagram="timeline">
       <ol
@@ -19,9 +24,9 @@ export function TimelinePreset({ block, lang }: PresetProps<"timeline">) {
         data-count={n}
         style={{ ["--n" as string]: n }}
       >
-        {block.events.map((event, i) => (
+        {props.events.map((event, i) => (
           <li key={i} className={styles.event} data-timeline-event="">
-            <StepLabel>{say(event.when, lang)}</StepLabel>
+            <StepLabel>{words(event.when)}</StepLabel>
             <span className={styles.track} aria-hidden="true">
               <span
                 className={styles.trackLine}
@@ -38,7 +43,7 @@ export function TimelinePreset({ block, lang }: PresetProps<"timeline">) {
               className={styles.label}
               data-timeline-label=""
             >
-              {say(event.label, lang)}
+              {words(event.label)}
             </Text>
             {event.text && (
               <Text
@@ -48,7 +53,7 @@ export function TimelinePreset({ block, lang }: PresetProps<"timeline">) {
                 className={styles.text}
                 data-timeline-text=""
               >
-                {say(event.text, lang)}
+                {words(event.text)}
               </Text>
             )}
           </li>

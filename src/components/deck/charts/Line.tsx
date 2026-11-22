@@ -12,7 +12,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { PresetProps } from "..";
 import {
   BORDER,
   CANVAS,
@@ -27,19 +26,21 @@ import {
   unitRoom,
   useBox,
   type Box,
+  type ChartData,
 } from "./frame";
-import { say } from "../say";
-import styles from "./charts.module.css";
+import { words } from "../words";
+import styles from "@/presets/charts/charts.module.css";
 
-export function LinePreset({ block, lang }: PresetProps<"chart">) {
+export function LineView(props: ChartData) {
+  const { lang } = props;
   const [ref, box] = useBox();
-  const labels = block.categories.map((c) => say(c, lang));
-  const n = block.series.length;
-  const colours = block.series.map((_, i) => seriesColour(i, n));
-  const unit = block.unit ? say(block.unit, lang) : undefined;
+  const labels = props.categories.map((c) => words(c));
+  const n = props.series.length;
+  const colours = props.series.map((_, i) => seriesColour(i, n));
+  const unit = props.unit ? words(props.unit) : undefined;
   const rows = labels.map((_, j) => ({
     i: j,
-    ...Object.fromEntries(block.series.map((s, k) => [`s${k}`, s.values[j]])),
+    ...Object.fromEntries(props.series.map((s, k) => [`s${k}`, s.values[j]])),
   }));
 
   function plot(b: Box) {
@@ -91,7 +92,7 @@ export function LinePreset({ block, lang }: PresetProps<"chart">) {
           tickFormatter={(v: number) => formatNumber(v, lang)}
           label={unitLabel(unit, b)}
         />
-        {block.series.map((_, k) => (
+        {props.series.map((_, k) => (
           <Line
             key={k}
             dataKey={`s${k}`}
@@ -120,12 +121,11 @@ export function LinePreset({ block, lang }: PresetProps<"chart">) {
   return (
     <ChartFrame
       kind="line"
-      source={block.source}
-      legend={block.series.map((s, i) => ({
+      source={props.source}
+      legend={props.series.map((s, i) => ({
         name: s.name,
         colour: colours[i],
       }))}
-      lang={lang}
       plot={
         <div ref={ref} className={styles.plot}>
           {box && plot(box)}

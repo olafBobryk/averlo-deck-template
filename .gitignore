@@ -28,3 +28,7 @@ public/pdf/
 .claude/worktrees/
 .claude/launch.json
 .claude/settings.local.json
+
+# Machine-local parity baselines (feature 003, T310): this machine and the
+# placeholder deck only; a copy lives in .local/baselines/.
+tests/slides/components.spec.ts-snapshots/

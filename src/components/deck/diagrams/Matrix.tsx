@@ -1,3 +1,4 @@
+"use client";
 // The 2×2 matrix preset (feature 002, T122): two axes, labelled with `x`
 // and `y`, each a line in the border token ending in an arrow from low to
 // high; four quadrant Averlo Panel cards, each with its Point's label and
@@ -6,19 +7,30 @@
 // The quadrants are given in reading order: top left (low x, high y), top
 // right (high x, high y), bottom left (low x, low y), bottom right (high x,
 // low y).
+// A deck component (feature 003, T311): moved here from src/presets/ with
+// its markup unchanged; its words are plain strings.
 import { Panel } from "@/components/ui/primitives/Panel";
 import { Text } from "@/deck/text";
-import type { PresetProps } from "..";
-import { say } from "../say";
+import type { PointItem } from "../parts";
+import { words } from "../words";
 import { ArrowHead, Card } from "./parts";
-import styles from "./diagrams.module.css";
+import styles from "@/presets/diagrams/diagrams.module.css";
 
 /** Which side of its dot an item's label sits on, kept inside the plot. */
 const side = (x: number) => (x > 0.5 ? "start" : "end");
 const level = (y: number) => (y > 0.8 ? "top" : y < 0.2 ? "bottom" : "middle");
 
-export function MatrixPreset({ block, lang }: PresetProps<"matrix">) {
-  const items = block.items ?? [];
+/** Two axes, four quadrants (top left, top right, bottom left, bottom
+ *  right), and items placed at x and y from 0 to 1. */
+export type MatrixProps = {
+  x: string;
+  y: string;
+  quadrants: [PointItem, PointItem, PointItem, PointItem];
+  items?: { label: string; x: number; y: number }[];
+};
+
+export function Matrix(props: MatrixProps) {
+  const items = props.items ?? [];
   return (
     <figure className={styles.matrix} data-diagram="matrix">
       <div className={styles.yAxis}>
@@ -29,7 +41,7 @@ export function MatrixPreset({ block, lang }: PresetProps<"matrix">) {
           className={styles.axisLabel}
           data-matrix-axis="y"
         >
-          {say(block.y, lang)}
+          {words(props.y)}
         </Text>
         <span className={styles.yLine} aria-hidden="true" data-connector="">
           <ArrowHead up className={styles.axisHead} />
@@ -38,7 +50,7 @@ export function MatrixPreset({ block, lang }: PresetProps<"matrix">) {
       </div>
       <div className={styles.plot} data-matrix-plot="">
         <ul className={styles.quadrants}>
-          {block.quadrants.map((quadrant, i) => (
+          {props.quadrants.map((quadrant, i) => (
             <Card
               as="li"
               key={i}
@@ -52,7 +64,7 @@ export function MatrixPreset({ block, lang }: PresetProps<"matrix">) {
                 className={styles.label}
                 data-matrix-label=""
               >
-                {say(quadrant.label, lang)}
+                {words(quadrant.label)}
               </Text>
               {quadrant.text && (
                 <Text
@@ -61,7 +73,7 @@ export function MatrixPreset({ block, lang }: PresetProps<"matrix">) {
                   tone="secondary"
                   className={styles.text}
                 >
-                  {say(quadrant.text, lang)}
+                  {words(quadrant.text)}
                 </Text>
               )}
             </Card>
@@ -96,7 +108,7 @@ export function MatrixPreset({ block, lang }: PresetProps<"matrix">) {
                     className={styles.chipText}
                     data-matrix-item-label=""
                   >
-                    {say(item.label, lang)}
+                    {words(item.label)}
                   </Text>
                 </Panel>
               </li>
@@ -116,7 +128,7 @@ export function MatrixPreset({ block, lang }: PresetProps<"matrix">) {
           className={styles.axisLabel}
           data-matrix-axis="x"
         >
-          {say(block.x, lang)}
+          {words(props.x)}
         </Text>
       </div>
     </figure>

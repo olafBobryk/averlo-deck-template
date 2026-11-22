@@ -1,12 +1,16 @@
+"use client";
 // The quote preset (feature 002, T131): a quotation, word for word, large
 // in Averlo Text under an accent quotation mark, with who said it and their
 // role, when given, muted under it.
+// A deck component (feature 003, T311): moved here from src/presets/ with
+// its markup unchanged; its words are plain strings.
 import { Text } from "@/deck/text";
-import type { PresetProps } from "..";
-import { say } from "../say";
-import styles from "./text.module.css";
+import { words } from "../words";
+import styles from "@/presets/text/text.module.css";
 
-export function QuotePreset({ block, lang }: PresetProps<"quote">) {
+export type QuoteProps = { text: string; by?: string; role?: string };
+
+export function Quote(props: QuoteProps) {
   return (
     <figure className={styles.quote} data-quote="">
       <span className={styles.mark} aria-hidden="true">
@@ -18,11 +22,11 @@ export function QuotePreset({ block, lang }: PresetProps<"quote">) {
         tone="primary"
         className={styles.quoteText}
       >
-        {say(block.text, lang)}
+        {words(props.text)}
       </Text>
-      {(block.by || block.role) && (
+      {(props.by || props.role) && (
         <figcaption className={styles.by}>
-          {block.by && (
+          {props.by && (
             <Text
               as="span"
               variant="title-l"
@@ -30,10 +34,10 @@ export function QuotePreset({ block, lang }: PresetProps<"quote">) {
               className={styles.byName}
               data-quote-by=""
             >
-              {say(block.by, lang)}
+              {words(props.by)}
             </Text>
           )}
-          {block.role && (
+          {props.role && (
             <Text
               as="span"
               variant="body-m"
@@ -41,7 +45,7 @@ export function QuotePreset({ block, lang }: PresetProps<"quote">) {
               className={styles.byRole}
               data-quote-role=""
             >
-              {say(block.role, lang)}
+              {words(props.role)}
             </Text>
           )}
         </figcaption>

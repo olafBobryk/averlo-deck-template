@@ -6,7 +6,6 @@
 // tooltip and no interactive legend; no animation, so the slide's own
 // entrance is the only motion and print and the strips stay still.
 import { Pie, PieChart, Sector } from "recharts";
-import type { PresetProps } from "..";
 import {
   CANVAS,
   ChartFrame,
@@ -15,18 +14,20 @@ import {
   seriesColour,
   useBox,
   type Box,
+  type ChartData,
 } from "./frame";
-import { say } from "../say";
+import { words } from "../words";
 import { Text } from "@/deck/text";
-import styles from "./charts.module.css";
+import styles from "@/presets/charts/charts.module.css";
 
-export function DonutPreset({ block, lang }: PresetProps<"chart">) {
+export function DonutView(props: ChartData) {
+  const { lang } = props;
   const [ref, box] = useBox();
-  const labels = block.categories.map((c) => say(c, lang));
-  const values = block.series[0].values;
+  const labels = props.categories.map((c) => words(c));
+  const values = props.series[0].values;
   const colours = labels.map((_, j) => seriesColour(j, labels.length));
   const rows = labels.map((_, j) => ({ i: j, value: values[j] }));
-  const unit = block.unit ? say(block.unit, lang) : undefined;
+  const unit = props.unit ? words(props.unit) : undefined;
 
   function plot(b: Box) {
     const size = Math.min(b.width, b.height);
@@ -71,8 +72,7 @@ export function DonutPreset({ block, lang }: PresetProps<"chart">) {
   return (
     <ChartFrame
       kind="donut"
-      source={block.source}
-      lang={lang}
+      source={props.source}
       plot={
         <div className={styles.donut}>
           <div ref={ref} className={styles.plot}>

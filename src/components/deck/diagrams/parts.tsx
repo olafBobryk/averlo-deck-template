@@ -1,3 +1,4 @@
+"use client";
 // The diagram presets' shared parts (feature 002, T121, T122),
 // template-owned: a card (the Averlo Panel, as the deck's facts, plan and
 // week cards are), the step label (the navigator's muted step label, the
@@ -9,7 +10,10 @@ import { Icon } from "@/components/ui/icons/Icon";
 import { Panel } from "@/components/ui/primitives/Panel";
 import deck from "@/deck/content.module.css";
 import { Text } from "@/deck/text";
-import styles from "./diagrams.module.css";
+import styles from "@/presets/diagrams/diagrams.module.css";
+
+/** A step, event, stage or item: its label and an optional line. */
+export type Entry = { label: string; text?: string };
 
 /** A diagram's card: the Averlo Panel on the surface, padded by the
  *  diagram's CSS. */

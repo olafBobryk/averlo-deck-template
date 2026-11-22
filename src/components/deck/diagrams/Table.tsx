@@ -1,27 +1,36 @@
+"use client";
 // The comparison table preset (feature 002, T122): options against
 // criteria, at most 5 columns and 8 rows, on one Averlo Panel card. The
 // header row names the columns in the muted label; each row leads with its
 // label, then one cell per column, in the given order, between hairlines in
 // the border token. On a phone each row stacks: its label, then each cell
 // under its column's name.
+// A deck component (feature 003, T311): moved here from src/presets/ with
+// its markup unchanged; its words are plain strings.
 import { Text } from "@/deck/text";
-import type { PresetProps } from "..";
-import { say } from "../say";
+import { words } from "../words";
 import { Card } from "./parts";
-import styles from "./diagrams.module.css";
+import styles from "@/presets/diagrams/diagrams.module.css";
 
-export function CompareTablePreset({ block, lang }: PresetProps<"table">) {
+/** At most 5 columns and 8 rows, each row a label and one cell per
+ *  column. */
+export type TableProps = {
+  columns: string[];
+  rows: { label: string; cells: string[] }[];
+};
+
+export function Table(props: TableProps) {
   return (
     <Card className={styles.tableCard} data-diagram="table">
       <table
         className={styles.table}
-        data-columns={block.columns.length}
-        style={{ ["--columns" as string]: block.columns.length }}
+        data-columns={props.columns.length}
+        style={{ ["--columns" as string]: props.columns.length }}
       >
         <thead>
           <tr>
             <td className={styles.corner} />
-            {block.columns.map((column, i) => (
+            {props.columns.map((column, i) => (
               <Text
                 as="th"
                 key={i}
@@ -31,13 +40,13 @@ export function CompareTablePreset({ block, lang }: PresetProps<"table">) {
                 className={styles.head}
                 data-table-column=""
               >
-                {say(column, lang)}
+                {words(column)}
               </Text>
             ))}
           </tr>
         </thead>
         <tbody>
-          {block.rows.map((row, r) => (
+          {props.rows.map((row, r) => (
             <tr key={r} className={styles.row} data-table-row="">
               <Text
                 as="th"
@@ -47,7 +56,7 @@ export function CompareTablePreset({ block, lang }: PresetProps<"table">) {
                 className={styles.rowLabel}
                 data-table-label=""
               >
-                {say(row.label, lang)}
+                {words(row.label)}
               </Text>
               {row.cells.map((cell, i) => (
                 <td key={i} className={styles.cell} data-column={i}>
@@ -59,7 +68,7 @@ export function CompareTablePreset({ block, lang }: PresetProps<"table">) {
                     className={styles.cellColumn}
                     aria-hidden="true"
                   >
-                    {say(block.columns[i], lang)}
+                    {words(props.columns[i])}
                   </Text>
                   <Text
                     as="span"
@@ -68,7 +77,7 @@ export function CompareTablePreset({ block, lang }: PresetProps<"table">) {
                     className={styles.cellText}
                     data-table-cell=""
                   >
-                    {say(cell, lang)}
+                    {words(cell)}
                   </Text>
                 </td>
               ))}

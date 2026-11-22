@@ -31,8 +31,8 @@ These are the same as feature 002's rules:
 
 ## Phase J1: Components (branch `j1-components`, base `j0-files`)
 
-- [ ] T310 Tests first: every component renders like its former block (a DOM and screenshot comparison per block against the J0 build), at 390 and 1440.
-- [ ] T311 Move each block's renderer into a named component in `src/components/deck/`: Points, Steps (`rail`, `across`), Facts, Org, Fork, Week, Plan, Lead, Note, Chart, Stat, Flow, Timeline, Cycle, OrgChart, Table, Matrix, Quote, Agenda, Compare, Image and ImageGrid. Each has typed props and the same markup and CSS. The block switch delegates to them.
+- [x] T310 Tests first: every component renders like its former block (a DOM and screenshot comparison per block against the J0 build), at 390 and 1440.
+- [x] T311 Move each block's renderer into a named component in `src/components/deck/`: Points, Steps (`rail`, `across`), Facts, Org, Fork, Week, Plan, Lead, Note, Chart, Stat, Flow, Timeline, Cycle, OrgChart, Table, Matrix, Quote, Agenda, Compare, Image and ImageGrid. Each has typed props and the same markup and CSS. The block switch delegates to them.
 - **Gate J1:** `npm run gate`.
 
 ## Phase J2: The placeholder deck as files (branch `j2-deck`, base `j1-components`)

@@ -1,15 +1,20 @@
+"use client";
 // The flow preset (feature 002, T121): two to seven steps in order, each an
 // Averlo Panel card led by its number in the muted step label, with its
 // label and an optional line, and an arrow in the border token to the next
 // step. The steps run across a slide; on a phone they run down.
+// A deck component (feature 003, T311): moved here from src/presets/ with
+// its markup unchanged; its words are plain strings.
 import { Text } from "@/deck/text";
-import type { PresetProps } from "..";
-import { say } from "../say";
-import { Arrow, Card, StepLabel, number } from "./parts";
-import styles from "./diagrams.module.css";
+import { words } from "../words";
+import { Arrow, Card, StepLabel, number, type Entry } from "./parts";
+import styles from "@/presets/diagrams/diagrams.module.css";
 
-export function FlowPreset({ block, lang }: PresetProps<"flow">) {
-  const n = block.steps.length;
+/** Two to seven steps, in order. */
+export type FlowProps = { steps: Entry[] };
+
+export function Flow(props: FlowProps) {
+  const n = props.steps.length;
   return (
     <ol
       className={styles.flow}
@@ -17,7 +22,7 @@ export function FlowPreset({ block, lang }: PresetProps<"flow">) {
       data-count={n}
       style={{ ["--n" as string]: n }}
     >
-      {block.steps.map((step, i) => (
+      {props.steps.map((step, i) => (
         <li key={i} className={styles.flowStep} data-flow-step="">
           <Card className={styles.flowCard}>
             <StepLabel>{number(i)}</StepLabel>
@@ -28,7 +33,7 @@ export function FlowPreset({ block, lang }: PresetProps<"flow">) {
               className={styles.label}
               data-flow-label=""
             >
-              {say(step.label, lang)}
+              {words(step.label)}
             </Text>
             {step.text && (
               <Text
@@ -38,7 +43,7 @@ export function FlowPreset({ block, lang }: PresetProps<"flow">) {
                 className={styles.text}
                 data-flow-text=""
               >
-                {say(step.text, lang)}
+                {words(step.text)}
               </Text>
             )}
           </Card>

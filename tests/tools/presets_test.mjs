@@ -213,21 +213,28 @@ describe("the registry", () => {
 
 describe("the chart presets' colours", () => {
   // Colours come only from CSS variables (the Averlo tokens), never from a
-  // literal: no hex, rgb() or hsl() in src/presets/charts/.
-  const dir = new URL("../../src/presets/charts/", import.meta.url);
+  // literal: no hex, rgb() or hsl() in the charts' components
+  // (src/components/deck/charts/, feature 003) or their styles
+  // (src/presets/charts/).
+  const dir = new URL("../../src/components/deck/charts/", import.meta.url);
+  const styles = new URL("../../src/presets/charts/", import.meta.url);
   const literal = /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(/i;
 
   test("the charts folder holds Bar, Line, Donut and Stat", () => {
     const files = existsSync(dir) ? readdirSync(dir) : [];
     for (const name of ["Bar.tsx", "Line.tsx", "Donut.tsx", "Stat.tsx"])
-      assert.ok(files.includes(name), `src/presets/charts/${name}`);
+      assert.ok(files.includes(name), `src/components/deck/charts/${name}`);
   });
 
-  test("no colour literal appears in src/presets/charts/", () => {
-    const files = existsSync(dir) ? readdirSync(dir) : [];
-    assert.ok(files.length > 0, "src/presets/charts/ has files");
+  test("no colour literal appears in the charts' files", () => {
+    const files = [dir, styles].flatMap((folder) =>
+      existsSync(folder)
+        ? readdirSync(folder).map((name) => new URL(name, folder))
+        : [],
+    );
+    assert.ok(files.length > 0, "the charts have files");
     for (const name of files) {
-      const lines = readFileSync(new URL(name, dir), "utf8").split("\n");
+      const lines = readFileSync(name, "utf8").split("\n");
       lines.forEach((line, i) =>
         assert.ok(!literal.test(line), `${name}:${i + 1}: ${line.trim()}`),
       );
@@ -237,29 +244,36 @@ describe("the chart presets' colours", () => {
 
 describe("the diagram presets' files", () => {
   // Phase V2 (T120): the components T121 and T122 build, on the Averlo
-  // tokens only, like the charts: no colour literal in their folder.
-  const dir = new URL("../../src/presets/diagrams/", import.meta.url);
+  // tokens only, like the charts: no colour literal in their folders
+  // (src/components/deck/diagrams/ since feature 003, the styles in
+  // src/presets/diagrams/).
+  const dir = new URL("../../src/components/deck/diagrams/", import.meta.url);
+  const styles = new URL("../../src/presets/diagrams/", import.meta.url);
   const literal = /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(/i;
   const names = [
     "Flow.tsx",
     "Timeline.tsx",
     "Cycle.tsx",
     "OrgChart.tsx",
-    "CompareTable.tsx",
+    "Table.tsx",
     "Matrix.tsx",
   ];
 
-  test(`src/presets/diagrams/ holds ${names.join(", ")}`, () => {
+  test(`src/components/deck/diagrams/ holds ${names.join(", ")}`, () => {
     const files = existsSync(dir) ? readdirSync(dir) : [];
     for (const name of names)
-      assert.ok(files.includes(name), `src/presets/diagrams/${name}`);
+      assert.ok(files.includes(name), `src/components/deck/diagrams/${name}`);
   });
 
-  test("no colour literal appears in src/presets/diagrams/", () => {
-    const files = existsSync(dir) ? readdirSync(dir) : [];
-    assert.ok(files.length > 0, "src/presets/diagrams/ has files");
+  test("no colour literal appears in the diagrams' files", () => {
+    const files = [dir, styles].flatMap((folder) =>
+      existsSync(folder)
+        ? readdirSync(folder).map((name) => new URL(name, folder))
+        : [],
+    );
+    assert.ok(files.length > 0, "the diagrams have files");
     for (const name of files) {
-      const lines = readFileSync(new URL(name, dir), "utf8").split("\n");
+      const lines = readFileSync(name, "utf8").split("\n");
       lines.forEach((line, i) =>
         assert.ok(!literal.test(line), `${name}:${i + 1}: ${line.trim()}`),
       );
@@ -269,24 +283,35 @@ describe("the diagram presets' files", () => {
 
 describe("the text and image presets' files", () => {
   // Phase V3 (T130): the components T131 and T132 build, on the Averlo
-  // tokens only, like the charts: no colour literal in their folders.
+  // tokens only, like the charts: no colour literal in their folders
+  // (src/components/deck/<family>/ since feature 003, the styles in
+  // src/presets/<family>/).
   const literal = /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(/i;
   const folders = {
     text: ["Quote.tsx", "Agenda.tsx", "Compare.tsx"],
     images: ["Image.tsx", "ImageGrid.tsx", "ImagePlaceholder.tsx"],
   };
   for (const [folder, names] of Object.entries(folders)) {
-    const dir = new URL(`../../src/presets/${folder}/`, import.meta.url);
-    test(`src/presets/${folder}/ holds ${names.join(", ")}`, () => {
+    const dir = new URL(
+      `../../src/components/deck/${folder}/`,
+      import.meta.url,
+    );
+    const styles = new URL(`../../src/presets/${folder}/`, import.meta.url);
+    test(`src/components/deck/${folder}/ holds ${names.join(", ")}`, () => {
       const files = existsSync(dir) ? readdirSync(dir) : [];
       for (const name of names)
-        assert.ok(files.includes(name), `src/presets/${folder}/${name}`);
+        assert.ok(
+          files.includes(name),
+          `src/components/deck/${folder}/${name}`,
+        );
     });
-    test(`no colour literal appears in src/presets/${folder}/`, () => {
-      const files = existsSync(dir) ? readdirSync(dir) : [];
-      assert.ok(files.length > 0, `src/presets/${folder}/ has files`);
+    test(`no colour literal appears in the ${folder} presets' files`, () => {
+      const files = [dir, styles].flatMap((at) =>
+        existsSync(at) ? readdirSync(at).map((name) => new URL(name, at)) : [],
+      );
+      assert.ok(files.length > 0, `the ${folder} presets have files`);
       for (const name of files) {
-        const lines = readFileSync(new URL(name, dir), "utf8").split("\n");
+        const lines = readFileSync(name, "utf8").split("\n");
         lines.forEach((line, i) =>
           assert.ok(!literal.test(line), `${name}:${i + 1}: ${line.trim()}`),
         );

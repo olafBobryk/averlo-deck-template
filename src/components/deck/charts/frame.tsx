@@ -11,10 +11,20 @@
 // axis lines are the border token; text is Inter, inherited.
 import { useCallback, useState, type ReactNode, type RefCallback } from "react";
 import type { Lang } from "@/deck/langs";
-import type { Text as Words } from "@/deck/model";
 import { Text } from "@/deck/text";
-import { say } from "../say";
-import styles from "./charts.module.css";
+import { words } from "../words";
+import styles from "@/presets/charts/charts.module.css";
+
+/** A chart's data, its words in one language: what Bar, Line and Donut
+ *  draw (`Chart` picks one by its kind). Numbers are formatted in
+ *  `lang`. */
+export type ChartData = {
+  categories: string[];
+  series: { name: string; values: number[] }[];
+  unit?: string;
+  source?: string;
+  lang: Lang;
+};
 
 /** The first series' colour, then the muted scale. */
 export const ACCENT = "var(--color-accent)";
@@ -244,15 +254,13 @@ export function ChartFrame({
   kind,
   source,
   legend,
-  lang,
   children,
   plot,
 }: {
   kind: "bar" | "line" | "donut";
-  source?: Words;
+  source?: string;
   /** The series' names and colours; shown only for two or more. */
-  legend?: { name: Words; colour: string }[];
-  lang: Lang;
+  legend?: { name: string; colour: string }[];
   /** The plot box, measured: its ref and contents. */
   plot: ReactNode;
   children?: ReactNode;
@@ -266,7 +274,7 @@ export function ChartFrame({
             <li key={i} className={styles.legendItem}>
               <Swatch colour={item.colour} line={kind === "line"} />
               <Text as="span" variant="label-m" tone="secondary">
-                {say(item.name, lang)}
+                {words(item.name)}
               </Text>
             </li>
           ))}
@@ -282,7 +290,7 @@ export function ChartFrame({
           className={styles.source}
           data-source=""
         >
-          {say(source, lang)}
+          {words(source)}
         </Text>
       )}
     </figure>
