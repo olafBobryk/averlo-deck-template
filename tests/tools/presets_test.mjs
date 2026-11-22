@@ -106,6 +106,73 @@ describe("the registry", () => {
       );
     }
   });
+
+  // Phase V3 (T130): the text layouts and the image slides.
+  test("has the quote, agenda, compare, statement and image + text, in the text family", () => {
+    const one = (what, match) => {
+      const entries = registry.filter(match);
+      assert.equal(entries.length, 1, `one ${what} entry`);
+      assert.equal(entries[0].family, "text", what);
+      return entries[0];
+    };
+    for (const block of ["quote", "agenda", "compare"])
+      one(block, (entry) => entry.block === block);
+    // The statement: the carried `statement` layout with a `lead` block.
+    one(
+      "statement",
+      (entry) => entry.block === "lead" && entry.layout === "statement",
+    );
+    // Image + text: an `image` block in a `split` layout.
+    one(
+      "image + text",
+      (entry) => entry.block === "image" && entry.layout === "split",
+    );
+  });
+
+  test("has the full-bleed, captioned and grid images, in the images family", () => {
+    const images = registry.filter((entry) => entry.family === "images");
+    const bleed = images.filter(
+      (entry) => entry.block === "image" && entry.example.bleed === true,
+    );
+    assert.equal(bleed.length, 1, "one full-bleed image entry");
+    const captioned = images.filter(
+      (entry) =>
+        entry.block === "image" &&
+        !entry.example.bleed &&
+        entry.example.caption !== undefined,
+    );
+    assert.equal(captioned.length, 1, "one captioned image entry");
+    assert.equal(
+      images.filter((entry) => entry.block === "imageGrid").length,
+      1,
+      "one image grid entry",
+    );
+  });
+
+  test("a layout, when given, is one of the deck's slide layouts", () => {
+    const layouts = ["stack", "split", "split-end", "center", "statement"];
+    for (const entry of registry)
+      if (entry.layout !== undefined)
+        assert.ok(
+          layouts.includes(entry.layout),
+          `${entry.name}: ${entry.layout}`,
+        );
+  });
+
+  test("the gallery's images are placeholders: no image has a src", () => {
+    for (const entry of registry)
+      for (const which of ["example", "alternate"]) {
+        const block = entry[which];
+        const images =
+          block.type === "image"
+            ? [block]
+            : block.type === "imageGrid"
+              ? block.images
+              : [];
+        for (const image of images)
+          assert.equal(image.src, undefined, `${entry.name} ${which}`);
+      }
+  });
 });
 
 describe("the chart presets' colours", () => {
@@ -130,6 +197,34 @@ describe("the chart presets' colours", () => {
       );
     }
   });
+});
+
+describe("the text and image presets' files", () => {
+  // Phase V3 (T130): the components T131 and T132 build, on the Averlo
+  // tokens only, like the charts: no colour literal in their folders.
+  const literal = /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(/i;
+  const folders = {
+    text: ["Quote.tsx", "Agenda.tsx", "Compare.tsx"],
+    images: ["Image.tsx", "ImageGrid.tsx", "ImagePlaceholder.tsx"],
+  };
+  for (const [folder, names] of Object.entries(folders)) {
+    const dir = new URL(`../../src/presets/${folder}/`, import.meta.url);
+    test(`src/presets/${folder}/ holds ${names.join(", ")}`, () => {
+      const files = existsSync(dir) ? readdirSync(dir) : [];
+      for (const name of names)
+        assert.ok(files.includes(name), `src/presets/${folder}/${name}`);
+    });
+    test(`no colour literal appears in src/presets/${folder}/`, () => {
+      const files = existsSync(dir) ? readdirSync(dir) : [];
+      assert.ok(files.length > 0, `src/presets/${folder}/ has files`);
+      for (const name of files) {
+        const lines = readFileSync(new URL(name, dir), "utf8").split("\n");
+        lines.forEach((line, i) =>
+          assert.ok(!literal.test(line), `${name}:${i + 1}: ${line.trim()}`),
+        );
+      }
+    });
+  }
 });
 
 describe("the validator", () => {

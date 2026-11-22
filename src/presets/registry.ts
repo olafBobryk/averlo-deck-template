@@ -5,7 +5,7 @@
 // (src/presets/gallery.ts) and the skill's preset reference are generated
 // from it. Examples carry placeholder text and placeholder numbers only.
 // Imported by the registry test under plain Node, so it imports types only.
-import type { Block } from "@/deck/content";
+import type { Block, SlideContent } from "@/deck/content";
 import type { Text } from "@/deck/model";
 
 /** The preset families, in the gallery's order. */
@@ -22,6 +22,10 @@ export type PresetEntry = {
   fits: string;
   example: Block;
   alternate: Block;
+  /** The slide layout its gallery slides use; without one, `stack`. The
+   *  statement is the `statement` layout, and image + text the `split`
+   *  layout. */
+  layout?: SlideContent["layout"];
 };
 
 /** Placeholder words in every language (rule 9). A deck with more
@@ -30,8 +34,14 @@ export type PresetEntry = {
 // `Text` (tests/languages.spec.ts adds it to each `en: "…"` it finds).
 const title: Text = { en: "Placeholder title" };
 const text: Text = { en: "Placeholder text" };
+/** A longer placeholder, for an alternate that wraps over more lines. */
+const longText: Text = {
+  en: "Placeholder text, placeholder text, placeholder text, placeholder text.",
+};
 /** `n` placeholder categories. */
 const categories = (n: number) => Array.from({ length: n }, () => text);
+/** `n` copies of an item. */
+const times = <T>(n: number, item: T) => Array.from({ length: n }, () => item);
 
 /** The presets. Later phases add one entry per preset. */
 export const registry: PresetEntry[] = [
@@ -131,5 +141,94 @@ export const registry: PresetEntry[] = [
         { value: "70", label: title, note: text },
       ],
     },
+  },
+  // Text layouts (phase V3).
+  {
+    name: "Quote",
+    family: "text",
+    block: "quote",
+    fits: "A quotation, word for word, with who said it.",
+    example: { type: "quote", text, by: title, role: text },
+    alternate: { type: "quote", text: longText, by: title },
+  },
+  {
+    name: "Statement",
+    family: "text",
+    block: "lead",
+    fits: "One claim, said large, with a line under it.",
+    layout: "statement",
+    example: { type: "lead", item: { text }, size: "statement" },
+    alternate: { type: "lead", item: { text: longText }, size: "statement" },
+  },
+  {
+    name: "Agenda",
+    family: "text",
+    block: "agenda",
+    fits: "A list of topics, in the order they come.",
+    example: {
+      type: "agenda",
+      items: times(4, { label: title, text }),
+    },
+    alternate: { type: "agenda", items: times(8, { label: title }) },
+  },
+  {
+    name: "Compare",
+    family: "text",
+    block: "compare",
+    fits: "Two options side by side, each with its points.",
+    example: {
+      type: "compare",
+      left: { title, points: times(3, text) },
+      right: { title, points: times(3, text) },
+    },
+    alternate: {
+      type: "compare",
+      left: { title, points: times(2, longText) },
+      right: { title, points: times(5, text) },
+    },
+  },
+  {
+    name: "Image and text",
+    family: "text",
+    block: "image",
+    fits: "A picture with its point beside it.",
+    layout: "split",
+    example: { type: "image", alt: text, caption: text },
+    alternate: { type: "image", alt: text, fit: "contain" },
+  },
+  // Image slides (phase V3). No image has a `src`: the gallery shows the
+  // template's placeholder only.
+  {
+    name: "Full-bleed image",
+    family: "images",
+    block: "image",
+    fits: "One picture that carries the slide, edge to edge.",
+    example: { type: "image", alt: text, bleed: true },
+    alternate: {
+      type: "image",
+      alt: text,
+      caption: text,
+      fit: "contain",
+      bleed: true,
+    },
+  },
+  {
+    name: "Captioned image",
+    family: "images",
+    block: "image",
+    fits: "One picture with a line that says what it shows.",
+    example: { type: "image", alt: text, caption: text },
+    alternate: { type: "image", alt: text, caption: longText, fit: "contain" },
+  },
+  {
+    name: "Image grid",
+    family: "images",
+    block: "imageGrid",
+    fits: "Two to six pictures shown together.",
+    example: {
+      type: "imageGrid",
+      images: times(3, { alt: text, caption: text }),
+    },
+    alternate: { type: "imageGrid", images: times(6, { alt: text }) },
   },
 ];
