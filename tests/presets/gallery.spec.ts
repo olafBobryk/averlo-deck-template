@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Locator, type Page } from "@playwright/test";
 import { langs } from "../../src/deck/langs";
 import { galleryPdfName } from "../../src/deck/pdf-name";
 import { slideContent } from "../../src/deck/content";
@@ -474,5 +474,330 @@ test("the print view draws every image frame", async ({ page }) => {
     const box = await drawn.nth(i).boundingBox();
     expect(box?.width ?? 0, `print image ${i}`).toBeGreaterThan(100);
     expect(box?.height ?? 0, `print image ${i}`).toBeGreaterThan(60);
+  }
+});
+
+// Phase V2 (T120): the diagrams. Each of flow, timeline, cycle, org chart,
+// table and matrix has a registry entry in the diagrams family; its example
+// and alternate draw the diagram itself (not the pending stub), with every
+// step, event and stage in the given order, and every table cell in its row
+// and column. Step, event and stage labels are the navigator's muted step
+// label (feature 001, P8); connectors and arrows are the border token;
+// flows and timelines turn vertical on phones. The print view draws each.
+// Fit, contrast and the PDF are the gallery-wide tests above.
+const diagramBlocks = [
+  "flow",
+  "timeline",
+  "cycle",
+  "orgchart",
+  "table",
+  "matrix",
+] as const;
+type DiagramBlock = (typeof diagramBlocks)[number];
+const diagramEntry = (block: DiagramBlock) =>
+  registry.find((entry) => entry.block === block);
+/** A diagram entry's example and alternate slides, with their blocks. */
+function diagramSlides<T extends DiagramBlock>(block: T) {
+  const entry = diagramEntry(block);
+  expect(entry, block).toBeTruthy();
+  const { example, alternate } = gallery.presetSlides(entry!.name);
+  return [example!, alternate!].map((slide) => {
+    const b = gallery.content[slide.id].blocks[0];
+    if (b.type !== block) throw new Error(`${slide.id}: not a ${block}`);
+    return { slide, block: b as Extract<typeof b, { type: T }> };
+  });
+}
+const en = (t: { [lang: string]: string }) => t[langs[0]];
+
+/** Opens a diagram slide and returns its diagram, checked drawn. */
+async function openDiagram(page: Page, id: string, block: DiagramBlock) {
+  await openGallery(page, at(id));
+  const main = page.locator("main:not([aria-hidden])");
+  await expect(main.locator("[data-preset-pending]")).toHaveCount(0);
+  const diagram = main.locator(`[data-diagram="${block}"]`);
+  await expect(diagram, id).toBeVisible();
+  return diagram;
+}
+
+/** The colour a token resolves to, in the diagram's context. */
+const tokenColour = (root: Locator, token: string) =>
+  root.evaluate((el, token) => {
+    const probe = document.createElement("span");
+    probe.style.color = `var(${token})`;
+    el.append(probe);
+    const colour = getComputedStyle(probe).color;
+    probe.remove();
+    return colour;
+  }, token);
+
+/** Every step label is the navigator's muted step label: the muted token,
+ *  the regular weight, tabular figures. */
+async function expectStepLabels(diagram: Locator, texts: string[]) {
+  const labels = diagram.locator("[data-step-label]");
+  await expect(labels).toHaveText(texts);
+  const muted = await tokenColour(diagram, "--color-muted");
+  const styles = await labels.evaluateAll((nodes) =>
+    nodes.map((n) => {
+      const s = getComputedStyle(n);
+      return [s.color, s.fontWeight, s.fontVariantNumeric];
+    }),
+  );
+  for (const style of styles)
+    expect(style).toEqual([muted, "400", "tabular-nums"]);
+}
+
+/** Every connector line and arrow is the border token. */
+async function expectConnectors(diagram: Locator, arrows: number) {
+  const border = await tokenColour(diagram, "--color-border");
+  await expect(diagram.locator("[data-arrow]")).toHaveCount(arrows);
+  const colours = await diagram.evaluate((root) => {
+    const found: string[] = [];
+    for (const el of root.querySelectorAll("[data-line]")) {
+      const s = getComputedStyle(el);
+      if (s.backgroundColor !== "rgba(0, 0, 0, 0)")
+        found.push(s.backgroundColor);
+      for (const side of ["Top", "Right", "Bottom", "Left"] as const)
+        if (parseFloat(s[`border${side}Width`]) > 0)
+          found.push(s[`border${side}Color`]);
+    }
+    for (const el of root.querySelectorAll("[data-arrow]"))
+      found.push(getComputedStyle(el).color);
+    return found;
+  });
+  expect(colours.length).toBeGreaterThan(0);
+  for (const colour of colours) expect(colour).toBe(border);
+}
+
+/** The boxes of `items`, in order. */
+const boxes = (items: Locator) =>
+  items.evaluateAll((nodes) =>
+    nodes.map((n) => {
+      const r = n.getBoundingClientRect();
+      return { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+    }),
+  );
+
+/** Items run in order: across at 1440, down on a phone. */
+async function expectRuns(items: Locator, vertical: boolean, at: string) {
+  const b = await boxes(items);
+  for (let i = 1; i < b.length; i++) {
+    if (vertical) {
+      expect(b[i].top, `${at}: item ${i + 1} under ${i}`).toBeGreaterThan(
+        b[i - 1].bottom - 1,
+      );
+      expect(b[i].left, `${at}: item ${i + 1} in line`).toBeCloseTo(
+        b[0].left,
+        0,
+      );
+    } else {
+      expect(b[i].left, `${at}: item ${i + 1} after ${i}`).toBeGreaterThan(
+        b[i - 1].right - 1,
+      );
+      expect(b[i].top, `${at}: item ${i + 1} in line`).toBeCloseTo(b[0].top, 0);
+    }
+  }
+}
+
+const numbers = (n: number) =>
+  Array.from({ length: n }, (_, i) => String(i + 1).padStart(2, "0"));
+const phone = () => test.info().project.name === "mobile";
+
+test("the diagrams family has the flow, timeline, cycle, org chart, table and matrix", () => {
+  for (const block of diagramBlocks) {
+    const entry = diagramEntry(block);
+    expect(entry, block).toBeTruthy();
+    expect(entry!.family, block).toBe("diagrams");
+  }
+});
+
+test("the flow draws its steps in order, numbered, with an arrow to each next step", async ({
+  page,
+}) => {
+  for (const { slide, block } of diagramSlides("flow")) {
+    const flow = await openDiagram(page, slide.id, "flow");
+    const steps = flow.locator("[data-flow-step]");
+    await expect(steps).toHaveCount(block.steps.length);
+    await expect(flow.locator("[data-flow-label]")).toHaveText(
+      block.steps.map((s) => en(s.label)),
+    );
+    await expect(flow.locator("[data-flow-text]")).toHaveText(
+      block.steps.flatMap((s) => (s.text ? [en(s.text)] : [])),
+    );
+    await expectStepLabels(flow, numbers(block.steps.length));
+    await expectConnectors(flow, block.steps.length - 1);
+    await expectRuns(steps, phone(), slide.id);
+  }
+});
+
+test("the timeline draws its events in order, each led by its date", async ({
+  page,
+}) => {
+  for (const { slide, block } of diagramSlides("timeline")) {
+    const timeline = await openDiagram(page, slide.id, "timeline");
+    const events = timeline.locator("[data-timeline-event]");
+    await expect(events).toHaveCount(block.events.length);
+    await expect(timeline.locator("[data-timeline-label]")).toHaveText(
+      block.events.map((e) => en(e.label)),
+    );
+    await expect(timeline.locator("[data-timeline-text]")).toHaveText(
+      block.events.flatMap((e) => (e.text ? [en(e.text)] : [])),
+    );
+    await expectStepLabels(
+      timeline,
+      block.events.map((e) => en(e.when)),
+    );
+    // One axis, its arrow pointing on in time.
+    await expectConnectors(timeline, 1);
+    await expectRuns(events, phone(), slide.id);
+  }
+});
+
+test("the cycle draws its stages in order, each arrow to the next, and the last back to the first", async ({
+  page,
+}) => {
+  for (const { slide, block } of diagramSlides("cycle")) {
+    const cycle = await openDiagram(page, slide.id, "cycle");
+    const stages = cycle.locator("[data-cycle-stage]");
+    await expect(stages).toHaveCount(block.stages.length);
+    await expect(cycle.locator("[data-cycle-label]")).toHaveText(
+      block.stages.map((s) => en(s.label)),
+    );
+    await expect(cycle.locator("[data-cycle-text]")).toHaveText(
+      block.stages.flatMap((s) => (s.text ? [en(s.text)] : [])),
+    );
+    await expectStepLabels(cycle, numbers(block.stages.length));
+    await expectConnectors(cycle, block.stages.length);
+    await expectRuns(stages, phone(), slide.id);
+  }
+});
+
+test("the org chart draws its root over its nodes, each over its own nodes, in order", async ({
+  page,
+}) => {
+  for (const { slide, block } of diagramSlides("orgchart")) {
+    const org = await openDiagram(page, slide.id, "orgchart");
+    await expect(org.locator("[data-org-root] [data-org-label]")).toHaveText(
+      en(block.root.label),
+    );
+    const branches = org.locator("[data-org-branch]");
+    await expect(branches).toHaveCount(block.children.length);
+    for (let i = 0; i < block.children.length; i++) {
+      const child = block.children[i];
+      const branch = branches.nth(i);
+      await expect(
+        branch.locator("[data-org-node] [data-org-label]"),
+      ).toHaveText(en(child.node.label));
+      await expect(
+        branch.locator("[data-org-leaf] [data-org-label]"),
+      ).toHaveText((child.children ?? []).map((leaf) => en(leaf.label)));
+    }
+    const [root] = await boxes(org.locator("[data-org-root]"));
+    const nodes = await boxes(org.locator("[data-org-node]"));
+    for (const node of nodes)
+      expect(node.top, slide.id).toBeGreaterThan(root.bottom - 1);
+    // Reporting lines, no arrows.
+    await expectConnectors(org, 0);
+  }
+});
+
+test("the table draws each cell in its row and column, its header muted", async ({
+  page,
+}) => {
+  for (const { slide, block } of diagramSlides("table")) {
+    const table = await openDiagram(page, slide.id, "table");
+    await expect(table.locator("[data-table-column]")).toHaveText(
+      block.columns.map(en),
+    );
+    const rows = table.locator("[data-table-row]");
+    await expect(rows).toHaveCount(block.rows.length);
+    for (let r = 0; r < block.rows.length; r++) {
+      const row = rows.nth(r);
+      await expect(row.locator("[data-table-label]")).toHaveText(
+        en(block.rows[r].label),
+      );
+      await expect(row.locator("[data-table-cell]")).toHaveText(
+        block.rows[r].cells.map(en),
+      );
+      // Each cell names its column.
+      const columns = await row
+        .locator("[data-table-cell]")
+        .evaluateAll((cells) =>
+          cells.map((c) =>
+            c.closest("[data-column]")?.getAttribute("data-column"),
+          ),
+        );
+      expect(columns).toEqual(block.columns.map((_, i) => String(i)));
+    }
+    if (!phone()) {
+      // On a slide, a cell sits under its column's header.
+      const heads = await boxes(table.locator("[data-table-column]"));
+      const cells = await boxes(rows.first().locator("[data-table-cell]"));
+      cells.forEach((cell, i) => {
+        expect(cell.left, `${slide.id} cell ${i}`).toBeGreaterThanOrEqual(
+          heads[i].left - 1,
+        );
+        expect(cell.right, `${slide.id} cell ${i}`).toBeLessThanOrEqual(
+          heads[i].right + 1,
+        );
+      });
+      const muted = await tokenColour(table, "--color-muted");
+      const colours = await table
+        .locator("[data-table-column]")
+        .evaluateAll((nodes) => nodes.map((n) => getComputedStyle(n).color));
+      for (const colour of colours) expect(colour).toBe(muted);
+    }
+  }
+});
+
+test("the matrix draws its two axes, four quadrants and each item at its x and y", async ({
+  page,
+}) => {
+  for (const { slide, block } of diagramSlides("matrix")) {
+    const matrix = await openDiagram(page, slide.id, "matrix");
+    await expect(matrix.locator('[data-matrix-axis="x"]')).toHaveText(
+      en(block.x),
+    );
+    await expect(matrix.locator('[data-matrix-axis="y"]')).toHaveText(
+      en(block.y),
+    );
+    const quadrants = matrix.locator("[data-matrix-quadrant]");
+    await expect(quadrants).toHaveCount(4);
+    await expect(
+      matrix.locator("[data-matrix-quadrant] [data-matrix-label]"),
+    ).toHaveText(block.quadrants.map((q) => en(q.label)));
+    const items = block.items ?? [];
+    await expect(matrix.locator("[data-matrix-item-label]")).toHaveText(
+      items.map((item) => en(item.label)),
+    );
+    const [plot] = await boxes(matrix.locator("[data-matrix-plot]"));
+    const dots = await boxes(matrix.locator("[data-matrix-dot]"));
+    expect(dots).toHaveLength(items.length);
+    items.forEach((item, i) => {
+      const cx = (dots[i].left + dots[i].right) / 2;
+      const cy = (dots[i].top + dots[i].bottom) / 2;
+      const w = plot.right - plot.left;
+      const h = plot.bottom - plot.top;
+      expect((cx - plot.left) / w, `${slide.id} item ${i} x`).toBeCloseTo(
+        item.x,
+        1,
+      );
+      expect((plot.bottom - cy) / h, `${slide.id} item ${i} y`).toBeCloseTo(
+        item.y,
+        1,
+      );
+    });
+    // Each axis runs to its arrow, from low to high.
+    await expectConnectors(matrix, 2);
+  }
+});
+
+test("the print view draws every diagram", async ({ page }) => {
+  await page.goto("/print?deck=gallery");
+  const diagrams = page.locator("[data-diagram]");
+  await expect(diagrams).toHaveCount(2 * diagramBlocks.length);
+  for (let i = 0; i < 2 * diagramBlocks.length; i++) {
+    const box = await diagrams.nth(i).boundingBox();
+    expect(box?.width ?? 0, `print diagram ${i}`).toBeGreaterThan(200);
+    expect(box?.height ?? 0, `print diagram ${i}`).toBeGreaterThan(60);
   }
 });
