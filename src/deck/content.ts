@@ -1,7 +1,7 @@
-// The data slides' content types. Each slide's content is kept in a map
-// keyed by slide id and read through `slideContent`. The template's deck is
-// slide files (src/slides/, feature 003) and has no content map; the preset
-// gallery's slides are still data (src/presets/gallery.ts).
+// The data blocks' types: the shapes the preset validator
+// (src/presets/validate.ts) checks a drafted block against. No slide draws
+// them: the deck and the preset gallery are slide files (src/slides/,
+// src/presets/slides/; feature 003), which compose the deck's components.
 
 import type { IconName } from "@/components/ui/icons/Icon";
 import type { Text } from "./model";
@@ -124,35 +124,3 @@ export type PresetBlock =
   | { type: "imageGrid"; images: { src?: string; alt: Text; caption?: Text }[] }
   /** A deck's own visual: `visual` names an export of src/deck/visuals/. */
   | { type: "custom"; visual: string; props: Record<string, unknown> };
-
-/** The style a steps block draws in: rail by default, and the old `nodes`
- *  across. */
-export const stepsStyle = (
-  style?: Extract<Block, { type: "steps" }>["style"],
-): "rail" | "across" =>
-  style === "across" || style === "nodes" ? "across" : "rail";
-
-/** A big line. `muted`: its obvious lead-in (or any one part of it), per
- *  language, word for word as it stands in `text`, set in the secondary tone
- *  inside the same block. */
-export type Headline = Item & { muted?: Text };
-
-export type SlideContent = {
-  headline?: Headline;
-  blocks: Block[];
-  /** stack (default): heading over blocks; split: heading left, blocks
-   *  right (split-end mirrors it); center: a quote or the closing in the
-   *  middle; statement: one large claim at the bottom left. */
-  layout?: "stack" | "split" | "split-end" | "center" | "statement" | "module";
-  /** Speaker prompts; kept in the content draft, not drawn on the slide. */
-  notes?: Text;
-};
-
-/** A slide's content, from a deck's map (the preset gallery's, through
- *  `DeckContext`). */
-export function slideContent(
-  id: string,
-  from: Record<string, SlideContent> = {},
-): SlideContent {
-  return from[id] ?? { blocks: [] };
-}

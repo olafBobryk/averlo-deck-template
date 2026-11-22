@@ -1,6 +1,6 @@
 "use client";
 // The deck components' shared parts (feature 003, T311), moved from the
-// data block switch (src/deck/SlideBody.tsx) with their markup unchanged: a
+// data block switch the deck had then, with their markup unchanged: a
 // card (the Averlo Panel) or pill, a glyph from the icon set, the muted
 // step number, and a point's label and body. Words are plain strings; key
 // phrases in body text are marked `**…**` and drawn bold (`rich`), and
