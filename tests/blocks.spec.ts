@@ -369,7 +369,7 @@ for (const type of ["org", "fork"] as const) {
     await openDeck(page, found!.n);
     const strong = await tokenColor(page, "--deck-border-strong");
     const split = await measureSplit(
-      page.locator(`${blockOn(type)} [data-split]`).first(),
+      page.locator(blockOn(type)).locator("[data-split]").first(),
     );
     expect(split.items).toHaveLength(block.items.length);
     if (testInfo.project.name !== "mobile" || block.items.length <= 2)
