@@ -377,7 +377,7 @@ test.describe("keyboard", () => {
     }
     // The footer's slide number, which takes a typed slide number, then Menu.
     const [number, button] = await tabThrough(page, 2);
-    expect(number.name).toBe(ui.goSlide[langs[0]].replace("{count}", "3"));
+    expect(number.name).toBe(ui.goSlide[langs[0]].replace("{count}", "03"));
     expect(button.name).toBe("Menu");
     await page.keyboard.press("Enter");
     const card = page.locator("[data-menu-card]");

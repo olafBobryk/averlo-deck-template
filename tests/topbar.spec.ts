@@ -763,7 +763,8 @@ test.describe("the footer's slide number jumps to a typed slide", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await openDeck(page, "s=3");
     await expect(number(page)).toHaveText(pad(3));
-    await expect(number(page)).toHaveAccessibleName("Go to slide 3");
+    // Its name holds the number as shown.
+    await expect(number(page)).toHaveAccessibleName("Go to slide 03");
     await number(page).click();
     await expect(field(page)).toBeFocused();
     await expect(field(page)).toHaveValue("3");

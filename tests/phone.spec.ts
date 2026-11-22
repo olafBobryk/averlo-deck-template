@@ -39,10 +39,12 @@ const textUnderFooter = (page: Page, at: "top" | "bottom") =>
     )!;
     slide.scrollTop = at === "top" ? 0 : slide.scrollHeight;
     const footer = document.querySelector("footer")!;
+    // The innermost element reading "NN / NN" (its slide number is a
+    // button inside it).
+    const count = (el: Element) =>
+      /^\d\d \/ \d\d$/.test(el.textContent?.trim() ?? "");
     const counter = [...footer.querySelectorAll<HTMLElement>("*")].find(
-      (el) =>
-        el.children.length === 0 &&
-        /^\d\d \/ \d\d$/.test(el.textContent?.trim() ?? ""),
+      (el) => count(el) && ![...el.children].some(count),
     )!;
     const button = footer.querySelector("[data-footer-menu] button")!;
     const targets = [
