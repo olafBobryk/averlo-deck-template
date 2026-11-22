@@ -41,9 +41,10 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` means it may run in p
 
 ## Phase V2: Diagrams (branch `v2-diagrams`, base `v0-model`) [parallel with V1]
 
-- [ ] T120 [US2] Tests first: gallery entries for `flow`, `timeline`, `cycle`, `orgchart`, `table` and `matrix` render and fit. The data-model limits ("2 to 7 steps", "2 to 8 events", "3 to 6 stages", "two levels below the root at most", "at most 5 columns and 8 rows", x and y from 0 to 1) are enforced by the validator.
-- [ ] T121 [US2] `src/presets/diagrams/{Flow,Timeline,Cycle}.tsx`, composed from Averlo `Panel`, `Text` and `Icon` and tokens. Connectors are SVG in the border token, and step labels use the navigator's muted step style (feature 001, P8). Registry entries and examples.
-- [ ] T122 [P] [US2] `src/presets/diagrams/{OrgChart,CompareTable,Matrix}.tsx`, composed the same way. Registry entries and examples.
+- [x] T120 [US2] Tests first: gallery entries for `flow`, `timeline`, `cycle`, `orgchart`, `table` and `matrix` render and fit. The data-model limits ("2 to 7 steps", "2 to 8 events", "3 to 6 stages", "two levels below the root at most", "at most 5 columns and 8 rows", x and y from 0 to 1) are enforced by the validator.
+- [x] T121 [US2] `src/presets/diagrams/{Flow,Timeline,Cycle}.tsx`, composed from Averlo `Panel`, `Text` and `Icon` and tokens. Connectors are SVG in the border token, and step labels use the navigator's muted step style (feature 001, P8). Registry entries and examples.
+- [x] T122 [P] [US2] `src/presets/diagrams/{OrgChart,CompareTable,Matrix}.tsx`, composed the same way. Registry entries and examples.
+- [x] T123 [US2] Owner review: branching connectors split from the parent downward with rounded corners, the outer branches curving left and right and a middle branch going straight down, in the connector colour as is. This applies to the org chart preset and to feature 001's `fork` and `org` blocks (compose rows), so all branching visuals match.
 - **Gate V2:** `npm run gate`, plus gallery screenshots.
 
 ## Phase V3: Text and image slides (branch `v3-text-images`, base `v0-model`)

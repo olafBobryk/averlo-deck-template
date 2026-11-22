@@ -1,0 +1,657 @@
+/* The diagram presets (feature 002, T121, T122): flow, timeline, cycle, org
+   chart, comparison table and matrix, on the Averlo tokens only, sized in
+   --u like the deck's blocks (src/deck/content.module.css), so each is the
+   same full-bleed, in a thumbnail and on a PDF page. Cards are the Averlo
+   Panel, as the deck's facts, plan and week are; step labels are the deck's
+   muted step label; every connector and arrow is the border token. On a
+   portrait phone the live deck reflows, and these follow its sizes. */
+
+/* ---------- Shared: cards, text, arrows ---------- */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 0.6);
+  min-width: 0;
+  padding: calc(var(--u) * 1.6);
+}
+.label.label {
+  margin: 0;
+  font-size: calc(var(--u) * 1.7);
+  line-height: 1.25;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.text.text {
+  margin: 0;
+  font-size: calc(var(--u) * 1.4);
+  font-weight: 450;
+  line-height: 1.5;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+/* The step label keeps the deck's `.when`; it only stays on one line where
+   it is a number. */
+.stepLabel {
+  display: block;
+}
+
+/* An arrow: a line that runs into the chevron's tip (at 62% of its box). */
+.arrow {
+  --head: calc(var(--u) * 1.6);
+  --line: max(1px, calc(var(--u) * 0.12));
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: var(--head);
+  color: var(--color-border);
+}
+.arrowLine {
+  flex: 1;
+  min-width: 0;
+  height: var(--line);
+  margin-inline-end: calc(var(--head) * -0.62);
+  background: var(--color-border);
+}
+.arrowHead {
+  flex: none;
+  width: var(--head);
+  height: var(--head);
+  color: var(--color-border);
+}
+
+/* ---------- Flow and cycle: cards in a row, an arrow between each ---------- */
+
+.flow,
+.cycle {
+  --gap: calc(var(--u) * 3.2);
+  --line: max(1px, calc(var(--u) * 0.12));
+  --head: calc(var(--u) * 1.6);
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  column-gap: var(--gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.flow[data-count="6"],
+.flow[data-count="7"],
+.cycle[data-count="6"] {
+  --gap: calc(var(--u) * 2.6);
+  --head: calc(var(--u) * 1.4);
+}
+.flowStep,
+.stage {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+.flow[data-count="6"] .flowCard,
+.flow[data-count="7"] .flowCard,
+.cycle[data-count="6"] .flowCard {
+  padding: calc(var(--u) * 1.3);
+}
+.flow[data-count="6"] .label.label,
+.flow[data-count="7"] .label.label,
+.cycle[data-count="6"] .label.label {
+  font-size: calc(var(--u) * 1.5);
+}
+/* Seven steps: a narrower gap and card padding, so a long word keeps its
+   line. */
+.flow[data-count="7"] {
+  --gap: calc(var(--u) * 2);
+  --head: calc(var(--u) * 1.2);
+}
+.flow[data-count="7"] .flowCard {
+  padding: calc(var(--u) * 1.1);
+}
+.flow[data-count="7"] .label.label {
+  font-size: calc(var(--u) * 1.4);
+}
+.flow[data-count="7"] .next {
+  padding-inline: calc(var(--u) * 0.3);
+}
+/* The arrow to the next item, across the gap at mid-height. */
+.next {
+  --head: inherit;
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: var(--gap);
+  padding-inline: calc(var(--u) * 0.5);
+  translate: 0 -50%;
+}
+
+/* The cycle's return: each stage's share of a line under the row, from the
+   last stage's bottom back to the first's, where the arrow points up into
+   it. */
+.cycle {
+  --depth: calc(var(--u) * 2.6);
+  --radius: calc(var(--u) * 1);
+  padding-bottom: calc(var(--depth) + var(--line));
+}
+.loop {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: calc(var(--gap) * -1);
+  height: var(--depth);
+  box-sizing: border-box;
+  border: 0 solid var(--color-border);
+  border-bottom-width: var(--line);
+}
+.stage[data-at="first"] .loop {
+  left: 50%;
+  border-left-width: var(--line);
+  border-bottom-left-radius: var(--radius);
+}
+.stage[data-at="last"] .loop {
+  right: 50%;
+  border-right-width: var(--line);
+  border-bottom-right-radius: var(--radius);
+}
+.loopHead {
+  position: absolute;
+  top: calc(var(--head) * -0.375);
+  left: calc(var(--line) / -2 - var(--head) / 2);
+  rotate: -90deg;
+}
+
+/* ---------- Timeline: one card, the events along an axis ---------- */
+
+.timeline {
+  padding: calc(var(--u) * 2) calc(var(--u) * 2.2);
+}
+.events {
+  --gap: calc(var(--u) * 1.6);
+  --dot: calc(var(--u) * 1.2);
+  --line: max(1px, calc(var(--u) * 0.12));
+  --head: calc(var(--u) * 1.6);
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  grid-template-rows: repeat(4, auto);
+  column-gap: var(--gap);
+  row-gap: calc(var(--u) * 0.8);
+  margin: 0;
+  padding: 0 var(--head) 0 0;
+  list-style: none;
+}
+.event {
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+  align-content: start;
+  min-width: 0;
+}
+.track {
+  position: relative;
+  height: var(--dot);
+}
+/* The axis: each event's share runs from its dot to the next one's; the
+   last runs on into the arrow. */
+.trackLine {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: calc(var(--gap) * -1);
+  height: var(--line);
+  translate: 0 -50%;
+  background: var(--color-border);
+}
+.event:last-child .trackLine {
+  right: calc(var(--head) * -0.62);
+}
+.dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--dot);
+  height: var(--dot);
+  border-radius: 50%;
+  background: var(--deck-text-secondary);
+}
+.trackHead {
+  position: absolute;
+  top: 50%;
+  right: calc(var(--head) * -1);
+  translate: 0 -50%;
+}
+.trackHead.trackHead {
+  width: var(--head);
+  height: var(--head);
+}
+.events[data-count="7"] .label.label,
+.events[data-count="8"] .label.label {
+  font-size: calc(var(--u) * 1.5);
+}
+
+/* ---------- Org chart: a root over its nodes, over theirs ---------- */
+
+/* The lines are the deck's branching (`.split` in content.module.css), in
+   the border token. */
+.org {
+  --split-line: var(--color-border);
+  display: grid;
+  justify-items: center;
+}
+.orgRoot {
+  width: min(100%, calc(var(--u) * 36));
+  align-items: center;
+  text-align: center;
+}
+.org > ul {
+  width: 100%;
+}
+.branch {
+  display: flex;
+  flex-direction: column;
+}
+.orgNode {
+  align-items: center;
+  text-align: center;
+}
+.leaf {
+  display: grid;
+}
+.orgLeaf {
+  padding: calc(var(--u) * 1) calc(var(--u) * 1.2);
+}
+.orgLeaf .label.label {
+  font-size: calc(var(--u) * 1.4);
+}
+
+/* ---------- Comparison table: one card, hairlines between rows ---------- */
+
+.tableCard {
+  padding: calc(var(--u) * 0.6) calc(var(--u) * 2);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.corner {
+  width: 26%;
+}
+.head.head {
+  padding: calc(var(--u) * 1.1) calc(var(--u) * 1.2);
+  font-size: calc(var(--u) * 1.3);
+  font-weight: 450;
+  line-height: 1.3;
+  text-align: start;
+  vertical-align: bottom;
+  color: var(--color-muted);
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.row {
+  border-top: 1px solid var(--color-border);
+}
+.rowLabel.rowLabel {
+  padding: calc(var(--u) * 1.1) calc(var(--u) * 1.2) calc(var(--u) * 1.1) 0;
+  font-size: calc(var(--u) * 1.6);
+  line-height: 1.25;
+  text-align: start;
+  vertical-align: top;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.cell {
+  padding: calc(var(--u) * 1.1) calc(var(--u) * 1.2);
+  vertical-align: top;
+}
+.cellColumn.cellColumn {
+  display: none;
+}
+.cellText.cellText {
+  display: block;
+  font-size: calc(var(--u) * 1.4);
+  font-weight: 450;
+  line-height: 1.45;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* ---------- Matrix: two axes around four quadrants, items placed ---------- */
+
+.matrix {
+  --line: max(1px, calc(var(--u) * 0.12));
+  --head: calc(var(--u) * 1.4);
+  --dot: calc(var(--u) * 1.1);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: calc(var(--u) * 0.8);
+  row-gap: calc(var(--u) * 0.4);
+  margin: 0;
+}
+.yAxis {
+  display: grid;
+  grid-template-columns: auto var(--head);
+  align-items: center;
+  column-gap: calc(var(--u) * 0.4);
+}
+.xAxis {
+  grid-column: 2;
+  display: grid;
+  grid-template-rows: var(--head) auto;
+  justify-items: center;
+  row-gap: calc(var(--u) * 0.2);
+}
+.axisLabel.axisLabel {
+  margin: 0;
+  font-size: calc(var(--u) * 1.3);
+  font-weight: 450;
+  line-height: 1.3;
+  text-align: center;
+}
+.yAxis .axisLabel.axisLabel {
+  max-height: calc(var(--u) * 26);
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+}
+.yLine,
+.xLine {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  justify-self: stretch;
+  color: var(--color-border);
+}
+.yLine {
+  flex-direction: column;
+}
+.axisLine {
+  flex: 1;
+  background: var(--color-border);
+}
+.yLine .axisLine {
+  width: var(--line);
+  margin-top: calc(var(--head) * -0.62);
+}
+.xLine .axisLine {
+  height: var(--line);
+  margin-inline-end: calc(var(--head) * -0.62);
+}
+.axisHead.axisHead {
+  width: var(--head);
+  height: var(--head);
+}
+.plot {
+  position: relative;
+  height: calc(var(--u) * 26);
+}
+.quadrants {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: calc(var(--u) * 0.8);
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.quadrant {
+  justify-content: start;
+  padding: calc(var(--u) * 1.3) calc(var(--u) * 1.6);
+}
+.items {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+.item {
+  position: absolute;
+  inset: 0;
+}
+.itemDot {
+  position: absolute;
+  left: calc(var(--x) * 100%);
+  top: calc((1 - var(--y)) * 100%);
+  width: var(--dot);
+  height: var(--dot);
+  border-radius: 50%;
+  translate: -50% -50%;
+  background: var(--deck-text-accent);
+  box-shadow: 0 0 0 calc(var(--u) * 0.3) var(--color-surface);
+}
+/* An item's label on a chip beside its dot, on the side that keeps it in
+   the plot. */
+.chip.chip {
+  position: absolute;
+  top: calc((1 - var(--y)) * 100%);
+  max-width: 46%;
+  padding: calc(var(--u) * 0.35) calc(var(--u) * 0.9);
+  translate: 0 -50%;
+}
+.item[data-side="end"] .chip {
+  left: calc(var(--x) * 100% + var(--dot));
+}
+.item[data-side="start"] .chip {
+  right: calc((1 - var(--x)) * 100% + var(--dot));
+}
+.item[data-level="top"] .chip {
+  translate: 0 calc(var(--dot) / -2);
+}
+.item[data-level="bottom"] .chip {
+  translate: 0 calc(-100% + var(--dot) / 2);
+}
+.chipText.chipText {
+  display: block;
+  font-size: calc(var(--u) * 1.25);
+  font-weight: 450;
+  line-height: 1.3;
+}
+
+/* ---------- Phones: portrait and narrow (the live deck's reflow) ---------- */
+
+@media (orientation: portrait) and (max-width: 699px) {
+  :global(:where([data-deck-title])) .card {
+    gap: 2px;
+    padding: 12px 14px;
+  }
+  :global(:where([data-deck-title])) .label.label,
+  :global(:where([data-deck-title])) .flow[data-count] .label.label,
+  :global(:where([data-deck-title])) .cycle[data-count] .label.label,
+  :global(:where([data-deck-title])) .events[data-count] .label.label {
+    font-size: max(15px, 4.2cqw);
+  }
+  :global(:where([data-deck-title])) .text.text {
+    font-size: max(13px, 3.6cqw);
+  }
+
+  /* Flow and cycle run down; each arrow turns to point down. */
+  :global(:where([data-deck-title])) .flow[data-count],
+  :global(:where([data-deck-title])) .cycle[data-count] {
+    --gap: 22px;
+    --head: 16px;
+    --line: 1px;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--gap);
+  }
+  :global(:where([data-deck-title])) .flow[data-count] .flowCard,
+  :global(:where([data-deck-title])) .cycle[data-count] .flowCard {
+    padding: 10px 14px;
+  }
+  :global(:where([data-deck-title])) .flow[data-count] .next,
+  :global(:where([data-deck-title])) .cycle[data-count] .next {
+    top: calc(100% + var(--gap) / 2);
+    left: 50%;
+    padding-inline: 2px;
+    translate: -50% -50%;
+    rotate: 90deg;
+  }
+  /* The cycle's return runs up its left, into the first stage's side. */
+  :global(:where([data-deck-title])) .cycle[data-count] {
+    --gutter: 22px;
+    --radius: 8px;
+    padding: 0 0 0 var(--gutter);
+  }
+  :global(:where([data-deck-title])) .loop,
+  :global(:where([data-deck-title])) .stage[data-at] .loop {
+    top: 0;
+    bottom: calc(var(--gap) * -1);
+    left: calc(var(--gutter) * -1);
+    right: 100%;
+    height: auto;
+    border-width: 0 0 0 var(--line);
+    border-radius: 0;
+  }
+  :global(:where([data-deck-title])) .stage[data-at="first"] .loop {
+    top: 50%;
+    border-top-width: var(--line);
+    border-top-left-radius: var(--radius);
+  }
+  :global(:where([data-deck-title])) .stage[data-at="last"] .loop {
+    bottom: 50%;
+    border-bottom-width: var(--line);
+    border-bottom-left-radius: var(--radius);
+  }
+  :global(:where([data-deck-title])) .loopHead {
+    top: calc(var(--line) / -2 - var(--head) / 2);
+    left: auto;
+    right: calc(var(--head) * -0.375);
+    rotate: none;
+  }
+
+  /* The timeline runs down, its axis down the events' left. */
+  :global(:where([data-deck-title])) .timeline {
+    padding: 14px 16px;
+  }
+  :global(:where([data-deck-title])) .events {
+    --gap: 12px;
+    --dot: 12px;
+    --line: 1px;
+    --head: 16px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    row-gap: var(--gap);
+    padding: 0 0 var(--head);
+  }
+  :global(:where([data-deck-title])) .event {
+    grid-row: auto;
+    grid-template-rows: none;
+    grid-template-columns: var(--dot) minmax(0, 1fr);
+    column-gap: 12px;
+    row-gap: 2px;
+  }
+  :global(:where([data-deck-title])) .event > :not(.track) {
+    grid-column: 2;
+  }
+  :global(:where([data-deck-title])) .track {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    height: auto;
+  }
+  :global(:where([data-deck-title])) .dot {
+    top: 3px;
+  }
+  :global(:where([data-deck-title])) .trackLine {
+    top: 9px;
+    bottom: calc(var(--gap) * -1 - 9px);
+    left: 50%;
+    right: auto;
+    width: var(--line);
+    height: auto;
+    translate: -50% 0;
+  }
+  :global(:where([data-deck-title])) .event:last-child .trackLine {
+    right: auto;
+    bottom: calc(var(--head) * -0.62);
+  }
+  :global(:where([data-deck-title])) .trackHead {
+    top: auto;
+    bottom: calc(var(--head) * -1);
+    left: 50%;
+    right: auto;
+    translate: -50% 0;
+    rotate: 90deg;
+  }
+
+  /* The org chart on a phone: the root across the slide. */
+  :global(:where([data-deck-title])) .orgRoot {
+    width: 100%;
+  }
+  :global(:where([data-deck-title])) .orgLeaf {
+    padding: 8px 12px;
+  }
+  :global(:where([data-deck-title])) .orgLeaf .label.label {
+    font-size: max(14px, 3.8cqw);
+  }
+
+  /* The table stacks: each row its label, then each cell under its
+     column's name. */
+  :global(:where([data-deck-title])) .tableCard {
+    padding: 4px 16px;
+  }
+  :global(:where([data-deck-title])) .table,
+  :global(:where([data-deck-title])) .table tbody,
+  :global(:where([data-deck-title])) .row {
+    display: block;
+  }
+  :global(:where([data-deck-title])) .table thead {
+    display: none;
+  }
+  :global(:where([data-deck-title])) .row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: 4px 12px;
+    padding: 10px 0;
+  }
+  :global(:where([data-deck-title])) .row:first-child {
+    border-top: 0;
+  }
+  :global(:where([data-deck-title])) .rowLabel.rowLabel {
+    grid-column: 1 / -1;
+    padding: 0 0 2px;
+    font-size: max(15px, 4.2cqw);
+  }
+  :global(:where([data-deck-title])) .cell {
+    display: contents;
+  }
+  :global(:where([data-deck-title])) .cellColumn.cellColumn {
+    display: block;
+    font-size: max(12px, 3.2cqw);
+    font-weight: 450;
+    line-height: 1.45;
+    overflow-wrap: break-word;
+  }
+  :global(:where([data-deck-title])) .cellText.cellText {
+    font-size: max(13px, 3.6cqw);
+  }
+
+  /* The matrix keeps its two axes, its plot square to the phone. */
+  :global(:where([data-deck-title])) .matrix {
+    --line: 1px;
+    --head: 14px;
+    --dot: 10px;
+    column-gap: 6px;
+  }
+  :global(:where([data-deck-title])) .axisLabel.axisLabel,
+  :global(:where([data-deck-title])) .chipText.chipText {
+    font-size: max(12px, 3.2cqw);
+  }
+  :global(:where([data-deck-title])) .yAxis .axisLabel.axisLabel {
+    max-height: none;
+  }
+  :global(:where([data-deck-title])) .plot {
+    height: max(320px, 92cqw);
+  }
+  :global(:where([data-deck-title])) .quadrants {
+    gap: 6px;
+  }
+  :global(:where([data-deck-title])) .quadrant {
+    padding: 10px 12px;
+  }
+  :global(:where([data-deck-title])) .chip.chip {
+    padding: 2px 8px;
+  }
+  :global(:where([data-deck-title])) .itemDot {
+    box-shadow: 0 0 0 2px var(--color-surface);
+  }
+}

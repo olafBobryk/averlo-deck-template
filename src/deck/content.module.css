@@ -451,20 +451,13 @@
 
 /* ---------- Org and fork: a node and what hangs off it ---------- */
 
-/* Every connector is drawn from the real geometry: the gap between the root
-   and its branches (--reach), the gap between branches (--between) and the
-   line (--line). Each branch draws its own stub and its share of the bar or
-   spine, so the lines land on every card whatever its size; no two pieces
-   overlap, since the line is translucent. The branch item
-   holds them; its glass card (whose ::before is the stroke) carries the diff
-   marks (whose ::after is the tip). */
+/* The root on top, centred; its branches in a row below it, joined by the
+   branching line (`.split`, below). The fork's options keep their glyph
+   beside the label. */
 .org,
 .fork {
-  --line: max(1px, calc(var(--u) * 0.12));
-  --between: calc(var(--u) * 1);
-  position: relative;
   display: grid;
-  gap: var(--reach);
+  justify-items: center;
 }
 .root,
 .branchCard {
@@ -482,100 +475,157 @@
 .fork .branchCard .pointText {
   flex-basis: 100%;
 }
+.root {
+  width: min(100%, calc(var(--u) * 40));
+}
+.org .root {
+  text-align: center;
+  align-items: center;
+}
 .branches {
+  width: 100%;
+}
+.branch {
+  display: grid;
+}
+
+/* ---------- Branching: one node over several, the line splitting down ---------- */
+
+/* Feature 002, T123 (the owner: "round corner and splitting zones"; "should
+   curved left and right and one goes down center aswell"). A split is the
+   list under its parent: a stem drops from the parent's centre; each child
+   in the row draws its share of the line from there. A middle child's goes
+   straight down; an outer child's turns out of the stem with a rounded
+   corner, runs across at mid-gap, and turns down into the child with
+   another. `--k` is how many child columns a child's centre lies from the
+   parent's, so the corners land on the real geometry; no two pieces
+   overlap, as the line may be translucent. Its colour is the deck's strong
+   border, or a parent's `--split-line`. Where across cannot fit, a split
+   lists its children down (`data-mode`, or `data-phone` on a phone), each
+   below the parent on a line down their left. */
+.split {
+  --line: max(1px, calc(var(--u) * 0.12));
+  --reach: calc(var(--u) * 2.8);
+  --turn: calc(var(--u) * 0.9);
+  --between: calc(var(--u) * 1.4);
+  --indent: calc(var(--u) * 2.4);
+  --drop: calc(var(--u) * 0.8);
+  --arm: calc(var(--u) * 2.4);
   position: relative;
   display: grid;
-  gap: var(--between);
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  column-gap: var(--between);
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.branch {
-  position: relative;
-  display: grid;
-}
-.branches::before,
-.branch::before,
-.branch::after {
+.split::before,
+.splitItem::before,
+.splitItem::after {
   content: "";
   position: absolute;
-  background: var(--deck-border-strong);
+  box-sizing: border-box;
+  border: 0 solid var(--split-line, var(--deck-border-strong));
 }
-/* Org: the leadership node over its three roles, joined by a bracket. The
-   stem drops from the root's bottom edge to the bar at mid-gap; each role's
-   stub rises from its top edge, centred, to the bar. */
-.org {
-  --reach: calc(var(--u) * 2);
-  justify-items: center;
-}
-.org .root {
-  width: min(100%, calc(var(--u) * 40));
-  text-align: center;
-  align-items: center;
-}
-.org .branches {
-  width: 100%;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-.org .branches::before,
-.org .branch::before {
+.split::before {
+  top: 0;
   left: 50%;
   width: var(--line);
+  height: calc(var(--reach) / 2 - var(--turn));
   translate: -50% 0;
+  background: var(--split-line, var(--deck-border-strong));
 }
-.org .branches::before {
-  top: calc(var(--reach) * -1);
-  height: calc(var(--reach) / 2 - var(--line) / 2);
+.splitItem {
+  --d: calc(var(--k) * (100% + var(--between)));
+  position: relative;
+  min-width: 0;
+  padding-top: var(--reach);
 }
-.org .branch::before {
-  top: calc(var(--reach) / -2 + var(--line) / 2);
-  height: calc(var(--reach) / 2 - var(--line) / 2);
-}
-.org .branch::after {
-  top: calc(var(--reach) / -2 - var(--line) / 2);
-  left: calc(var(--between) / -2);
-  right: calc(var(--between) / -2);
-  height: var(--line);
-}
-.org .branch:first-child::after {
-  left: calc(50% - var(--line) / 2);
-}
-.org .branch:last-child::after {
-  right: calc(50% - var(--line) / 2);
-}
-/* Fork: one stage at the left branching into its options at the right. The
-   stub leaves the root's right edge for a spine at mid-gap; each option's arm
-   leaves the spine for its left edge, at its vertical centre. */
-.fork {
-  --reach: calc(var(--u) * 6);
-  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-  align-items: center;
-  row-gap: calc(var(--u) * 2);
-}
-.fork .branches::before {
-  left: calc(var(--reach) * -1);
-  top: 50%;
-  width: calc(var(--reach) / 2 - var(--line) / 2);
-  height: var(--line);
-  translate: 0 -50%;
-}
-.fork .branch::before {
-  left: calc(var(--reach) / -2 + var(--line) / 2);
-  top: calc(50% - var(--line) / 2);
-  width: calc(var(--reach) / 2 - var(--line) / 2);
-  height: var(--line);
-}
-.fork .branch::after {
-  left: calc(var(--reach) / -2 - var(--line) / 2);
-  top: calc(var(--between) / -2);
-  bottom: calc(var(--between) / -2);
+.splitItem[data-side="middle"]::before {
+  top: calc(var(--reach) / 2 - var(--turn));
+  left: 50%;
   width: var(--line);
+  height: calc(var(--reach) / 2 + var(--turn));
+  translate: -50% 0;
+  background: var(--split-line, var(--deck-border-strong));
 }
-.fork .branch:first-child::after {
-  top: calc(50% - var(--line) / 2);
+.splitItem[data-side="middle"]::after {
+  display: none;
 }
-.fork .branch:last-child::after {
-  bottom: calc(50% - var(--line) / 2);
+/* Left of the parent: ::before turns out of the stem toward this child;
+   ::after runs across and turns down into it. Right mirrors it. */
+.splitItem[data-side="left"]::before,
+.splitItem[data-side="right"]::before {
+  top: calc(var(--reach) / 2 - var(--turn));
+  width: calc(var(--turn) + var(--line) / 2);
+  height: calc(var(--turn) + var(--line) / 2);
+  border-bottom-width: var(--line);
+}
+.splitItem[data-side="left"]::after,
+.splitItem[data-side="right"]::after {
+  top: calc(var(--reach) / 2 - var(--line) / 2);
+  width: calc(var(--d) - var(--turn) + var(--line) / 2);
+  height: calc(var(--reach) / 2 + var(--line) / 2);
+  border-top-width: var(--line);
+}
+.splitItem[data-side="left"]::before {
+  left: calc(50% + var(--d) - var(--turn));
+  border-right-width: var(--line);
+  border-bottom-right-radius: var(--turn);
+}
+.splitItem[data-side="left"]::after {
+  left: calc(50% - var(--line) / 2);
+  border-left-width: var(--line);
+  border-top-left-radius: var(--turn);
+}
+.splitItem[data-side="right"]::before {
+  right: calc(50% + var(--d) - var(--turn));
+  border-left-width: var(--line);
+  border-bottom-left-radius: var(--turn);
+}
+.splitItem[data-side="right"]::after {
+  right: calc(50% - var(--line) / 2);
+  border-right-width: var(--line);
+  border-top-right-radius: var(--turn);
+}
+/* Down: the children listed under the parent, indented, each on its share
+   of a line down their left, with an arm to its first line. */
+.split[data-mode="down"] {
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: var(--drop);
+  padding: var(--drop) 0 0 var(--indent);
+}
+.split[data-mode="down"]::before {
+  display: none;
+}
+.split[data-mode="down"] > .splitItem {
+  padding-top: 0;
+}
+.split[data-mode="down"] > .splitItem::before,
+.split[data-mode="down"] > .splitItem::after {
+  display: block;
+  right: auto;
+  translate: none;
+  border-width: 0;
+  border-radius: 0;
+  background: var(--split-line, var(--deck-border-strong));
+}
+.split[data-mode="down"] > .splitItem::before {
+  top: calc(var(--drop) * -1);
+  bottom: 0;
+  left: calc(var(--indent) / -2 - var(--line) / 2);
+  width: var(--line);
+  height: auto;
+}
+.split[data-mode="down"] > .splitItem:last-child::before {
+  bottom: auto;
+  height: calc(var(--drop) + var(--arm));
+}
+.split[data-mode="down"] > .splitItem::after {
+  top: calc(var(--arm) - var(--line) / 2);
+  left: calc(var(--indent) / -2 - var(--line) / 2);
+  width: calc(var(--indent) / 2 + var(--line) / 2);
+  height: var(--line);
 }
 
 /* ---------- Week: the working days and their fixed moments ---------- */
@@ -748,7 +798,7 @@
   :global(:where([data-deck-title])) .points[data-style="chips"] .glyph {
     --icon-slot-size: 18px;
   }
-  :global(:where([data-deck-title])) .org .root {
+  :global(:where([data-deck-title])) .root {
     width: 100%;
   }
   :global(:where([data-deck-title])) .pointLabel.pointLabel,
@@ -835,21 +885,74 @@
   :global(:where([data-deck-title])) .factText.factText {
     font-size: max(16px, 4.4cqw);
   }
-  :global(:where([data-deck-title])) .org .branches,
-  :global(:where([data-deck-title])) .fork,
   :global(:where([data-deck-title])) .week {
     grid-template-columns: minmax(0, 1fr);
   }
-  :global(:where([data-deck-title])) .branches::before,
-  :global(:where([data-deck-title])) .branch::before,
-  :global(:where([data-deck-title])) .branch::after {
-    display: none;
-  }
   :global(:where([data-deck-title])) .root,
-  :global(:where([data-deck-title])) .branchCard,
   :global(:where([data-deck-title])) .day {
     padding: 14px 16px;
     min-height: 0;
+  }
+  :global(:where([data-deck-title])) .branchCard {
+    padding: 12px 14px;
+  }
+  /* Branching on a phone: across while two or fewer children fit beside
+     each other (`data-phone`), in px; otherwise listed down. */
+  :global(:where([data-deck-title])) .split {
+    --line: 1px;
+    --reach: 24px;
+    --turn: 8px;
+    --between: 10px;
+    --indent: 20px;
+    --drop: 8px;
+    --arm: 22px;
+  }
+  :global(:where([data-deck-title])) .split[data-phone="down"] {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--drop);
+    padding: var(--drop) 0 0 var(--indent);
+  }
+  :global(:where([data-deck-title])) .split[data-phone="down"]::before {
+    display: none;
+  }
+  :global(:where([data-deck-title])) .split[data-phone="down"] > .splitItem {
+    padding-top: 0;
+  }
+  :global(:where([data-deck-title]))
+    .split[data-phone="down"]
+    > .splitItem::before,
+  :global(:where([data-deck-title]))
+    .split[data-phone="down"]
+    > .splitItem::after {
+    display: block;
+    right: auto;
+    translate: none;
+    border-width: 0;
+    border-radius: 0;
+    background: var(--split-line, var(--deck-border-strong));
+  }
+  :global(:where([data-deck-title]))
+    .split[data-phone="down"]
+    > .splitItem::before {
+    top: calc(var(--drop) * -1);
+    bottom: 0;
+    left: calc(var(--indent) / -2 - var(--line) / 2);
+    width: var(--line);
+    height: auto;
+  }
+  :global(:where([data-deck-title]))
+    .split[data-phone="down"]
+    > .splitItem:last-child::before {
+    bottom: auto;
+    height: calc(var(--drop) + var(--arm));
+  }
+  :global(:where([data-deck-title]))
+    .split[data-phone="down"]
+    > .splitItem::after {
+    top: calc(var(--arm) - var(--line) / 2);
+    left: calc(var(--indent) / -2 - var(--line) / 2);
+    width: calc(var(--indent) / 2 + var(--line) / 2);
+    height: var(--line);
   }
   :global(:where([data-deck-title])) .day + .day {
     border-inline-start: 0;

@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { slideContent, type Block } from "../src/deck/content";
 import { slides } from "../src/deck/slides";
+import { expectSplitAcross, expectSplitDown, measureSplit } from "./branching";
 
 // The slide blocks the owner reviewed in the merged build (spec, "After
 // reviewing the merged build"; T043, T047), at 390 and 1440 (the two
@@ -346,3 +347,33 @@ test("facts and numbered points sit cleanly beside the headline", async ({
     }
   }
 });
+
+// ------------------------------------------------------------- branching ---
+
+// Feature 002's T123 (the owner's review of the diagram presets, "as is but
+// round corner and splitting zones"; "take the three branching for example.
+// should curved left and right and one goes down center aswell"): the org
+// and fork blocks branch the same way as the org chart preset. The children
+// sit below the root, the line splits downward from it, the outer branches
+// curve with rounded corners and a middle one goes straight down; the line
+// keeps its colour, the deck's strong border. On a phone the split stays
+// across while two or fewer children fit beside each other; more are listed
+// one under another, still below the root.
+for (const type of ["org", "fork"] as const) {
+  test(`${type}: the children sit below the root, the line splitting down to them with rounded corners`, async ({
+    page,
+  }, testInfo) => {
+    const found = find((block) => block.type === type);
+    expect(found, type).toBeTruthy();
+    const block = found!.block as Extract<Block, { type: typeof type }>;
+    await openDeck(page, found!.n);
+    const strong = await tokenColor(page, "--deck-border-strong");
+    const split = await measureSplit(
+      page.locator(blockOn(type)).locator("[data-split]").first(),
+    );
+    expect(split.items).toHaveLength(block.items.length);
+    if (testInfo.project.name !== "mobile" || block.items.length <= 2)
+      expectSplitAcross(split, strong, type);
+    else expectSplitDown(split, strong, type);
+  });
+}

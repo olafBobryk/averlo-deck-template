@@ -173,7 +173,9 @@ export function validateBlock(block: unknown, langs: readonly string[]) {
       );
       break;
     case "orgchart":
-      labelled(b.root, "root");
+      // The root, each node and each node's own nodes are Points: a Point
+      // holding children would be a hidden or a third level.
+      point(b.root, "root");
       list(
         b.children,
         "children",
@@ -183,7 +185,7 @@ export function validateBlock(block: unknown, langs: readonly string[]) {
       ).forEach((child, i) => {
         const path = `children[${i}]`;
         if (!isObject(child)) return report(path, "a node is needed");
-        labelled(child.node, `${path}.node`);
+        point(child.node, `${path}.node`);
         if (child.children === undefined) return;
         if (!Array.isArray(child.children))
           return report(`${path}.children`, "a list of nodes");
