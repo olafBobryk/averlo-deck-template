@@ -5,6 +5,7 @@
 // against its block type with the template-owned validator
 // (src/presets/validate.ts), which enforces data-model.md's limits.
 import assert from "node:assert/strict";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { describe, test } from "node:test";
 
 import { langs } from "../../src/deck/langs.ts";
@@ -73,6 +74,61 @@ describe("the registry", () => {
   test("every alternate differs from its example", () => {
     for (const entry of registry)
       assert.notDeepEqual(entry.alternate, entry.example, entry.name);
+  });
+
+  // Phase V1 (T110): the charts and stats family.
+  test("has the bar, line and donut charts and the stat cards, in the charts family", () => {
+    for (const kind of ["bar", "line", "donut"]) {
+      const entries = registry.filter(
+        (entry) => entry.block === "chart" && entry.example.kind === kind,
+      );
+      assert.equal(entries.length, 1, `one ${kind} chart entry`);
+      assert.equal(entries[0].family, "charts", kind);
+      assert.equal(entries[0].alternate.kind, kind, `${kind} alternate`);
+    }
+    const stats = registry.filter((entry) => entry.block === "stat");
+    assert.equal(stats.length, 1, "one stat entry");
+    assert.equal(stats[0].family, "charts");
+  });
+
+  test("a chart's example and alternate differ in shape, not only in words", () => {
+    for (const entry of registry.filter((e) => e.block === "chart")) {
+      const shape = (block) => [
+        block.categories.length,
+        block.series.length,
+        Boolean(block.unit),
+        Boolean(block.source),
+      ];
+      assert.notDeepEqual(
+        shape(entry.alternate),
+        shape(entry.example),
+        entry.name,
+      );
+    }
+  });
+});
+
+describe("the chart presets' colours", () => {
+  // Colours come only from CSS variables (the Averlo tokens), never from a
+  // literal: no hex, rgb() or hsl() in src/presets/charts/.
+  const dir = new URL("../../src/presets/charts/", import.meta.url);
+  const literal = /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(/i;
+
+  test("the charts folder holds Bar, Line, Donut and Stat", () => {
+    const files = existsSync(dir) ? readdirSync(dir) : [];
+    for (const name of ["Bar.tsx", "Line.tsx", "Donut.tsx", "Stat.tsx"])
+      assert.ok(files.includes(name), `src/presets/charts/${name}`);
+  });
+
+  test("no colour literal appears in src/presets/charts/", () => {
+    const files = existsSync(dir) ? readdirSync(dir) : [];
+    assert.ok(files.length > 0, "src/presets/charts/ has files");
+    for (const name of files) {
+      const lines = readFileSync(new URL(name, dir), "utf8").split("\n");
+      lines.forEach((line, i) =>
+        assert.ok(!literal.test(line), `${name}:${i + 1}: ${line.trim()}`),
+      );
+    }
   });
 });
 

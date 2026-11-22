@@ -142,3 +142,111 @@ test("the gallery's menu downloads the gallery's PDF", async ({ page }) => {
     `/pdf/${galleryPdfName(langs[0])}`,
   );
 });
+
+// Phase V1 (T110): the charts and stats. Each chart kind and the stat cards
+// have a registry entry; their example and alternate draw the visual itself
+// (not the pending stub), with every category and value as given; the first
+// series is in the Averlo accent; and the print view draws them too.
+const chartKinds = ["bar", "line", "donut"] as const;
+const chartEntry = (kind: (typeof chartKinds)[number]) =>
+  registry.find(
+    (entry) =>
+      entry.block === "chart" &&
+      entry.example.type === "chart" &&
+      entry.example.kind === kind,
+  );
+const statEntry = () => registry.find((entry) => entry.block === "stat");
+/** Words alone: SVG text wraps into tspans, which drop the spaces. */
+const squash = (s: string) => s.replace(/\s+/g, "");
+
+test("the charts and stats family has bar, line, donut and stat entries", () => {
+  for (const kind of chartKinds) expect(chartEntry(kind), kind).toBeTruthy();
+  expect(statEntry(), "stat").toBeTruthy();
+});
+
+for (const kind of chartKinds) {
+  test(`the ${kind} chart draws every category and series as given`, async ({
+    page,
+  }) => {
+    const entry = chartEntry(kind);
+    expect(entry, kind).toBeTruthy();
+    const slides = gallery.presetSlides(entry!.name);
+    for (const slide of [slides.example!, slides.alternate!]) {
+      const block = gallery.content[slide.id].blocks[0];
+      if (block.type !== "chart") throw new Error(`${slide.id}: not a chart`);
+      await openGallery(page, at(slide.id));
+      const main = page.locator("main:not([aria-hidden])");
+      await expect(main.locator("[data-preset-pending]")).toHaveCount(0);
+      const chart = main.locator(`[data-chart="${kind}"]`);
+      await expect(chart, slide.id).toBeVisible();
+      const marks = chart.locator("[data-mark]");
+      const expected =
+        kind === "bar"
+          ? block.categories.length * block.series.length
+          : kind === "line"
+            ? block.series.length
+            : block.categories.length;
+      await expect(marks, slide.id).toHaveCount(expected);
+      // Every category, in order, word for word.
+      const labels = await chart
+        .locator("[data-category]")
+        .evaluateAll((nodes) => nodes.map((n) => n.textContent ?? ""));
+      expect(labels.map(squash), slide.id).toEqual(
+        block.categories.map((c) => squash(c[langs[0]])),
+      );
+      if (block.unit)
+        await expect(chart.locator("[data-unit]")).toHaveText(
+          block.unit[langs[0]],
+        );
+      if (block.source)
+        await expect(chart.locator("[data-source]")).toHaveText(
+          block.source[langs[0]],
+        );
+      // A static legend only with two or more series.
+      await expect(chart.locator("[data-legend]")).toHaveCount(
+        kind !== "donut" && block.series.length > 1 ? 1 : 0,
+      );
+      // The first series is drawn in the Averlo accent.
+      const [fill, accent] = await chart.evaluate((root) => {
+        const mark = root.querySelector("[data-mark]")!;
+        const style = getComputedStyle(mark);
+        const probe = document.createElement("span");
+        probe.style.color = "var(--color-accent)";
+        root.append(probe);
+        const accent = getComputedStyle(probe).color;
+        probe.remove();
+        return [style.fill === "none" ? style.stroke : style.fill, accent];
+      });
+      expect(fill, slide.id).toBe(accent);
+    }
+  });
+}
+
+test("the stat cards show each value as written", async ({ page }) => {
+  const entry = statEntry();
+  expect(entry, "stat").toBeTruthy();
+  const slides = gallery.presetSlides(entry!.name);
+  for (const slide of [slides.example!, slides.alternate!]) {
+    const block = gallery.content[slide.id].blocks[0];
+    if (block.type !== "stat") throw new Error(`${slide.id}: not a stat`);
+    await openGallery(page, at(slide.id));
+    const main = page.locator("main:not([aria-hidden])");
+    await expect(main.locator("[data-preset-pending]")).toHaveCount(0);
+    const values = main.locator("[data-stat-value]");
+    await expect(values, slide.id).toHaveText(block.items.map((i) => i.value));
+  }
+});
+
+test("the print view draws every chart with its marks", async ({ page }) => {
+  await page.goto("/print?deck=gallery");
+  const charts = page.locator("[data-chart]");
+  const count = 2 * chartKinds.length;
+  await expect(charts).toHaveCount(count);
+  for (let i = 0; i < count; i++) {
+    const chart = charts.nth(i);
+    const box = await chart.locator("svg").first().boundingBox();
+    expect(box?.width ?? 0, `print chart ${i}`).toBeGreaterThan(100);
+    expect(box?.height ?? 0, `print chart ${i}`).toBeGreaterThan(100);
+    expect(await chart.locator("[data-mark]").count()).toBeGreaterThan(0);
+  }
+});
