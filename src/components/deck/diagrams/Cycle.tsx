@@ -1,3 +1,4 @@
+"use client";
 // The cycle preset (feature 002, T121): three to six stages that repeat,
 // each an Averlo Panel card led by its number in the muted step label, with
 // its label and an optional line. An arrow in the border token leads from
@@ -5,14 +6,18 @@
 // back into the first, so the order reads as a loop. The stages run across
 // a slide, the return under them; on a phone they run down, the return up
 // their left.
+// A deck component (feature 003, T311): moved here from src/presets/ with
+// its markup unchanged; its words are plain strings.
 import { Text } from "@/deck/text";
-import type { PresetProps } from "..";
-import { say } from "../say";
-import { Arrow, ArrowHead, Card, StepLabel, number } from "./parts";
-import styles from "./diagrams.module.css";
+import { words } from "../words";
+import { Arrow, ArrowHead, Card, StepLabel, number, type Entry } from "./parts";
+import styles from "@/presets/diagrams/diagrams.module.css";
 
-export function CyclePreset({ block, lang }: PresetProps<"cycle">) {
-  const n = block.stages.length;
+/** Three to six stages. */
+export type CycleProps = { stages: Entry[] };
+
+export function Cycle(props: CycleProps) {
+  const n = props.stages.length;
   return (
     <ol
       className={styles.cycle}
@@ -20,7 +25,7 @@ export function CyclePreset({ block, lang }: PresetProps<"cycle">) {
       data-count={n}
       style={{ ["--n" as string]: n }}
     >
-      {block.stages.map((stage, i) => (
+      {props.stages.map((stage, i) => (
         <li
           key={i}
           className={styles.stage}
@@ -36,7 +41,7 @@ export function CyclePreset({ block, lang }: PresetProps<"cycle">) {
               className={styles.label}
               data-cycle-label=""
             >
-              {say(stage.label, lang)}
+              {words(stage.label)}
             </Text>
             {stage.text && (
               <Text
@@ -46,7 +51,7 @@ export function CyclePreset({ block, lang }: PresetProps<"cycle">) {
                 className={styles.text}
                 data-cycle-text=""
               >
-                {say(stage.text, lang)}
+                {words(stage.text)}
               </Text>
             )}
           </Card>

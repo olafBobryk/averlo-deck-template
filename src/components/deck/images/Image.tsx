@@ -1,3 +1,4 @@
+"use client";
 // The image preset (feature 002, T132): one image, the owner's file under
 // public/images/ or, without one, the template's placeholder. `fit` covers
 // the frame (the default) or fits inside it; `bleed` runs it to the slide's
@@ -5,15 +6,14 @@
 // (the placeholder's name). A caption, when given, sits under it muted, or
 // on a chip over a full-bleed image. Loaded eagerly, so the PDF render
 // prints it (scripts/render-pdf.mjs waits for every image).
+// A deck component (feature 003, T311): moved here from src/presets/ with
+// its markup unchanged; its words are plain strings.
 import NextImage from "next/image";
 import { Panel } from "@/components/ui/primitives/Panel";
-import type { Lang } from "@/deck/langs";
-import type { Text as Words } from "@/deck/model";
 import { Text } from "@/deck/text";
-import type { PresetProps } from "..";
-import { say } from "../say";
+import { words } from "../words";
 import { ImagePlaceholder } from "./ImagePlaceholder";
-import styles from "./images.module.css";
+import styles from "@/presets/images/images.module.css";
 
 /** One image's frame: the file, or the placeholder while it has none. */
 export function ImageFrame({
@@ -22,17 +22,15 @@ export function ImageFrame({
   fit = "cover",
   bleed = false,
   sizes,
-  lang,
 }: {
   src?: string;
-  alt: Words;
+  alt: string;
   fit?: "cover" | "contain";
   bleed?: boolean;
   /** The frame's width on screen, for the browser's choice of file. */
   sizes: string;
-  lang: Lang;
 }) {
-  if (!src) return <ImagePlaceholder alt={say(alt, lang)} bleed={bleed} />;
+  if (!src) return <ImagePlaceholder alt={words(alt)} bleed={bleed} />;
   return (
     <Panel
       as="div"
@@ -50,7 +48,7 @@ export function ImageFrame({
           the owner gives shows unchanged, live and in the PDF. */}
       <NextImage
         src={src}
-        alt={say(alt, lang)}
+        alt={words(alt)}
         fill
         unoptimized
         loading="eager"
@@ -63,7 +61,7 @@ export function ImageFrame({
 }
 
 /** A caption, muted, under its image (or on a chip over a bleed). */
-export function Caption({ text, lang }: { text: Words; lang: Lang }) {
+export function Caption({ text }: { text: string }) {
   return (
     <Text
       as="figcaption"
@@ -72,27 +70,35 @@ export function Caption({ text, lang }: { text: Words; lang: Lang }) {
       className={styles.caption}
       data-image-caption=""
     >
-      {say(text, lang)}
+      {words(text)}
     </Text>
   );
 }
 
-export function ImagePreset({ block, lang }: PresetProps<"image">) {
+/** `src`: a path under public/images/; without it, the placeholder. */
+export type ImageProps = {
+  src?: string;
+  alt: string;
+  caption?: string;
+  fit?: "cover" | "contain";
+  bleed?: boolean;
+};
+
+export function Image(props: ImageProps) {
   return (
     <figure
       className={styles.image}
       data-image=""
-      data-bleed={block.bleed ? "" : undefined}
+      data-bleed={props.bleed ? "" : undefined}
     >
       <ImageFrame
-        src={block.src}
-        alt={block.alt}
-        fit={block.fit}
-        bleed={block.bleed}
-        sizes={block.bleed ? "100vw" : "(orientation: portrait) 100vw, 60vw"}
-        lang={lang}
+        src={props.src}
+        alt={props.alt}
+        fit={props.fit}
+        bleed={props.bleed}
+        sizes={props.bleed ? "100vw" : "(orientation: portrait) 100vw, 60vw"}
       />
-      {block.caption && <Caption text={block.caption} lang={lang} />}
+      {props.caption && <Caption text={props.caption} />}
     </figure>
   );
 }

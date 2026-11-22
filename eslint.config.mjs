@@ -20,7 +20,10 @@ export default defineConfig([
     "src/motion/**",
     // Ported unchanged from the Averlo sources (scripts/ports.lock.json);
     // never linted or fixed (process/workflows.md#port-the-design-system).
-    "src/components/**",
+    // src/components/deck/ is template-owned (feature 003) and linted.
+    "src/components/**/*",
+    "!src/components/deck/",
+    "!src/components/deck/**/*",
     "src/config/**",
     "src/font/**",
     "src/hooks/**",

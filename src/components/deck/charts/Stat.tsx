@@ -1,21 +1,34 @@
+"use client";
 // The stat preset (feature 002, T112): one to four headline figures, each
 // an Averlo Panel card with its value exactly as the source writes it, an
 // optional unit, its label and an optional note, in Averlo Text.
+// A deck component (feature 003, T311): moved here from src/presets/ with
+// its markup unchanged; its words are plain strings.
 import { Panel } from "@/components/ui/primitives/Panel";
 import { Text as AverloText } from "@/components/ui/primitives/Text";
 import { Text } from "@/deck/text";
-import type { PresetProps } from "..";
-import { say } from "../say";
-import styles from "./charts.module.css";
+import { words } from "../words";
+import styles from "@/presets/charts/charts.module.css";
 
-export function StatPreset({ block, lang }: PresetProps<"stat">) {
+/** One headline figure: its value exactly as the source writes it. */
+export type StatItem = {
+  value: string;
+  label: string;
+  unit?: string;
+  note?: string;
+};
+
+/** One to four figures. */
+export type StatProps = { items: StatItem[] };
+
+export function Stat(props: StatProps) {
   return (
     <ul
       className={styles.stats}
-      style={{ ["--n" as string]: block.items.length }}
-      data-count={block.items.length}
+      style={{ ["--n" as string]: props.items.length }}
+      data-count={props.items.length}
     >
-      {block.items.map((item, i) => (
+      {props.items.map((item, i) => (
         <Panel
           as="li"
           key={i}
@@ -41,7 +54,7 @@ export function StatPreset({ block, lang }: PresetProps<"stat">) {
                 tone="secondary"
                 className={styles.statUnit}
               >
-                {say(item.unit, lang)}
+                {words(item.unit)}
               </Text>
             )}
           </p>
@@ -51,7 +64,7 @@ export function StatPreset({ block, lang }: PresetProps<"stat">) {
             className={styles.statLabel}
             data-stat-label=""
           >
-            {say(item.label, lang)}
+            {words(item.label)}
           </Text>
           {item.note && (
             <Text
@@ -60,7 +73,7 @@ export function StatPreset({ block, lang }: PresetProps<"stat">) {
               tone="secondary"
               className={styles.statNote}
             >
-              {say(item.note, lang)}
+              {words(item.note)}
             </Text>
           )}
         </Panel>
