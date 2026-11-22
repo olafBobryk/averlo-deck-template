@@ -36,7 +36,24 @@ export function SlideView({
   lang: Lang;
   still?: boolean;
 }) {
-  const content = slideContent(slide.id, useDeck().content);
+  const deck = useDeck();
+  // A slide given as a file (src/slides/, feature 003) draws its own
+  // component in the same frame, with its words in this language.
+  const file = deck.files?.[slide.id];
+  if (file)
+    return (
+      <div
+        className={styles.slide}
+        data-kind={slide.kind}
+        data-layout={file.meta.layout}
+        data-deck-title={still ? undefined : ""}
+        data-slide-file=""
+        lang={lang}
+      >
+        <file.Component t={file.copy[lang]} lang={lang} />
+      </div>
+    );
+  const content = slideContent(slide.id, deck.content);
   const { headline } = content;
   const big = !headline;
   const Section = still ? StillSection : PageSection;

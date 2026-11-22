@@ -28,13 +28,29 @@ function questionnaireSpecifiers() {
   return aliases;
 }
 
+// The deck's slide index is src/slides/index.ts (scripts/slides-index.mjs).
+// SLIDES_DIR names another slide folder, whose generated index the deck
+// reads instead: `SLIDES_DIR=<folder> npm run dev` (feature 003;
+// tests/slides/files.spec.ts).
+function slidesIndex(): Record<string, string> {
+  const dir = process.env.SLIDES_DIR;
+  if (!dir) return {};
+  return {
+    "@/slides": `./${dir.replace(/^\.\//, "").replace(/\/$/, "")}/index.ts`,
+  };
+}
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   // No dev badge over the footer while rehearsing locally.
   devIndicators: false,
+  // `next dev` leaves AGENTS.md as the repository writes it: run by an
+  // agent, it would add its own block (feature 003, T302).
+  agentRules: false,
   turbopack: {
     resolveAlias: {
       ...questionnaireSpecifiers(),
+      ...slidesIndex(),
       // The questionnaire's shell stylesheet declares SF Pro faces whose
       // files are excluded from the port (not redistributable; research
       // R3a, step 6). Their url()s are left unresolved, as written: the

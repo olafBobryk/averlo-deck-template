@@ -6,17 +6,23 @@
 // showcase of every preset visual built from the preset registry
 // (src/presets/showcase.ts). Every `Text` has a string for each language in
 // `langs` (langs.ts).
+//
+// Slides given as files (src/slides/, feature 003) are placed among these
+// at their numbers (`placeFiles`); the template has none until J2 moves the
+// deck into files, so the deck is these slides as they are.
 
+import { slideFiles } from "@/slides";
 import { showcase } from "../presets/showcase";
 import type { SlideContent } from "./content";
 import type { Slide, Text } from "./model";
+import { filesById, placeFiles } from "./slide";
 
 const title: Text = { en: "Placeholder title" };
 const text: Text = { en: "Placeholder text" };
 const bold: Text = { en: "Placeholder **text**" };
 const presets = showcase();
 
-export const slides: Slide[] = [
+const dataSlides: Slide[] = [
   { id: "title", kind: "title", title },
   { id: "divider", kind: "divider", section: text, title },
   { id: "stack", kind: "slide", section: text, title },
@@ -32,6 +38,12 @@ export const slides: Slide[] = [
   ...presets.slides,
   { id: "closing", kind: "closing", title },
 ];
+
+/** The deck's slides, the slide files at their numbers. */
+export const slides: Slide[] = placeFiles(dataSlides, slideFiles);
+
+/** The slide files by id: the slide view draws each one's component. */
+export const files = filesById(slideFiles);
 
 export const content: Record<string, SlideContent> = {
   title: { blocks: [{ type: "lead", item: { text } }] },
