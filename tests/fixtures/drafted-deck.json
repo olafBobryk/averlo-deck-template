@@ -1,0 +1,759 @@
+[
+  {
+    "run": "1: Averlo brand",
+    "brand": {
+      "kind": "averlo"
+    },
+    "langs": ["en"],
+    "slides": [
+      {
+        "id": "title",
+        "kind": "title",
+        "title": {
+          "en": "Notes from the launch planning meeting"
+        }
+      },
+      {
+        "id": "why",
+        "kind": "slide",
+        "section": {
+          "en": "Why we are launching now"
+        },
+        "title": {
+          "en": "Why we are launching now"
+        }
+      },
+      {
+        "id": "release",
+        "kind": "slide",
+        "section": {
+          "en": "What the first release does"
+        },
+        "title": {
+          "en": "What the first release does"
+        }
+      },
+      {
+        "id": "plan-divider",
+        "kind": "divider",
+        "section": {
+          "en": "The plan"
+        },
+        "title": {
+          "en": "The plan"
+        }
+      },
+      {
+        "id": "stages",
+        "kind": "slide",
+        "section": {
+          "en": "The plan"
+        },
+        "title": {
+          "en": "The launch has four stages."
+        }
+      },
+      {
+        "id": "who",
+        "kind": "slide",
+        "section": {
+          "en": "The plan"
+        },
+        "title": {
+          "en": "Who does what"
+        }
+      },
+      {
+        "id": "risks",
+        "kind": "slide",
+        "section": {
+          "en": "Risks"
+        },
+        "title": {
+          "en": "Risks"
+        }
+      },
+      {
+        "id": "asks",
+        "kind": "slide",
+        "section": {
+          "en": "What we ask of the offices"
+        },
+        "title": {
+          "en": "What we ask of the offices"
+        }
+      },
+      {
+        "id": "closing",
+        "kind": "closing",
+        "title": {
+          "en": "How we will know it worked"
+        }
+      }
+    ],
+    "content": {
+      "title": {
+        "blocks": [
+          {
+            "type": "lead",
+            "item": {
+              "text": {
+                "en": "The launch is planned for the start of June."
+              }
+            }
+          }
+        ]
+      },
+      "why": {
+        "headline": {
+          "text": {
+            "en": "Our pilot ran for eight weeks with three offices."
+          }
+        },
+        "layout": "split",
+        "blocks": [
+          {
+            "type": "points",
+            "style": "numbered",
+            "columns": 2,
+            "items": [
+              {
+                "label": {
+                  "en": "People booked a desk in under a minute."
+                }
+              },
+              {
+                "label": {
+                  "en": "Most pilot users kept using the app after the pilot ended."
+                }
+              },
+              {
+                "label": {
+                  "en": "The offices asked us to open it to their whole staff."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "release": {
+        "headline": {
+          "text": {
+            "en": "The app is ready for a first release."
+          }
+        },
+        "blocks": [
+          {
+            "type": "points",
+            "columns": 2,
+            "items": [
+              {
+                "label": {
+                  "en": "Book a desk for a day or for half a day."
+                }
+              },
+              {
+                "label": {
+                  "en": "See which desks are free on a floor plan."
+                }
+              },
+              {
+                "label": {
+                  "en": "Invite a colleague to sit next to you."
+                }
+              },
+              {
+                "label": {
+                  "en": "Cancel a booking with one tap."
+                }
+              }
+            ]
+          },
+          {
+            "type": "note",
+            "item": {
+              "text": {
+                "en": "Payments and meeting rooms are not in the first release. We will look at them after the launch."
+              }
+            }
+          }
+        ]
+      },
+      "plan-divider": {
+        "blocks": []
+      },
+      "stages": {
+        "layout": "split",
+        "blocks": [
+          {
+            "type": "steps",
+            "items": [
+              {
+                "when": {
+                  "en": "April"
+                },
+                "label": {
+                  "en": "Finish testing"
+                },
+                "text": {
+                  "en": "We test the app with five teams in each pilot office."
+                },
+                "status": "current"
+              },
+              {
+                "when": {
+                  "en": "early May"
+                },
+                "label": {
+                  "en": "Train the office managers"
+                },
+                "text": {
+                  "en": "Each office has one manager who answers questions."
+                },
+                "status": "upcoming"
+              },
+              {
+                "when": {
+                  "en": "the start of June"
+                },
+                "label": {
+                  "en": "Open the app"
+                },
+                "text": {
+                  "en": "to the three pilot offices"
+                },
+                "status": "upcoming"
+              },
+              {
+                "when": {
+                  "en": "the end of June"
+                },
+                "label": {
+                  "en": "Review the launch"
+                },
+                "text": {
+                  "en": "decide which offices come next"
+                },
+                "status": "upcoming"
+              }
+            ]
+          }
+        ]
+      },
+      "who": {
+        "blocks": [
+          {
+            "type": "facts",
+            "items": [
+              {
+                "label": {
+                  "en": "The product lead"
+                },
+                "text": {
+                  "en": "owns the launch date and the scope"
+                }
+              },
+              {
+                "label": {
+                  "en": "The design lead"
+                },
+                "text": {
+                  "en": "owns the floor plans and the help pages"
+                }
+              },
+              {
+                "label": {
+                  "en": "Two developers"
+                },
+                "text": {
+                  "en": "fix the bugs found in testing"
+                }
+              },
+              {
+                "label": {
+                  "en": "The support lead"
+                },
+                "text": {
+                  "en": "trains the office managers"
+                }
+              },
+              {
+                "label": {
+                  "en": "The data lead"
+                },
+                "text": {
+                  "en": "reports how many desks are booked each week"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "risks": {
+        "blocks": [
+          {
+            "type": "points",
+            "columns": 3,
+            "items": [
+              {
+                "label": {
+                  "en": "The floor plans may be out of date in one office."
+                },
+                "text": {
+                  "en": "We will walk each floor before the launch and correct the plans."
+                }
+              },
+              {
+                "label": {
+                  "en": "Some people may not want to install another app."
+                },
+                "text": {
+                  "en": "The app also works in the browser, so nobody has to install it."
+                }
+              },
+              {
+                "label": {
+                  "en": "Testing may find more bugs than the two developers can fix in April."
+                },
+                "text": {
+                  "en": "If it does, we move the launch by two weeks rather than cut the testing."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "asks": {
+        "blocks": [
+          {
+            "type": "points",
+            "style": "numbered",
+            "columns": 3,
+            "items": [
+              {
+                "label": {
+                  "en": "Each office names one manager by the end of April."
+                }
+              },
+              {
+                "label": {
+                  "en": "Each office sends us its latest floor plans."
+                }
+              },
+              {
+                "label": {
+                  "en": "Each office tells its staff about the launch one week before it opens."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "closing": {
+        "blocks": [
+          {
+            "type": "points",
+            "style": "chips",
+            "columns": 3,
+            "items": [
+              {
+                "label": {
+                  "en": "We want half of the staff in each office to book a desk in the first month."
+                }
+              },
+              {
+                "label": {
+                  "en": "We want fewer than ten support questions a week after the second week."
+                }
+              },
+              {
+                "label": {
+                  "en": "We will share the numbers at the review at the end of June."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    "run": "2: another brand, no assets yet",
+    "brand": {
+      "kind": "owner",
+      "name": "Sample Co"
+    },
+    "langs": ["en"],
+    "slides": [
+      {
+        "id": "title",
+        "kind": "title",
+        "title": {
+          "en": "Notes from the launch planning meeting"
+        }
+      },
+      {
+        "id": "why",
+        "kind": "slide",
+        "section": {
+          "en": "Why we are launching now"
+        },
+        "title": {
+          "en": "Why we are launching now"
+        }
+      },
+      {
+        "id": "release",
+        "kind": "slide",
+        "section": {
+          "en": "What the first release does"
+        },
+        "title": {
+          "en": "What the first release does"
+        }
+      },
+      {
+        "id": "plan-divider",
+        "kind": "divider",
+        "section": {
+          "en": "The plan"
+        },
+        "title": {
+          "en": "The plan"
+        }
+      },
+      {
+        "id": "stages",
+        "kind": "slide",
+        "section": {
+          "en": "The plan"
+        },
+        "title": {
+          "en": "The launch has four stages."
+        }
+      },
+      {
+        "id": "who",
+        "kind": "slide",
+        "section": {
+          "en": "The plan"
+        },
+        "title": {
+          "en": "Who does what"
+        }
+      },
+      {
+        "id": "risks",
+        "kind": "slide",
+        "section": {
+          "en": "Risks"
+        },
+        "title": {
+          "en": "Risks"
+        }
+      },
+      {
+        "id": "asks",
+        "kind": "slide",
+        "section": {
+          "en": "What we ask of the offices"
+        },
+        "title": {
+          "en": "What we ask of the offices"
+        }
+      },
+      {
+        "id": "closing",
+        "kind": "closing",
+        "title": {
+          "en": "How we will know it worked"
+        }
+      }
+    ],
+    "content": {
+      "title": {
+        "blocks": [
+          {
+            "type": "lead",
+            "item": {
+              "text": {
+                "en": "The launch is planned for the start of June."
+              }
+            }
+          }
+        ]
+      },
+      "why": {
+        "headline": {
+          "text": {
+            "en": "Our pilot ran for eight weeks with three offices."
+          }
+        },
+        "layout": "split",
+        "blocks": [
+          {
+            "type": "points",
+            "style": "numbered",
+            "columns": 2,
+            "items": [
+              {
+                "label": {
+                  "en": "People booked a desk in under a minute."
+                }
+              },
+              {
+                "label": {
+                  "en": "Most pilot users kept using the app after the pilot ended."
+                }
+              },
+              {
+                "label": {
+                  "en": "The offices asked us to open it to their whole staff."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "release": {
+        "headline": {
+          "text": {
+            "en": "The app is ready for a first release."
+          }
+        },
+        "blocks": [
+          {
+            "type": "points",
+            "columns": 2,
+            "items": [
+              {
+                "label": {
+                  "en": "Book a desk for a day or for half a day."
+                }
+              },
+              {
+                "label": {
+                  "en": "See which desks are free on a floor plan."
+                }
+              },
+              {
+                "label": {
+                  "en": "Invite a colleague to sit next to you."
+                }
+              },
+              {
+                "label": {
+                  "en": "Cancel a booking with one tap."
+                }
+              }
+            ]
+          },
+          {
+            "type": "note",
+            "item": {
+              "text": {
+                "en": "Payments and meeting rooms are not in the first release. We will look at them after the launch."
+              }
+            }
+          }
+        ]
+      },
+      "plan-divider": {
+        "blocks": []
+      },
+      "stages": {
+        "layout": "split",
+        "blocks": [
+          {
+            "type": "steps",
+            "items": [
+              {
+                "when": {
+                  "en": "April"
+                },
+                "label": {
+                  "en": "Finish testing"
+                },
+                "text": {
+                  "en": "We test the app with five teams in each pilot office."
+                },
+                "status": "current"
+              },
+              {
+                "when": {
+                  "en": "early May"
+                },
+                "label": {
+                  "en": "Train the office managers"
+                },
+                "text": {
+                  "en": "Each office has one manager who answers questions."
+                },
+                "status": "upcoming"
+              },
+              {
+                "when": {
+                  "en": "the start of June"
+                },
+                "label": {
+                  "en": "Open the app"
+                },
+                "text": {
+                  "en": "to the three pilot offices"
+                },
+                "status": "upcoming"
+              },
+              {
+                "when": {
+                  "en": "the end of June"
+                },
+                "label": {
+                  "en": "Review the launch"
+                },
+                "text": {
+                  "en": "decide which offices come next"
+                },
+                "status": "upcoming"
+              }
+            ]
+          }
+        ]
+      },
+      "who": {
+        "blocks": [
+          {
+            "type": "facts",
+            "items": [
+              {
+                "label": {
+                  "en": "The product lead"
+                },
+                "text": {
+                  "en": "owns the launch date and the scope"
+                }
+              },
+              {
+                "label": {
+                  "en": "The design lead"
+                },
+                "text": {
+                  "en": "owns the floor plans and the help pages"
+                }
+              },
+              {
+                "label": {
+                  "en": "Two developers"
+                },
+                "text": {
+                  "en": "fix the bugs found in testing"
+                }
+              },
+              {
+                "label": {
+                  "en": "The support lead"
+                },
+                "text": {
+                  "en": "trains the office managers"
+                }
+              },
+              {
+                "label": {
+                  "en": "The data lead"
+                },
+                "text": {
+                  "en": "reports how many desks are booked each week"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "risks": {
+        "blocks": [
+          {
+            "type": "points",
+            "columns": 3,
+            "items": [
+              {
+                "label": {
+                  "en": "The floor plans may be out of date in one office."
+                },
+                "text": {
+                  "en": "We will walk each floor before the launch and correct the plans."
+                }
+              },
+              {
+                "label": {
+                  "en": "Some people may not want to install another app."
+                },
+                "text": {
+                  "en": "The app also works in the browser, so nobody has to install it."
+                }
+              },
+              {
+                "label": {
+                  "en": "Testing may find more bugs than the two developers can fix in April."
+                },
+                "text": {
+                  "en": "If it does, we move the launch by two weeks rather than cut the testing."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "asks": {
+        "blocks": [
+          {
+            "type": "points",
+            "style": "numbered",
+            "columns": 3,
+            "items": [
+              {
+                "label": {
+                  "en": "Each office names one manager by the end of April."
+                }
+              },
+              {
+                "label": {
+                  "en": "Each office sends us its latest floor plans."
+                }
+              },
+              {
+                "label": {
+                  "en": "Each office tells its staff about the launch one week before it opens."
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "closing": {
+        "blocks": [
+          {
+            "type": "points",
+            "style": "chips",
+            "columns": 3,
+            "items": [
+              {
+                "label": {
+                  "en": "We want half of the staff in each office to book a desk in the first month."
+                }
+              },
+              {
+                "label": {
+                  "en": "We want fewer than ten support questions a week after the second week."
+                }
+              },
+              {
+                "label": {
+                  "en": "We will share the numbers at the review at the end of June."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+]

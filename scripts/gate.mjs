@@ -329,7 +329,7 @@ function flakyReason(tail) {
   const count = tail[at].trim().split(" ")[0];
   const names = [];
   for (const line of tail.slice(at + 1)) {
-    const match = /^\s+(\[[^\]]+\]) › .*? › (.+?)\s*$/.exec(line);
+    const match = /^\s+(\[[^\]]+\]) › .*? › (.+?)[\s─]*$/.exec(line);
     if (!match) break;
     names.push(`${match[1]} ${match[2]}`);
   }
