@@ -5,6 +5,7 @@ import { galleryPdfName } from "../../src/deck/pdf-name";
 import { slideContent } from "../../src/deck/content";
 import { gallery } from "../../src/presets/gallery";
 import { registry } from "../../src/presets/registry";
+import { expectSplitAcross, expectSplitDown, measureSplit } from "../branching";
 import { expectFits } from "./fit";
 
 // The preset gallery (feature 002, FR-004, SC-002, SC-005): a separate deck
@@ -562,6 +563,18 @@ async function expectConnectors(diagram: Locator, arrows: number) {
     }
     for (const el of root.querySelectorAll("[data-arrow]"))
       found.push(getComputedStyle(el).color);
+    // A branching line is drawn in its split's and items' ::before and
+    // ::after (T123).
+    for (const el of root.querySelectorAll("[data-split], [data-split-item]"))
+      for (const which of ["::before", "::after"]) {
+        const s = getComputedStyle(el, which);
+        if (s.content === "none" || s.display === "none") continue;
+        if (s.backgroundColor !== "rgba(0, 0, 0, 0)")
+          found.push(s.backgroundColor);
+        for (const side of ["Top", "Right", "Bottom", "Left"] as const)
+          if (parseFloat(s[`border${side}Width`]) > 0)
+            found.push(s[`border${side}Color`]);
+      }
     return found;
   });
   expect(colours.length).toBeGreaterThan(0);
@@ -698,6 +711,50 @@ test("the org chart draws its root over its nodes, each over its own nodes, in o
     // Reporting lines, no arrows.
     await expectConnectors(org, 0);
   }
+});
+
+// T123 (the owner's review of the diagram presets): the org chart's lines
+// split downward from each parent, the outer branches curving left and
+// right with rounded corners and a middle branch going straight down, in
+// the border token as before. On a slide, a node's own nodes split under it
+// the same way while they fit (at most six leaf columns across the chart:
+// the nodes times the most nodes any of them has), and are listed under it
+// otherwise. On a phone the nodes split across while two or fewer fit
+// beside each other; otherwise, and for a node's own nodes, they are listed
+// one under another, still below the node they report to.
+test("the org chart splits its lines downward from each parent, curving out, the middle straight", async ({
+  page,
+}) => {
+  for (const { slide, block } of diagramSlides("orgchart")) {
+    const org = await openDiagram(page, slide.id, "orgchart");
+    const border = await tokenColour(org, "--color-border");
+    const n = block.children.length;
+    const most = Math.max(
+      ...block.children.map((c) => c.children?.length ?? 0),
+    );
+    const top = await measureSplit(org.locator("[data-split]").first());
+    expect(top.items).toHaveLength(n);
+    if (!phone() || n <= 2) expectSplitAcross(top, border, `${slide.id} root`);
+    else expectSplitDown(top, border, `${slide.id} root`);
+    const branches = org.locator("[data-org-branch]");
+    for (let i = 0; i < n; i++) {
+      const leaves = block.children[i].children ?? [];
+      if (!leaves.length) continue;
+      const split = await measureSplit(
+        branches.nth(i).locator("[data-split]").first(),
+      );
+      expect(split.items).toHaveLength(leaves.length);
+      const at = `${slide.id} node ${i + 1}`;
+      if (!phone() && n * most <= 6) expectSplitAcross(split, border, at);
+      else expectSplitDown(split, border, at);
+    }
+  }
+});
+
+test("the gallery's org chart shows a three-way split, its middle straight", () => {
+  // The example covers the owner's case: one parent over three.
+  const [{ block }] = diagramSlides("orgchart");
+  expect(block.children).toHaveLength(3);
 });
 
 test("the table draws each cell in its row and column, its header muted", async ({
