@@ -20,6 +20,12 @@
 - Q: How do presets ship? → A: "Example slide files": one complete example slide per preset, which an agent copies into `src/slides/` and changes freely.
 - Q: How much process? → A: "Full Spec Kit cycle".
 
+### Session 2026-11-22 (clarify)
+
+- Q: What format are a slide's word definitions? → A: "A typed object in the .tsx": `export const copy = { en: { title: "…", … }, fr: { … } }` at the top of the slide file; the type check catches a missing language or key.
+- Q: Where do metadata and the title live? → A: "Separate meta, title in words": `export const meta = { kind, section }`, with the title inside each language's words so it translates.
+- Q: Text typed directly in a slide's JSX? → A: "Fail the gate".
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Write a slide as a file (Priority: P1)
@@ -85,7 +91,7 @@ The deck-visuals skill and the "Draft a deck" workflow write slide files instead
 
 - Two slide files share a number: the build fails and names both.
 - A slide file without metadata, or with an unknown kind: the build fails and names the file.
-- Words written directly in the JSX instead of in the word definitions: a check warns, because the trace check and the second language can't see them.
+- Words written directly in the JSX instead of in `copy`: the gate fails and names the slide, because the trace check and a second language can't see them.
 - A slide's JSX overflows its stage: the development overflow report names it, as today.
 
 ## Requirements *(mandatory)*
@@ -93,7 +99,7 @@ The deck-visuals skill and the "Draft a deck" workflow write slide files instead
 ### Functional Requirements
 
 - **FR-001**: Slides MUST be files in `src/slides/`, one per slide, ordered by a number at the start of the file name.
-- **FR-002**: Each slide file MUST declare, at its top, its metadata (kind, section, title, and an optional parent) and its words keyed by language. Its JSX MUST read its words from there.
+- **FR-002**: Each slide file MUST declare, at its top, `meta` (kind, section, and an optional parent) and `copy`, a typed object of its words keyed by language that includes the title. Its JSX MUST read its words from `copy`.
 - **FR-003**: Every configured language MUST have every word, checked when the deck builds.
 - **FR-004**: The deck engine (stepping, swipe, menu, overview, URL, intro, print, PDF and motion) MUST work with slide files exactly as it does today.
 - **FR-005**: Each of today's blocks and presets MUST become an importable component with the same look, composed from the Averlo ports.
@@ -101,7 +107,7 @@ The deck-visuals skill and the "Draft a deck" workflow write slide files instead
 - **FR-007**: Each preset MUST ship as a complete example slide file in its own folder, renderable when copied into `src/slides/` with a number. `/gallery` and the demo's showcase MUST render these files.
 - **FR-008**: The data block model (`content.ts` blocks and `slides.ts` data) MUST be removed once nothing uses it.
 - **FR-009**: The deck-visuals skill, the "Draft a deck" workflow and the trace check MUST work with slide files and their word definitions.
-- **FR-010**: Words written outside a slide's word definitions MUST be flagged by a check.
+- **FR-010**: Words written outside a slide's `copy` MUST fail the gate.
 
 ### Key Entities
 
