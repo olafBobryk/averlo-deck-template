@@ -44,7 +44,7 @@ export type Block =
   | { type: "facts"; items: Fact[] }
   | { type: "note"; item: Item }
   /** One node over the roles that report to it. */
-  | { type: "org"; root: Point; items: Point[]; style?: "tree" }
+  | { type: "org"; root: Point; items: Point[] }
   /** One stage branching into options. */
   | { type: "fork"; root: Point; items: Point[] }
   /** A working week with its fixed moments. */

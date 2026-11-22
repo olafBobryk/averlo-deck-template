@@ -157,6 +157,7 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 - [x] T035 [US4] The language switcher condition in the menu (compose row).
 - [x] T036 [US1] The final placeholder deck: about 12 slides covering every kind, layout and generic block. The PDF file name is `<slug>-<lang>.pdf`, where the slug is `deckTitle` lowercased, with every run of non-alphanumerics replaced by `-` and the ends trimmed.
 - [x] T036a [US4] Defect (light path): the deck drops `?lang=` for `langs[0]`, not for a hard-coded `en`.
+- [x] T036b Follow-up after the merge (light path, owner-approved): detach the org block's unused `style?: "tree"` from `src/deck/content.ts` (a detach row in `docs/carried/deck.md`), remove it from the placeholder deck, and make `data-model.md`'s org line just `org`. `tests/deck.spec.ts` checks, by type and by data, that the org block has no `style`.
 - **Gate P6:** `npm run gate`.
 
 ## Phase P7: Docs and fresh copy (branch `p7-public`, base `p6-slides`)
