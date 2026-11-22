@@ -293,6 +293,19 @@ test("the gallery and the deck's showcase draw each preset's example alike", asy
 }) => {
   const frames = async (path: string) => {
     await page.goto(path);
+    // Charts draw once their box is measured: every chart has its marks,
+    // and every animation has ended.
+    await page.waitForFunction(() =>
+      [...document.querySelectorAll("[data-chart]")].every((chart) =>
+        chart.querySelector("[data-mark]"),
+      ),
+    );
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForFunction(() =>
+      document
+        .getAnimations()
+        .every((a) => a.playState === "finished" || a.playState === "idle"),
+    );
     return page.locator("[data-print-page] [data-kind]").evaluateAll((slides) =>
       // Generated ids and the references to them left out.
       slides.map((slide) =>
