@@ -12,6 +12,12 @@ import { slides } from "../src/deck/slides";
 // the menu's PDF download hands over a real file, and every placeholder
 // slide fits its stage at 390 and 1440 (SC-005). Runs in both projects.
 
+/** A type-level check, run by the typecheck: the org block's type has no
+ *  `style` field. */
+const orgHasNoStyle: "style" extends keyof Extract<Block, { type: "org" }>
+  ? false
+  : true = true;
+
 async function openDeck(page: Page, s: number) {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.addInitScript(() =>
@@ -70,7 +76,12 @@ test("the placeholder deck holds every kind, layout and block (FR-002)", () => {
     );
   has(styles("points", "cards"), ["cards", "numbered", "chips"]);
   has(styles("steps", "rail"), ["rail", "nodes"]);
-  has(styles("org", "tree"), ["tree"]);
+  // The org block draws one way and has no style: the ledger was dropped,
+  // and nothing reads a "tree" style.
+  const orgs = blocks.filter((block) => block.type === "org");
+  expect(orgs.length).toBeGreaterThan(0);
+  for (const org of orgs) expect(Object.keys(org)).not.toContain("style");
+  expect(orgHasNoStyle).toBe(true);
   has(
     blocks.flatMap((block) =>
       block.type === "lead" ? [block.size ?? "normal"] : [],
