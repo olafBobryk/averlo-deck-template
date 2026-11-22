@@ -106,6 +106,49 @@ test("the composed visual example has its gallery slide, drawn and fitting", asy
   }
 });
 
+// Feature 003 (T330): the gallery draws the preset files: each preset's
+// example (src/presets/slides/<file>.tsx) and its second example
+// (alternates/<file>.tsx), the same files the deck's showcase draws.
+test("the gallery draws each preset's example file and its second example", () => {
+  for (const entry of registry) {
+    const { example, alternate } = gallery.presetSlides(entry.name);
+    expect(gallery.files[example!.id], entry.name).toBe(entry.file);
+    expect(gallery.files[alternate!.id], entry.name).toBe(
+      `alternates/${entry.file}`,
+    );
+  }
+});
+
+test("the gallery and the deck's showcase draw each preset's example alike", async ({
+  page,
+}) => {
+  const frames = async (path: string) => {
+    await page.goto(path);
+    return page.locator("[data-print-page] [data-kind]").evaluateAll((slides) =>
+      // Generated ids and the references to them left out.
+      slides.map((slide) =>
+        slide.outerHTML
+          .replace(
+            /\s(id|for|aria-labelledby|aria-describedby|aria-controls)="[^"]*"/g,
+            "",
+          )
+          .replace(/url\(#[^)]*\)/g, "url(#)")
+          .replace(/recharts\d+/g, "recharts")
+          .replace(/_r_[0-9a-z]+_/g, "_r_"),
+      ),
+    );
+  };
+  const inGallery = await frames("/print?deck=gallery");
+  const inDeck = await frames("/print");
+  const showcase = slideData.findIndex((slide) => slide.id === "showcase");
+  for (const [i, entry] of registry.entries()) {
+    const { example } = gallery.presetSlides(entry.name);
+    expect(inGallery[at(example!.id) - 1], entry.name).toBe(
+      inDeck[showcase + 1 + i],
+    );
+  }
+});
+
 test("the gallery's slides are its own: none is a slide of the deck", () => {
   const deck = new Set(slideData.map((slide) => slide.id));
   for (const slide of gallery.slides)
