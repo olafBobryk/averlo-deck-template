@@ -22,11 +22,11 @@ These are the same as feature 002's rules:
 
 ## Phase J0: Slide files and the index (branch `j0-files`, base `main`)
 
-- [ ] T300 Tests first:
+- [x] T300 Tests first:
   - `tests/tools/slides_test.mjs`: `scripts/slides-index.mjs` sorts by number, fails on a duplicate or missing number and on a file without `meta` or `copy`, and the generated index matches the files.
   - A Playwright check that a slide added as a file shows in its numbered place, in the menu and overview, prints, and keeps its `?s=` link.
-- [ ] T301 `src/deck/slide.ts` holds the `SlideMeta`, `Copy` and `SlideProps` types. `scripts/slides-index.mjs` writes `src/slides/index.ts` and runs before `dev`, `build` and `check` (package scripts).
-- [ ] T302 The engine (`Deck.tsx`, `SlideView.tsx`, `Overview.tsx`, print, render-pdf) reads the generated index. A slide that has a `Component` renders it in the slide's frame, and the old data slides keep working until J2. These are compose rows.
+- [x] T301 `src/deck/slide.ts` holds the `SlideMeta`, `Copy` and `SlideProps` types. `scripts/slides-index.mjs` writes `src/slides/index.ts` and runs before `dev`, `build` and `check` (package scripts).
+- [x] T302 The engine (`Deck.tsx`, `SlideView.tsx`, `Overview.tsx`, print, render-pdf) reads the generated index. A slide that has a `Component` renders it in the slide's frame, and the old data slides keep working until J2. These are compose rows.
 - **Gate J0:** `npm run gate`; the default deck is unchanged.
 
 ## Phase J1: Components (branch `j1-components`, base `j0-files`)
