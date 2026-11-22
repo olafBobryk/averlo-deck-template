@@ -182,7 +182,7 @@ test.describe("content workflow", () => {
       true,
     );
     expect(exists(ANSWERS), `${ANSWERS} exists`).toBe(true);
-    const slides = scanSlides(join(root, SLIDES)) as SlideCopy[];
+    const slides: SlideCopy[] = scanSlides(join(root, SLIDES));
     expect(slides.length, "the dry run drafted slides").toBeGreaterThan(0);
     expect(slideTexts(slides).length, "they have slide text").toBeGreaterThan(
       0,

@@ -7,6 +7,7 @@
 // its markup unchanged; its words are plain strings.
 import { Caption, ImageFrame } from "./Image";
 import styles from "@/presets/images/images.module.css";
+import { reportLimits } from "../limits";
 
 /** Two to six images. */
 export type ImageGridProps = {
@@ -14,6 +15,7 @@ export type ImageGridProps = {
 };
 
 export function ImageGrid(props: ImageGridProps) {
+  reportLimits("ImageGrid", props);
   const n = props.images.length;
   const columns = n <= 4 ? n : 3;
   return (

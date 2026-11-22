@@ -11,6 +11,7 @@ import { Text } from "@/deck/text";
 import { words } from "../words";
 import { Card } from "./parts";
 import styles from "@/presets/diagrams/diagrams.module.css";
+import { reportLimits } from "../limits";
 
 /** At most 5 columns and 8 rows, each row a label and one cell per
  *  column. */
@@ -20,6 +21,7 @@ export type TableProps = {
 };
 
 export function Table(props: TableProps) {
+  reportLimits("Table", props);
   return (
     <Card className={styles.tableCard} data-diagram="table">
       <table
