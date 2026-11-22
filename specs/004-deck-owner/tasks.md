@@ -10,14 +10,14 @@ These are the same as features 002 and 003: no blocked terms; ports unchanged; r
 
 ## Phase D0: check:deck (branch `d0-check`, base `main` after 003)
 
-- [ ] T400 Tests first. `tests/tools/check-deck_test.mjs`:
+- [x] T400 Tests first. `tests/tools/check-deck_test.mjs`:
   - `check:deck` runs check, build, fit, words-in-copy and trace;
   - it never runs strips, ports or scan;
   - it reports each check.
   
   The fresh-copy script runs `check:deck` in a clone without `.local/`, and it passes.
-- [ ] T401 `scripts/check-deck.mjs` and `npm run check:deck` (research R1). Tag the deck-relevant Playwright specs so they run alone.
-- [ ] T402 Light path (a defect in the gate's tests): the two specs that start a scratch dev server (`tests/slides/files.spec.ts`, `tests/slides/presets.spec.ts`) take turns through a lock in `tests/slides/scratch.ts`. Next runs one dev server per folder, and the D0 gate's first run failed when the two ran at once.
+- [x] T401 `scripts/check-deck.mjs` and `npm run check:deck` (research R1). Tag the deck-relevant Playwright specs so they run alone.
+- [x] T402 Light path (a defect in the gate's tests): the two specs that start a scratch dev server (`tests/slides/files.spec.ts`, `tests/slides/presets.spec.ts`) take turns through a lock in `tests/slides/scratch.ts`. Next runs one dev server per folder, and the D0 gate's first run failed when the two ran at once.
 - **Gate D0:** `npm run gate`; then `check:deck` passes in a fresh clone.
 
 ## Phase D1: Docs and the amendment (branch `d1-docs`, base `d0-check`)
