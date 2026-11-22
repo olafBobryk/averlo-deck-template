@@ -77,7 +77,9 @@
   --deck-radius-xl: var(--radius-3xl);
   --deck-size-icon-button: calc(var(--spacing) * 7);
 
-  /* Type */
+  /* Type. Body and supporting text at the regular weight (owner, after
+     the final build: "Regular 400 + test"). */
   --deck-type-title-l-weight: var(--font-weight-semibold);
+  --deck-type-body-weight: 400;
   --deck-type-size-label-m: var(--text-sm);
 }

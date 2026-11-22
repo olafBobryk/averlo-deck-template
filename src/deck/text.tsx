@@ -9,7 +9,10 @@ import {
  *  Averlo `Text` variant (the table is in docs/carried/deck.md). Sizes,
  *  weights and line heights the carried CSS sets on an element still win:
  *  Averlo's variants are Tailwind utilities in a layer, the CSS modules are
- *  not. */
+ *  not. Body and supporting roles (`bodyRoles`) are drawn regular, 400:
+ *  their Averlo variants are regular, and the deck's CSS sets them at
+ *  `--deck-type-body-weight` (owner, after the final build: "Regular 400 +
+ *  test"; tests/text-weight.spec.ts). */
 const variants = {
   display: "heading1",
   "title-l": "subheading1",
@@ -17,10 +20,22 @@ const variants = {
   "body-xl": "bodyPrimary",
   "body-l": "bodyPrimary",
   "body-m": "bodyPrimary",
-  "label-l": "fieldLabel",
+  "label-l": "support",
   "label-m-strong": "fieldLabel",
   "label-m": "support",
 } as const satisfies Record<string, AverloVariant>;
+
+/** The body and supporting text roles: block text, point and card
+ *  bodies, notes, leads, and the labels that support a title (eyebrows,
+ *  fact labels, dates, step labels). Titles and headings keep their
+ *  weight. */
+export const bodyRoles = [
+  "body-xl",
+  "body-l",
+  "body-m",
+  "label-l",
+  "label-m",
+] as const;
 
 /** The deck's text tones, each an Averlo tone. */
 const tones = {
