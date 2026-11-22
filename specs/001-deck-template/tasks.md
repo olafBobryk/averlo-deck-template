@@ -179,4 +179,5 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 - [x] T041 [US3] Dry-run the workflow on the sample source twice: once with the Averlo brand, and once with a named other brand, where the agent must ask for the logo and assets. Save the drafted deck and the answers as the T037 fixtures, and check every slide's text (SC-006).
 - [x] T042 Fresh-copy check: `scripts/fresh-copy.mjs` clones the pushed repo into a new folder, copies `.local/` into it (it stays ignored there), runs `npm ci`, and starts and steps through the deck, timed against SC-001.
 - [x] T042a Defect (light path): the gate reports a flaky test's name without Playwright's trailing separator.
+- [x] T042b Follow-up after the merge (light path, owner-approved): `scripts/render-pdf.mjs` checks that `PDF_PORT` is free before it starts `next start`, and exits with an error naming the port when it is busy (the template-owned `scripts/port-free.mjs`; a fix (owner) row in `docs/carried/app.md`). Tested by `tests/tools/port-free_test.mjs`.
 - **Gate P7:** `npm run gate` on the fresh clone; all PRs open; nothing merged by an agent.

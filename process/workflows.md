@@ -128,7 +128,7 @@ To remove a language, remove its code from `langs`, its name and its strings.
 
 - `.local/env`, ignored, with `LD_LIBRARY_PATH`, `PORT_SOURCES_DIR`, `SCAN_TERMS_FILE`, `ORIGIN_URL` and `TARGET_URL`. The gate loads it and names any value that is missing. Values already set in the environment win. `ORIGIN_URL` serves the origin build only while the template has no `src/app`, so once the app exists a missing `ORIGIN_URL` is named but changes no check.
 - Chromium for Playwright (`npx playwright install chromium`).
-- Nothing else answering at `TARGET_URL`, `SMOKE_PORT` (3198 by default) or `PDF_PORT` (3199 by default): the checks start their own servers there. If something already answers at `TARGET_URL`, the `strips` check fails.
+- Nothing else answering at `TARGET_URL`, `SMOKE_PORT` (3198 by default) or `PDF_PORT` (3199 by default): the checks start their own servers there. If something already answers at `TARGET_URL`, the `strips` check fails. If `PDF_PORT` is busy, the PDF render stops with an error naming the port, and the build fails.
 
 ### What it runs
 
