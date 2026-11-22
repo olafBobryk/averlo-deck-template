@@ -106,7 +106,8 @@ export function validateBlock(block: unknown, langs: readonly string[]) {
     return problems;
   }
   const b = block;
-  switch (b.type) {
+  const type = block.type;
+  switch (type) {
     case "chart": {
       if (!["bar", "line", "donut"].includes(b.kind as string))
         report("kind", "bar, line or donut");
@@ -264,8 +265,8 @@ export function validateBlock(block: unknown, langs: readonly string[]) {
       if (!isObject(b.props)) report("props", "a props object");
       break;
     default:
-      if (!(carriedTypes as readonly string[]).includes(b.type))
-        report("type", `not a block type: ${b.type}`);
+      if (!(carriedTypes as readonly string[]).includes(type))
+        report("type", `not a block type: ${type}`);
   }
   return problems;
 }

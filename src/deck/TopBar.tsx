@@ -19,7 +19,7 @@ import { InterfaceCopyContext } from "@/questionnaire/wording-context";
 import { englishCopy, type InterfaceCopy } from "@/questionnaire/wording";
 import type { Lang } from "./langs";
 import { ui } from "./model";
-import { slides } from "./slides";
+import { useDeck } from "./version";
 import styles from "./topbar.module.css";
 
 // The top bar (FR-012; research R4): the questionnaire's whole top, its
@@ -138,7 +138,7 @@ export function TopBar({
   onNavigate: (step: number) => void;
   onMeasure: (bottom: number) => void;
 }) {
-  const total = slides.length;
+  const total = useDeck().slides.length;
   const step = index + 1;
   const copy = useMemo<InterfaceCopy>(
     () => ({

@@ -14,3 +14,7 @@ export const slug = (title: string) =>
 /** The deck's PDF in one language. */
 export const pdfName = (title: string, lang: string) =>
   `${slug(title)}-${lang}.pdf`;
+
+/** The preset gallery's PDF in one language (feature 002, /gallery):
+ *  `gallery-<lang>.pdf`. */
+export const galleryPdfName = (lang: string) => pdfName("Gallery", lang);

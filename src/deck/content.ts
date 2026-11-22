@@ -134,7 +134,11 @@ export type SlideContent = {
   notes?: Text;
 };
 
-/** A slide's content. */
-export function slideContent(id: string): SlideContent {
-  return content[id] ?? { blocks: [] };
+/** A slide's content, from the template's map or another deck's (the
+ *  preset gallery's, through `DeckContext`). */
+export function slideContent(
+  id: string,
+  from: Record<string, SlideContent> = content,
+): SlideContent {
+  return from[id] ?? { blocks: [] };
 }
