@@ -26,9 +26,10 @@ export type PresetEntry = {
 
 /** Placeholder words in every language (rule 9). A deck with more
  *  languages adds each here; the type and the registry test say so. */
-const words = (value: string): Text => ({ en: value });
-const title = words("Placeholder title");
-const text = words("Placeholder text");
+// Literal texts, so a second language is added to them like every other
+// `Text` (tests/languages.spec.ts adds it to each `en: "…"` it finds).
+const title: Text = { en: "Placeholder title" };
+const text: Text = { en: "Placeholder text" };
 /** `n` placeholder categories. */
 const categories = (n: number) => Array.from({ length: n }, () => text);
 

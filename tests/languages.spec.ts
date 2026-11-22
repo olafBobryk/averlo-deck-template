@@ -151,6 +151,7 @@ const textFolders = [
   "src/brand",
   "src/deck",
   "src/gate",
+  "src/presets",
 ];
 
 /** Every .ts and .tsx file under `folder` of the copy. */
