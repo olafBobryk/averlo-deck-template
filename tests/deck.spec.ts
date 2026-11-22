@@ -1,24 +1,28 @@
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { config } from "../src/brand/config";
+import type { BranchesProps } from "../src/components/deck";
 import { langs } from "../src/deck/langs";
 import { pdfHref } from "../src/deck/model";
 import { pdfName } from "../src/deck/pdf-name";
-import { slideContent, stepsStyle, type Block } from "../src/deck/content";
 import { slides } from "../src/deck/slides";
 import { registry } from "../src/presets/registry";
-import { showcase } from "../src/presets/showcase";
+import { slideData } from "../src/slides/data";
+import { printedBlocks } from "./printed";
 
 // The template's own checks of the placeholder deck (User Story 1): it holds
 // every kind, layout and generic block in placeholder text only (FR-002),
 // the menu's PDF download hands over a real file, and every placeholder
 // slide fits its stage at 390 and 1440 (SC-005). Runs in both projects.
+//
+// The deck is its slide files (src/slides/, feature 003): their kinds,
+// layouts and words are read from the generated data file
+// (src/slides/data.ts), and their blocks as /print draws them, each in its
+// frame (`data-block`) with its style.
 
-/** A type-level check, run by the typecheck: the org block's type has no
- *  `style` field. */
-const orgHasNoStyle: "style" extends keyof Extract<Block, { type: "org" }>
-  ? false
-  : true = true;
+/** A type-level check, run by the typecheck: the org component takes no
+ *  `style`. */
+const orgHasNoStyle: "style" extends keyof BranchesProps ? false : true = true;
 
 async function openDeck(page: Page, s: number) {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -36,58 +40,64 @@ async function openDeck(page: Page, s: number) {
   await page.evaluate(() => document.fonts.ready);
 }
 
-/** Every `Text` in a value: an object whose values are the languages'
- *  strings. */
-function texts(value: unknown): string[] {
-  if (!value || typeof value !== "object") return [];
-  const entries = Object.entries(value);
-  if (
-    entries.length === langs.length &&
-    langs.every(
-      (lang) => typeof (value as Record<string, unknown>)[lang] === "string",
-    )
-  )
-    return langs.map((lang) => (value as Record<string, string>)[lang]);
-  return entries.flatMap(([, v]) => texts(v));
-}
+/** Every string in a slide's words, in every language. */
+const strings = (value: unknown): string[] =>
+  typeof value === "string"
+    ? [value]
+    : value && typeof value === "object"
+      ? Object.values(value).flatMap(strings)
+      : [];
 
-test("the placeholder deck holds every kind, layout and block (FR-002)", () => {
-  const contents = slides.map((slide) => slideContent(slide.id));
-  const blocks: Block[] = contents.flatMap((content) => content.blocks);
+/** A figure written as a string: a stat's value or a plan's month. */
+const figure = (word: string) => /^[\d\s.,:%+-]+$/.test(word);
+
+/** The showcase's slides: its divider, then one per preset. */
+const showcaseAt = slideData.findIndex((slide) => slide.id === "showcase");
+const shown = new Set(
+  slideData
+    .slice(showcaseAt, showcaseAt + 1 + registry.length)
+    .map((slide) => slide.id),
+);
+
+test("the placeholder deck holds every kind, layout and block (FR-002)", async ({
+  page,
+}) => {
   const has = (list: string[], wanted: string[]) =>
     expect([...new Set(list)].sort()).toEqual(expect.arrayContaining(wanted));
 
+  // The deck's slides are its files, in number order.
+  expect(slides.map((slide) => slide.id)).toEqual(
+    slideData.map((slide) => slide.id),
+  );
   has(
-    slides.map((slide) => slide.kind),
+    slideData.map((slide) => slide.meta.kind),
     ["title", "divider", "slide", "closing"],
   );
   has(
-    contents.map((content) => content.layout ?? "stack"),
+    slideData.flatMap((slide) =>
+      slide.meta.layout ? [slide.meta.layout] : [],
+    ),
     ["stack", "split", "split-end", "center", "statement", "module"],
   );
+  const printed = await printedBlocks(page);
+  expect(printed).toHaveLength(slideData.length);
+  const blocks = printed.flat();
   has(
     blocks.map((block) => block.type),
     ["lead", "note", "points", "steps", "facts", "org", "fork", "week", "plan"],
   );
   // Each block's styles, its default included.
-  const styles = (type: Block["type"], fallback: string) =>
+  const styles = (type: string) =>
     blocks.flatMap((block) =>
-      block.type === type
-        ? [("style" in block && block.style) || fallback]
-        : [],
+      block.type === type && block.style ? [block.style] : [],
     );
-  has(styles("points", "cards"), ["cards", "numbered", "chips"]);
-  has(
-    blocks.flatMap((block) =>
-      block.type === "steps" ? [stepsStyle(block.style)] : [],
-    ),
-    ["rail", "across"],
-  );
+  has(styles("points"), ["cards", "numbered", "chips"]);
+  has(styles("steps"), ["rail", "across"]);
   // The org block draws one way and has no style: the ledger was dropped,
   // and nothing reads a "tree" style.
-  const orgs = blocks.filter((block) => block.type === "org");
-  expect(orgs.length).toBeGreaterThan(0);
-  for (const org of orgs) expect(Object.keys(org)).not.toContain("style");
+  expect(blocks.filter((block) => block.type === "org").length).toBeGreaterThan(
+    0,
+  );
   expect(orgHasNoStyle).toBe(true);
   has(
     blocks.flatMap((block) =>
@@ -96,68 +106,78 @@ test("the placeholder deck holds every kind, layout and block (FR-002)", () => {
     ["normal", "statement"],
   );
 
-  // Placeholder text only (constitution III): every string a slide shows is
-  // "Placeholder title" or "Placeholder text", key-phrase markup aside. The
-  // presets' showcase is checked against the registry below.
-  const own = slides.filter((slide) => !shown.has(slide.id));
-  const words = [...own, ...own.map((slide) => slideContent(slide.id))].flatMap(
-    texts,
-  );
+  // Placeholder text only (constitution III): every word a slide's copy
+  // holds is "Placeholder title" or "Placeholder text", key-phrase markup
+  // aside, or a figure. The presets' showcase is checked below.
+  const own = slideData.filter((slide) => !shown.has(slide.id));
+  const words = own.flatMap((slide) => strings(slide.copy));
   expect(words.length).toBeGreaterThan(0);
-  for (const word of words)
+  for (const word of words.filter((word) => !figure(word)))
     expect(["Placeholder title", "Placeholder text"]).toContain(
       word.replaceAll("**", ""),
     );
 });
 
-/** The showcase's slides, by id. */
-const shown = new Set(showcase().slides.map((slide) => slide.id));
-
 // The presets in the demo (feature 002, "Session 2026-11-22 (owner, after
 // the final build)": "Put them in the demo"): before the closing slide, a
 // divider "Presets" and one slide per registry preset, in the registry's
-// order, each with its example in its layout. Its section and titles are
-// the preset names, as the gallery's are; everything else is the
-// registry's placeholder content.
-test("the placeholder deck ends with a showcase of every preset, before the closing", () => {
-  const at = slides.findIndex((slide) => slide.id === showcase().slides[0].id);
+// order, each with its visual in its layout. Its section and titles are
+// the preset names, as the gallery's are; everything else is placeholder
+// words and figures.
+test("the placeholder deck ends with a showcase of every preset, before the closing", async ({
+  page,
+}) => {
+  const at = showcaseAt;
   expect(at, "the showcase's divider").toBeGreaterThan(0);
   // Slides 1–12 stay as they were; the closing slide stays last.
   expect(at).toBeGreaterThanOrEqual(12);
-  expect(slides.at(-1)!.kind).toBe("closing");
-  const run = slides.slice(at, -1);
+  expect(slideData.at(-1)!.meta.kind).toBe("closing");
+  const run = slideData.slice(at, -1);
   expect(run).toHaveLength(1 + registry.length);
   const [divider, ...rest] = run;
-  expect(divider.kind).toBe("divider");
+  expect(divider.meta.kind).toBe("divider");
   for (const lang of langs) {
-    expect(divider.section?.[lang]).toBe("Presets");
-    expect(divider.title[lang]).toBe("Presets");
+    expect(divider.copy[lang][divider.meta.section!]).toBe("Presets");
+    expect(divider.copy[lang].title).toBe("Presets");
   }
-  expect(slideContent(divider.id).blocks).toEqual([]);
+  const printed = await printedBlocks(page);
+  expect(printed[at]).toEqual([]);
+  const placeholders = [
+    "Placeholder title",
+    "Placeholder text",
+    "Placeholder date",
+    "Placeholder text, placeholder text, placeholder text, placeholder text.",
+  ];
   for (const [i, entry] of registry.entries()) {
     const slide = rest[i];
-    expect(slide.kind, entry.name).toBe("slide");
+    expect(slide.meta.kind, entry.name).toBe("slide");
     for (const lang of langs) {
-      expect(slide.section?.[lang], entry.name).toBe("Presets");
-      expect(slide.title[lang], entry.name).toBe(entry.name);
+      expect(slide.copy[lang][slide.meta.section!], entry.name).toBe("Presets");
+      expect(slide.copy[lang].title, entry.name).toBe(entry.name);
+      for (const [key, word] of Object.entries(slide.copy[lang]))
+        if (key !== "title" && key !== slide.meta.section)
+          for (const each of strings(word).filter((word) => !figure(word)))
+            expect(placeholders, `${entry.name}: ${key}`).toContain(each);
     }
-    const content = slideContent(slide.id);
+    expect(slide.meta.layout, entry.name).toBe(entry.layout ?? "stack");
     // T051 (owner on T050: "all these slides dont come with slide body
-    // text, they porbably should"): a short body text, a plain lead of
-    // placeholder text, with the example; before it, or after it on the
-    // statement, whose example is the claim itself.
-    const body = { type: "lead", item: { text: { en: "Placeholder text" } } };
-    expect(content.blocks, entry.name).toEqual(
-      entry.layout === "statement"
-        ? [entry.example, body]
-        : [body, entry.example],
+    // text, they porbably should"): a short body text, a plain lead, with
+    // the visual; before it, or after it on the statement, whose visual is
+    // the claim itself.
+    const drawn = printed[at + 1 + i];
+    expect(
+      drawn.map((block) => block.type),
+      entry.name,
+    ).toEqual(
+      entry.layout === "statement" ? ["lead", "lead"] : ["lead", entry.block],
     );
-    expect(content.layout ?? "stack", entry.name).toBe(entry.layout ?? "stack");
-    for (const word of texts(content.headline))
-      expect(word, entry.name).toBe("Placeholder text");
+    const body = entry.layout === "statement" ? drawn[1] : drawn[0];
+    expect(body.size, entry.name).toBeNull();
+    if (entry.layout === "statement")
+      expect(drawn[0].size, entry.name).toBe("statement");
   }
   // Ids of their own: the gallery's are not the deck's.
-  const ids = slides.map((slide) => slide.id);
+  const ids = slideData.map((slide) => slide.id);
   expect(new Set(ids).size).toBe(ids.length);
 });
 
@@ -172,8 +192,8 @@ test("a content slide's text starts well below the top bar", async ({
   test.setTimeout(120_000);
   let checked = 0;
   for (let s = 1; s <= slides.length; s++) {
-    const content = slideContent(slides[s - 1].id);
-    if (!content.headline) continue;
+    // A slide with a layout has a headline (src/deck/slide.ts).
+    if (!slideData[s - 1].meta.layout) continue;
     await openDeck(page, s);
     const logo = page.locator(".aq .brand-logo").first();
     if (!(await logo.isVisible())) continue;
@@ -206,13 +226,10 @@ test("a content slide's text starts well below the top bar", async ({
 test("a split showcase slide sets its body text beside the visual", async ({
   page,
 }) => {
-  const split = slides
-    .map((slide, i) => ({ slide, s: i + 1, content: slideContent(slide.id) }))
+  const split = slideData
+    .map((slide, i) => ({ slide, s: i + 1 }))
     .filter(
-      ({ slide, content }) =>
-        shown.has(slide.id) &&
-        content.layout === "split" &&
-        content.blocks[0]?.type === "lead",
+      ({ slide }) => shown.has(slide.id) && slide.meta.layout === "split",
     );
   expect(split.length).toBeGreaterThan(0);
   const phone = (page.viewportSize()?.width ?? 0) < 700;

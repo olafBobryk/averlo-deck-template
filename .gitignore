@@ -32,3 +32,8 @@ public/pdf/
 # Machine-local parity baselines (feature 003, T310): this machine and the
 # placeholder deck only; a copy lives in .local/baselines/.
 tests/slides/components.spec.ts-snapshots/
+# The J1 build's whole-slide baselines (feature 003, T320), likewise; a copy
+# lives in .local/baselines/j1-slides/.
+tests/slides/deck.spec.ts-snapshots/
+# Scratch slide folders the slide specs write and remove (tests/slides/scratch.ts).
+tests/slides/.scratch/
