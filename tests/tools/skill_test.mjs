@@ -6,6 +6,10 @@
 // example file (src/presets/slides/) by scripts/presets-doc.mjs, so it never
 // drifts from the presets. Every preset
 // in the registry is named in SKILL.md's selection rules.
+//
+// Feature 003 (T340): a preset is an example slide file, so the skill names
+// every preset file by its path, and drafts slide files (src/slides/), with
+// the owner's words in `copy`, never data blocks.
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -122,5 +126,45 @@ describe("the deck-visuals skill", () => {
       .map((entry) => entry.name)
       .filter((name) => !rules.includes(name));
     assert.deepEqual(missing, [], "presets missing from the selection rules");
+  });
+
+  test("SKILL.md names every preset file and its path", () => {
+    const skill = read(join(copies.claude, "SKILL.md"));
+    const rules = selectionRules(skill);
+    const missing = registry
+      .map((entry) => `src/presets/slides/${entry.file}.tsx`)
+      .filter((path) => !rules.includes(`\`${path}\``));
+    assert.deepEqual(
+      missing,
+      [],
+      "preset files missing from the selection rules",
+    );
+    const folder = join(root, "src", "presets", "slides");
+    const files = [
+      ...readdirSync(folder)
+        .filter((name) => name.endsWith(".tsx"))
+        .map((name) => `src/presets/slides/${name}`),
+      ...readdirSync(join(folder, "composed")).map(
+        (name) => `src/presets/slides/composed/${name}`,
+      ),
+    ];
+    assert.ok(files.length > registry.length, "the preset folder has files");
+    const unnamed = files.filter((path) => !skill.includes(`\`${path}\``));
+    assert.deepEqual(unnamed, [], "preset files SKILL.md does not name");
+  });
+
+  test("SKILL.md drafts slide files with the owner's words in copy, not data", () => {
+    const skill = read(join(copies.claude, "SKILL.md"));
+    for (const word of ["src/slides/", "`copy`", "@/components/deck", "NN-"])
+      assert.ok(skill.includes(word), `SKILL.md names ${word}`);
+    for (const gone of [
+      "src/deck/slides.ts",
+      "src/deck/content.ts",
+      "src/presets/validate.ts",
+      "src/deck/visuals/index.ts",
+      'type: "custom"',
+      "DeckVisualProps",
+    ])
+      assert.ok(!skill.includes(gone), `SKILL.md still names ${gone}`);
   });
 });

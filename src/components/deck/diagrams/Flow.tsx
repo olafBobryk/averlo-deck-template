@@ -9,11 +9,13 @@ import { Text } from "@/deck/text";
 import { words } from "../words";
 import { Arrow, Card, StepLabel, number, type Entry } from "./parts";
 import styles from "@/presets/diagrams/diagrams.module.css";
+import { reportLimits } from "../limits";
 
 /** Two to seven steps, in order. */
 export type FlowProps = { steps: Entry[] };
 
 export function Flow(props: FlowProps) {
+  reportLimits("Flow", props);
   const n = props.steps.length;
   return (
     <ol

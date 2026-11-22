@@ -8,6 +8,8 @@ How an agent turns a deck owner's material into slides (FR-016, User Story 3). T
 
 To pick each slide's visual, use the `deck-visuals` skill (`.claude/skills/deck-visuals/SKILL.md`): it proposes a preset per slide from the material's structure, and the owner confirms each one.
 
+Each slide is a numbered file in `src/slides/`, `NN-name.tsx` (feature 003, `specs/003-jsx-slides/contracts/slide-file.md`). It exports `meta` (its kind, section and layout), `copy` (every word and figure it shows, for each language, its title among them) and a default component, free JSX from `@/components/deck` that reads its words from `t`. A preset is an example slide file in `src/presets/slides/`: copy it into `src/slides/` with a number, put the owner's words and figures in its `copy`, and change its JSX freely.
+
 ### What you need
 
 - The source material, in any form: notes, documents, transcripts, an old deck, a recording's text. Keep the owner's files in `docs/context/`, which is ignored, so they are never committed.
@@ -35,7 +37,7 @@ To pick each slide's visual, use the `deck-visuals` skill (`.claude/skills/deck-
    - until they arrive, the intro, the hard-load screen and the top bar's brand slot show the "your logo" placeholder, and the brand slot shows the name beside it. Say so to the owner;
    - when they arrive, follow [Change the brand](#change-the-brand).
 4. **Agree the outline.** Propose sections and slide titles taken from the source's own headings and phrases. The owner confirms, cuts, adds or reorders. Write their answer down.
-5. **Draft each slide.** Pick its kind, layout and blocks from the tables below, and fill each text with the owner's words. Keep speaker prompts in `notes`; they are not drawn.
+5. **Draft each slide.** Copy the fitting preset file into `src/slides/` with the slide's number (the skill picks it), or start from the placeholder slide whose kind and layout fit (the tables below). Put the owner's words and figures in its `copy`, replacing every placeholder, and change the JSX freely: drop a part the owner gave no words for, add, rearrange or mix components. Never type a word or a figure into the JSX: the inline-text check fails on it. Remove the placeholder slides the deck does not use, and renumber so the files run in the agreed order.
 6. **Show the owner** the deck (`npm run dev`), slide by slide, and ask about every slide you were unsure of. Change only what they answer.
 7. **Check the draft** (below).
 
@@ -43,55 +45,58 @@ To pick each slide's visual, use the `deck-visuals` skill (`.claude/skills/deck-
 
 | What                                    | Where                                                  |
 | --------------------------------------- | ------------------------------------------------------ |
-| Slides, their order and their text      | `slides` and `content` in `src/deck/slides.ts`         |
+| Slides, their order and their text      | `src/slides/NN-name.tsx`: `meta`, `copy` and the JSX   |
 | Languages                               | `langs` and `langNames` in `src/deck/langs.ts`         |
 | Brand, deck title, top-bar accent       | `config` in `src/brand/config.ts`                      |
 | The owner's logo and mark               | `public/brand/`, each with a row in `docs/licences.md` |
 | The source and the answers (never sent) | `docs/context/` (ignored)                              |
 
-### Slide kinds, layouts and blocks
+### Slide kinds, layouts and components
 
-The types are in `src/deck/model.ts` and `src/deck/content.ts`; the placeholder deck in `src/deck/slides.ts` uses each of them in 13 slides.
+The types are in `src/deck/slide.ts` (`SlideMeta`, `Copy`, `SlideProps`); the placeholder deck in `src/slides/` uses each kind, layout and component, and its showcase re-exports every preset file.
 
-A **slide** has an `id`, a `kind`, a `title`, and on dividers and content slides a `section` (shown in the footer) and an optional `parent`.
+A slide's **`meta`** has a `kind`, on dividers and content slides a `section` (shown in the footer) and an optional `parent`, each naming a key of `copy`, and a `layout`.
 
 | Kind      | Use                                                                                                              |
 | --------- | ---------------------------------------------------------------------------------------------------------------- |
 | `title`   | The first slide: the deck's title, with an optional lead.                                                        |
 | `divider` | Opens a section. In the menu's slide list, its row opens and closes the slides after it with the same `section`. |
-| `slide`   | A content slide: an optional `headline` over its blocks.                                                         |
+| `slide`   | A content slide: a headline over its components.                                                                 |
 | `closing` | The last slide.                                                                                                  |
 
-A slide's **content** has an optional `headline` (its point, with an optional `muted` lead-in), its `blocks`, a `layout` and optional `notes`. Without a headline, the title shows large.
+A slide with a `layout` draws `Heading` (its title small over its `headline`, the point it makes, with an optional `muted` lead-in) and its components in that composition. Without a `layout`, it draws `Title`, the title large.
 
-| Layout            | Draws                                             |
-| ----------------- | ------------------------------------------------- |
-| `stack` (default) | The heading over the blocks.                      |
-| `split`           | The heading on the left, the blocks on the right. |
-| `split-end`       | `split`, mirrored.                                |
-| `center`          | A quote or a closing line in the middle.          |
-| `statement`       | One large claim at the bottom left.               |
-| `module`          | Draws as `stack`: it has no rules of its own.     |
+| Layout      | Draws                                          |
+| ----------- | ---------------------------------------------- |
+| `stack`     | The heading over the components.               |
+| `split`     | The heading on the left, the components right. |
+| `split-end` | `split`, mirrored.                             |
+| `center`    | A quote or a closing line in the middle.       |
+| `statement` | One large claim at the bottom left.            |
+| `module`    | Draws as `stack`: it has no rules of its own.  |
 
-| Block    | Shows                                                                                                                  |
-| -------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `lead`   | One line of text; `size: "statement"` makes it large.                                                                  |
-| `points` | Labelled points in 2 to 5 columns (3 by default), as cards (the default), numbered rows or chips, with optional icons. |
-| `steps`  | Steps with a status (done, current, upcoming), as a rail (the default) or nodes.                                       |
-| `facts`  | Label and value pairs.                                                                                                 |
-| `note`   | A short note; `**bold**` marks emphasis.                                                                               |
-| `org`    | One node over the roles that report to it.                                                                             |
-| `fork`   | One stage branching into options.                                                                                      |
-| `week`   | A working week with its fixed moments.                                                                                 |
-| `plan`   | A time axis from `start` to `end` (YYYY-MM), with dated marks and spans.                                               |
+Each component sits in a `Block` (`<Block type="points">`) inside `Body`, which keep the deck's frame and entrance. The preset components (charts, stats, diagrams, text layouts and images) are in the skill's [preset reference](../.claude/skills/deck-visuals/references/presets.md). Feature 001's components:
+
+| Component | Shows                                                                                                                  |
+| --------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `Lead`    | One line of text; `size="statement"` makes it large.                                                                   |
+| `Points`  | Labelled points in 2 to 5 columns (3 by default), as cards (the default), numbered rows or chips, with optional icons. |
+| `Steps`   | Steps with a status (done, current, upcoming), as a rail (the default) or across.                                      |
+| `Facts`   | Label and value pairs.                                                                                                 |
+| `Note`    | A short note; `**bold**` marks emphasis.                                                                               |
+| `Org`     | One node over the roles that report to it.                                                                             |
+| `Fork`    | One stage branching into options.                                                                                      |
+| `Week`    | A working week with its fixed moments.                                                                                 |
+| `Plan`    | A time axis from `start` to `end` (YYYY-MM), with dated marks and spans.                                               |
 
 ### Check the draft
 
-1. **Every text traces.** Each sentence or phrase of slide text appears, ignoring case and spacing, in the source or the answers file (SC-006). Read the draft against both; anything that does not trace goes back to the owner as a question. `tests/docs/workflow-trace.spec.ts` applies the same rule to the template's sample (`tests/fixtures/sample-source.md`).
-2. **Brand.** With Averlo, the intro, the hard-load screen and the top bar's brand slot show the Averlo mark; with another brand and no assets yet, the "your logo" placeholder.
-3. **Fit.** Every slide's visible text and blocks fit inside its stage at 390 px and 1440 px (`tests/deck.spec.ts` checks it). In development, an overflowing slide is named in the browser console.
-4. **Public.** If the repository is public, `npm run scan:public` passes.
-5. **Gate.** [Run the gate](#run-the-gate) before offering the deck to land.
+1. **Every word and figure traces.** Each sentence or phrase in a slide's `copy`, labels included, appears, ignoring case and spacing, in the source or the answers file (SC-006), and each figure is one they write. Read the draft against both; anything that does not trace goes back to the owner as a question. `tests/docs/workflow-trace.spec.ts` applies the same rule to every slide file's `copy`, and to the template's dry run on its sample (`tests/fixtures/drafted-slides/` from `tests/fixtures/sample-source.md`).
+2. **No inline text.** `node scripts/check-inline-text.mjs` passes: no word or figure is typed into a slide's JSX (it runs in `npm run test:tools` too).
+3. **Brand.** With Averlo, the intro, the hard-load screen and the top bar's brand slot show the Averlo mark; with another brand and no assets yet, the "your logo" placeholder.
+4. **Fit.** Every slide's visible text and components fit inside its stage at 390 px and 1440 px (`tests/deck.spec.ts` checks it). In development, an overflowing slide, and a component over its limits (`src/components/deck/limits.ts`), are named in the browser console.
+5. **Public.** If the repository is public, `npm run scan:public` passes.
+6. **Gate.** [Run the gate](#run-the-gate) before offering the deck to land.
 
 ## Change the brand
 
@@ -119,23 +124,23 @@ To go back to Averlo, set `brand: { kind: "averlo" }`.
 One language is the default (FR-007). A deck adds one by configuration and strings.
 
 1. Add its code to `langs` in `src/deck/langs.ts`, and its name, written in that language, to `langNames` there. The first code is the default. The menu's language switcher and its PDF downloads show the name.
-2. Add a string in that language to every `Text`: each slide and its content in `src/deck/slides.ts`, and the interface strings (`ui`) in `src/deck/model.ts`. Add one to the intro's `loading` in `src/gate/Intro.tsx` too. Ask the owner for every translation (Principle III). `npm run check` fails on a string that misses a language.
+2. Add the language to every `copy`: in each slide file in `src/slides/`, an entry for the new code with every key the first language has, its title among them, and in each preset file under `src/presets/slides/` (the gallery draws them). Numbers stay as they are; words come from the owner. Add a string in that language to the interface strings (`ui`) in `src/deck/model.ts` and to the intro's `loading` in `src/gate/Intro.tsx` too. Ask the owner for every translation (Principle III). `npm run check` fails on a `copy` that misses the language or a key its slide reads, and on an interface string that misses the language.
 3. Run the gate. With two or more languages the menu shows the language switcher, and links carry `?lang=` for every language but the first. The build renders one PDF per language, `<slug>-<lang>.pdf` (`src/deck/pdf-name.ts`).
 
-To remove a language, remove its code from `langs`, its name and its strings.
+To remove a language, remove its code from `langs`, its name, its strings and its entry in every `copy`.
 
-The preset registry's placeholder texts (`src/presets/registry.ts`) get a string in the new language too. Then run `npm run presets:doc`, which regenerates the deck-visuals skill's preset reference from them.
+After changing the preset files, run `npm run presets:doc`, which regenerates the deck-visuals skill's preset reference from them.
 
 ## Promote a visual to a preset
 
-A deck's composed visual lives in `src/deck/visuals/` and is drawn through a `custom` block (feature 002, research D3). When the owner asks for it to become a shared preset (FR-011), make it one. Promotion is a feature change to the template, so it takes the spec path unless the owner has already approved it (constitution, Principle IV).
+A deck's composed visual is JSX in one of its slide files, with any component of its own in `src/deck/visuals/` (feature 002, research D3; feature 003). When the owner asks for it to become a shared preset (FR-011), make it one. Promotion is a feature change to the template, so it takes the spec path unless the owner has already approved it (constitution, Principle IV).
 
-1. **Move the file.** Move the component from `src/deck/visuals/` to `src/presets/<family>/`, where `<family>` is `charts`, `diagrams`, `text` or `images`, with its styles. It stays composed from Averlo parts only, with no colour literal; ports are never edited.
-2. **Give it a block.** Add its block type and fields to `PresetBlock` in `src/deck/content.ts` (a compose row in `docs/carried/deck.md`), its limits to `validateBlock` and its name to `presetTypes` in `src/presets/validate.ts`, and its component to the `presets` map in `src/presets/index.ts`. Remove its export from `src/deck/visuals/index.ts`, and change each `custom` block that drew it to the new block.
-3. **Add a registry entry** in `src/presets/registry.ts`: its `name`, `family`, `block`, one line of what it `fits`, an `example` and a different `alternate`, with placeholder words and placeholder numbers only. The gallery draws both from the entry.
-4. **Name it in the skill's selection rules**: a row in the table of `.claude/skills/deck-visuals/SKILL.md`, copied to `.agents/skills/deck-visuals/SKILL.md` so the two stay identical.
-5. **Regenerate the reference:** `npm run presets:doc`.
-6. **Run the tests.** `npm run test:tools` checks the registry, the validator and the skill; the gallery spec (`tests/presets/gallery.spec.ts`) checks that the new slides render and fit at 390 and 1440 and pass contrast. Add the preset's own tests to `tests/tools/presets_test.mjs` (its limits) and to the gallery spec, then [run the gate](#run-the-gate).
+1. **Make it a component.** Move its component from `src/deck/visuals/` to `src/components/deck/<family>/`, where `<family>` is `charts`, `diagrams`, `text` or `images`, with its styles in `src/presets/<family>/`, and export it from `src/components/deck/index.ts`. It takes its words and figures as typed props, plain strings and numbers, and stays composed from Averlo parts only, with no colour literal; ports are never edited. Give its block type to `BlockType` in `src/components/deck/Slide.tsx`. A limit its props' types cannot say (how many items it takes) goes in `src/components/deck/limits.ts`, with a `reportLimits` call in the component.
+2. **Write its example files.** `src/presets/slides/<file>.tsx` is a complete slide file with placeholder words and placeholder numbers only, all in `copy`; `src/presets/slides/alternates/<file>.tsx` is a second, different one. Change the deck's slide file that drew the visual to import the component from `@/components/deck`.
+3. **Add a registry entry** in `src/presets/registry.ts`: its `name`, its `file`, `family`, `block`, one line of what it `fits` and its `layout`. The gallery draws both example files from the entry. Add a showcase slide to the placeholder deck that re-exports the file (`export { copy, default, meta } from "@/presets/slides/<file>";`), numbered in the registry's order before the closing slide, and renumber the files after it.
+4. **Name it in the skill's selection rules**: a row in the table of `.claude/skills/deck-visuals/SKILL.md` with its file's path, copied to `.agents/skills/deck-visuals/SKILL.md` so the two stay identical.
+5. **Regenerate** the index and the reference: `npm run slides`, then `npm run presets:doc`.
+6. **Run the tests.** `npm run test:tools` checks the registry, the components' limits, the inline-text rule and the skill; the gallery spec (`tests/presets/gallery.spec.ts`) checks that the new slides render and fit at 390 and 1440 and pass contrast. Add the component's own tests to `tests/tools/presets_test.mjs` (its limits) and to the gallery spec, then [run the gate](#run-the-gate).
 
 ## Run the gate
 

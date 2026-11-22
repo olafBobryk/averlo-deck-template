@@ -1,25 +1,48 @@
 import { expect, test } from "@playwright/test";
-import { exists, read } from "./markdown";
+import { join } from "node:path";
+import { scanSlides } from "../../scripts/slides-index.mjs";
+import { slideData } from "../../src/slides/data";
+import { exists, read, root } from "./markdown";
 import {
+  copyValues,
   normalize,
+  slideFigures,
   slideTexts,
   untraced,
-  untracedFigures,
-  visualFigures,
+  untracedCopy,
+  type SlideCopy,
 } from "./trace";
 
 // User Story 3, scenario 1 (SC-006): a deck drafted through "Draft a deck
 // from any source" holds only text that traces to the sample source or to
-// the owner's answers. The workflow's dry run (T041) writes the drafted deck
-// and the answers as fixtures; until then the trace check is not run.
-// Feature 002 (FR-016, SC-003) extends the rule to visuals: their labels and
-// their chart and stat figures; the deck-visuals skill's dry run (T144)
-// writes the drafted visuals. No browser, no server.
+// the owner's answers. Feature 002 (FR-016, SC-003) extends the rule to
+// visuals: their labels and their chart and stat figures.
+//
+// Feature 003 (T340; User Story 4, FR-009, SC-004): a slide is a file, and
+// its words and figures sit in its `copy`. The trace reads every slide
+// file's copy, in every language, lists included: from src/slides/data.ts
+// for the deck, and from tests/fixtures/drafted-slides/ for the dry run of
+// the deck-visuals skill (T144, redone as slide files in T341). No browser,
+// no server.
 
 const SOURCE = "tests/fixtures/sample-source.md";
-const DECK = "tests/fixtures/drafted-deck.json";
-const VISUALS = "tests/fixtures/drafted-visuals.json";
+const SLIDES = "tests/fixtures/drafted-slides";
 const ANSWERS = "tests/fixtures/answers.md";
+
+/** A slide file's data with `words` as its one language's copy. */
+const slide = (id: string, words: Record<string, unknown>): SlideCopy => ({
+  number: 1,
+  id,
+  copy: { en: { title: "Revenue", ...words } },
+});
+
+/** The strings and numbers in a value, however deep. */
+const leaves = (value: unknown): number =>
+  typeof value === "string" || typeof value === "number"
+    ? 1
+    : value && typeof value === "object"
+      ? Object.values(value).reduce((n: number, v) => n + leaves(v), 0)
+      : 0;
 
 test.describe("content workflow", () => {
   // Data only: the same in both projects, so run once.
@@ -27,128 +50,122 @@ test.describe("content workflow", () => {
     test.skip(info.project.name !== "desktop", "no browser; runs once");
   });
 
-  test("the trace rule: a phrase from the source passes, an invented one does not", () => {
-    const sources = [
-      "The launch moves to **March**.\nWe test  with five teams.",
-    ];
-    expect(untraced("The launch moves to March.", sources)).toEqual([]);
-    expect(untraced("we test with FIVE teams", sources)).toEqual([]);
-    expect(
-      untraced("The launch moves to March. Sales will double.", sources),
-    ).toEqual(["sales will double"]);
-    expect(
-      slideTexts({
-        langs: ["en"],
-        slides: [{ id: "a", kind: "title", title: { en: "One" } }],
-        content: {
-          a: { blocks: [{ type: "plan", start: "2026-01", items: [] }] },
-        },
-      }),
-    ).toEqual(["One"]);
-  });
-
-  // Feature 002, FR-016 (SC-003): the trace covers visuals too. Every label
-  // of a visual is slide text, and every chart value and stat value is a
-  // figure that stands in the source or the answers, as written or
-  // formatted (1200 traces to "1,200"), never rounded or converted.
-  const visualDeck = (blocks: unknown[]) => ({
-    langs: ["en"],
-    slides: [{ id: "a", kind: "slide", title: { en: "Sales" } }],
-    content: { a: { blocks } },
-  });
   const sources = [
     "Sales by quarter: Q1 1,200 units, Q2 1,450 units, Q3 990 units.\n" +
       "Churn fell to 4.5% in the spring. Teams: North and South.",
   ];
 
-  test("a visual's labels are slide text: categories, series names, units and sources", () => {
-    const deck = visualDeck([
+  test("the trace rule: a phrase from the source passes, an invented one does not", () => {
+    const text = ["The launch moves to **March**.\nWe test  with five teams."];
+    expect(untraced("The launch moves to March.", text)).toEqual([]);
+    expect(untraced("we test with FIVE teams", text)).toEqual([]);
+    expect(
+      untraced("The launch moves to March. Sales will double.", text),
+    ).toEqual(["sales will double"]);
+  });
+
+  test("a slide's copy is its text: every string, in every language and every list", () => {
+    const slides: SlideCopy[] = [
       {
-        type: "chart",
-        kind: "bar",
-        categories: [{ en: "Q1" }, { en: "Q2" }, { en: "Q3" }],
-        series: [{ name: { en: "Units" }, values: [1200, 1450, 990] }],
-        unit: { en: "units" },
-        source: { en: "Sales by quarter" },
+        number: 4,
+        id: "sales",
+        copy: {
+          en: {
+            title: "Sales by quarter",
+            categories: ["Q1", "Q2", "Q3"],
+            series: ["Units"],
+            values: [[1200, 1450, 990]],
+            stats: [{ value: "4.5%", label: "Churn" }],
+          },
+          fr: { title: "Ventes" },
+        },
       },
-      {
-        type: "matrix",
-        x: { en: "North" },
-        y: { en: "South" },
-        quadrants: [{ label: { en: "Q1" } }, { label: { en: "Q2" } }],
-        items: [{ label: { en: "Teams" }, x: 0.5, y: 0.5 }],
-      },
+    ];
+    expect(slideTexts(slides)).toEqual([
+      "Sales by quarter",
+      "Q1",
+      "Q2",
+      "Q3",
+      "Units",
+      "4.5%",
+      "Churn",
+      "Ventes",
     ]);
-    const texts = slideTexts(deck);
-    expect(texts).toEqual(
-      expect.arrayContaining(["Q1", "Q2", "Q3", "Units", "Sales by quarter"]),
+    expect(copyValues(slides).map(({ at }) => at)).toContain(
+      "04-sales.tsx: copy.en.values[0][2]",
     );
-    expect(texts.flatMap((t) => untraced(t, sources))).toEqual([]);
-    const invented = visualDeck([
-      { type: "flow", steps: [{ label: { en: "Q4 forecast" } }] },
-    ]);
-    expect(slideTexts(invented).flatMap((t) => untraced(t, sources))).toEqual([
-      "q4 forecast",
+    expect(slideFigures(slides)).toEqual([
+      "04-sales.tsx: copy.en.values[0][0]: 1200",
+      "04-sales.tsx: copy.en.values[0][1]: 1450",
+      "04-sales.tsx: copy.en.values[0][2]: 990",
+      '04-sales.tsx: copy.en.stats[0].value: 4.5 in "4.5%"',
     ]);
   });
 
-  test("chart values and stat values trace as written or formatted, never rounded", () => {
-    const chart = (values: number[]) => ({
-      type: "chart",
-      kind: "bar",
-      categories: values.map((_, i) => ({ en: `Q${i + 1}` })),
-      series: [{ name: { en: "Units" }, values }],
-    });
-    const stat = (value: string) => ({
-      type: "stat",
-      items: [{ value, label: { en: "Churn" } }],
-    });
+  test("a word that traces nowhere fails and names the slide", () => {
+    expect(
+      untracedCopy(
+        [slide("sales", { headline: "Teams: North and South." })],
+        sources,
+      ),
+    ).toEqual(["01-sales.tsx: copy.en.title: revenue"]);
+    expect(
+      untracedCopy(
+        [
+          slide("forecast", {
+            title: "Sales by quarter",
+            labels: ["Q1", "Q4 forecast"],
+          }),
+        ],
+        sources,
+      ),
+    ).toEqual(["01-forecast.tsx: copy.en.labels[1]: q4 forecast"]);
+  });
+
+  test("figures trace as written or formatted, never rounded or converted", () => {
+    const figures = (words: Record<string, unknown>) =>
+      untracedCopy(
+        [slide("a", { title: "Sales by quarter", ...words })],
+        sources,
+      );
     // As written, or with its thousands grouped.
-    expect(
-      untracedFigures(visualDeck([chart([1200, 1450, 990])]), sources),
-    ).toEqual([]);
-    expect(untracedFigures(visualDeck([stat("4.5%")]), sources)).toEqual([]);
-    expect(untracedFigures(visualDeck([chart([4.5])]), sources)).toEqual([]);
+    expect(figures({ values: [[1200, 1450, 990]] })).toEqual([]);
+    expect(figures({ values: [4.5], stat: "4.5%" })).toEqual([]);
     // Rounded, invented or converted figures do not trace.
-    expect(untracedFigures(visualDeck([chart([1000])]), sources)).toEqual([
-      "a: chart series[0].values[0]: 1000",
+    expect(figures({ values: [1000] })).toEqual([
+      "01-a.tsx: copy.en.values[0]: 1000",
     ]);
-    expect(untracedFigures(visualDeck([chart([5])]), sources)).toEqual([
-      "a: chart series[0].values[0]: 5",
+    expect(figures({ values: [5, 200] })).toEqual([
+      "01-a.tsx: copy.en.values[0]: 5",
+      "01-a.tsx: copy.en.values[1]: 200",
     ]);
-    expect(untracedFigures(visualDeck([chart([200])]), sources)).toEqual([
-      "a: chart series[0].values[0]: 200",
+    // "5%" stands inside "4.5%", but the figure 5 does not.
+    expect(figures({ stat: "5%" })).toEqual([
+      '01-a.tsx: copy.en.stat: 5 in "5%"',
     ]);
-    expect(untracedFigures(visualDeck([stat("5%")]), sources)).toEqual([
-      "a: stat items[0].value: 5%",
-    ]);
-    // A deck without visuals has no figures to trace.
-    expect(
-      visualFigures({
-        langs: ["en"],
-        slides: [],
-        content: { a: { blocks: [{ type: "lead", item: { text: {} } }] } },
-      }),
-    ).toEqual([]);
   });
 
-  test("every visual of the drafted visuals deck traces: labels and figures", () => {
-    test.skip(
-      !exists(VISUALS) || !exists(ANSWERS),
-      `not run — T144: the skill's dry run writes ${VISUALS} and ${ANSWERS}`,
-    );
-    const deck = JSON.parse(read(VISUALS));
-    const sources = [read(SOURCE), read(ANSWERS)];
-    const texts = slideTexts(deck);
-    expect(texts.length, "the drafted deck has slide text").toBeGreaterThan(0);
+  test("the trace reads every slide file's copy from src/slides/data.ts, labels and figures included", () => {
+    expect(slideData.length, "the deck has slide files").toBeGreaterThan(0);
+    const values = copyValues(slideData);
+    for (const file of slideData) {
+      const name = `${String(file.number).padStart(2, "0")}-${file.id}.tsx`;
+      const mine = values.filter(({ at }) => at.startsWith(`${name}: `));
+      // Every leaf of the file's copy, strings and numbers, in every
+      // language.
+      expect(mine.length, `${name}: every word and figure`).toBe(
+        leaves(file.copy),
+      );
+      for (const lang of Object.keys(file.copy))
+        expect(
+          mine.some(({ at }) => at === `${name}: copy.${lang}.title`),
+          `${name}: its title in ${lang}`,
+        ).toBe(true);
+    }
     expect(
-      texts.flatMap((text) => untraced(text, sources)),
-      "phrases found in neither file",
-    ).toEqual([]);
-    expect(
-      untracedFigures(deck, sources),
-      "figures found in neither file",
-    ).toEqual([]);
+      slideFigures(slideData).length,
+      "the deck's charts' figures are read",
+    ).toBeGreaterThan(0);
   });
 
   test("the sample source is marked as sample material, 300 to 500 words", () => {
@@ -160,19 +177,19 @@ test.describe("content workflow", () => {
     expect(words).toBeLessThanOrEqual(500);
   });
 
-  test("every slide text of the drafted deck traces to the source or the answers", () => {
-    test.skip(
-      !exists(DECK) || !exists(ANSWERS),
-      `not run — T041: the workflow dry run writes ${DECK} and ${ANSWERS}`,
+  test("every word and figure of the drafted slides traces to the source or the answers", () => {
+    expect(exists(SLIDES), `${SLIDES}/ holds the dry run's slide files`).toBe(
+      true,
     );
-    const texts = slideTexts(JSON.parse(read(DECK)));
-    expect(texts.length, "the drafted deck has slide text").toBeGreaterThan(0);
-    const sources = [read(SOURCE), read(ANSWERS)];
-    const missing = texts.flatMap((text) => untraced(text, sources));
-    expect(missing, "phrases found in neither file").toEqual([]);
+    expect(exists(ANSWERS), `${ANSWERS} exists`).toBe(true);
+    const slides: SlideCopy[] = scanSlides(join(root, SLIDES));
+    expect(slides.length, "the dry run drafted slides").toBeGreaterThan(0);
+    expect(slideTexts(slides).length, "they have slide text").toBeGreaterThan(
+      0,
+    );
     expect(
-      untracedFigures(JSON.parse(read(DECK)), sources),
-      "figures found in neither file",
+      untracedCopy(slides, [read(SOURCE), read(ANSWERS)]),
+      "words and figures found in neither file",
     ).toEqual([]);
   });
 });

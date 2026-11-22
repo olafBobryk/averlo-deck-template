@@ -14,6 +14,7 @@ import { Text } from "@/deck/text";
 import { words } from "../words";
 import { ImagePlaceholder } from "./ImagePlaceholder";
 import styles from "@/presets/images/images.module.css";
+import { reportLimits } from "../limits";
 
 /** One image's frame: the file, or the placeholder while it has none. */
 export function ImageFrame({
@@ -85,6 +86,7 @@ export type ImageProps = {
 };
 
 export function Image(props: ImageProps) {
+  reportLimits("Image", props);
   return (
     <figure
       className={styles.image}

@@ -11,11 +11,13 @@ import { Text } from "@/deck/text";
 import type { Entry } from "../diagrams/parts";
 import { words } from "../words";
 import styles from "@/presets/text/text.module.css";
+import { reportLimits } from "../limits";
 
 /** Two to eight items. */
 export type AgendaProps = { items: Entry[] };
 
 export function Agenda(props: AgendaProps) {
+  reportLimits("Agenda", props);
   const n = props.items.length;
   const columns = n > 4 ? 2 : 1;
   return (

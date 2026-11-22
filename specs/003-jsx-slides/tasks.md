@@ -52,12 +52,14 @@ These are the same as feature 002's rules:
 
 ## Phase J4: Skill, trace, inline-text check, docs (branch `j4-skill`, base `j3-presets`)
 
-- [ ] T340 Tests first:
+- [x] T340 Tests first:
   - the inline-text check fails on visible text outside `copy` and names the file (research R3);
   - the trace check reads every slide's `copy`, labels and figures included;
   - the skill test checks the skill names every preset file.
-- [ ] T341 Update the deck-visuals skill (both copies) and "Draft a deck from any source": copy the fitting preset file into `src/slides/` with its number, and put the owner's words in `copy`. Redo the dry-run fixture as slide files.
-- [ ] T342 Update the README ("Write your deck", "Visuals") and the docs.
+- [x] T341 Update the deck-visuals skill (both copies) and "Draft a deck from any source": copy the fitting preset file into `src/slides/` with its number, and put the owner's words in `copy`. Redo the dry-run fixture as slide files.
+  - `content.ts`'s block types (a detach row) and `src/presets/validate.ts` are removed: the components' typed props hold every word, a chart's kind, an image's fit and the matrix's quadrants, and the limits the types cannot hold (counts, one value per category, a value from 0 to 1, an image path) are each component's own in `src/components/deck/limits.ts`, reported as a console warning in development. A deck's visual is imported from its own file in `src/deck/visuals/`, with no name map.
+  - The dry run's six slides (T144) are `tests/fixtures/drafted-slides/01-…06-*.tsx`, each copied from the preset the owner confirmed; `drafted-deck.json` (T041) and `drafted-visuals.json` are removed, as both were data blocks.
+- [x] T342 Update the README ("Write your deck", "Visuals") and the docs.
 - **Gate J4:** `npm run gate`, then preview.
 
 ## Dependencies

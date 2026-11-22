@@ -1,5 +1,7 @@
 # Data model: Deck visuals
 
+> **Feature 003 replaced the blocks below.** Each preset is an example slide file in `src/presets/slides/` composing a component from `src/components/deck/`, its words and figures in the slide's `copy`; `src/deck/content.ts`, the validator and the `custom` block are gone. The limits below are each component's own, in `src/components/deck/limits.ts`. See [specs/003-jsx-slides/data-model.md](../003-jsx-slides/data-model.md).
+
 All new blocks extend `Block` in the carried `src/deck/content.ts` (compose rows). Every `Text` has every configured language. Numbers are plain numbers, never translated.
 
 ## Charts and stats

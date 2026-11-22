@@ -10,6 +10,7 @@ import { BarView } from "./Bar";
 import type { ChartData } from "./frame";
 import { DonutView } from "./Donut";
 import { LineView } from "./Line";
+import { reportLimits } from "../limits";
 
 export type ChartSeries = ChartData["series"][number];
 
@@ -21,6 +22,7 @@ export type ChartProps = Omit<ChartData, "lang"> & {
 const kinds = { bar: BarView, line: LineView, donut: DonutView };
 
 export function Chart(props: ChartProps) {
+  reportLimits("Chart", props);
   return createElement(kinds[props.kind], {
     ...props,
     lang: props.lang ?? langs[0],

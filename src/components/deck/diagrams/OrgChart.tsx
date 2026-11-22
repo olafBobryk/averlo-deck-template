@@ -19,6 +19,7 @@ import type { PointItem } from "../parts";
 import { words } from "../words";
 import { Card } from "./parts";
 import styles from "@/presets/diagrams/diagrams.module.css";
+import { reportLimits } from "../limits";
 
 function Node({
   point,
@@ -62,6 +63,7 @@ export type OrgChartProps = {
 };
 
 export function OrgChart(props: OrgChartProps) {
+  reportLimits("OrgChart", props);
   const n = props.branches.length;
   const most = Math.max(...props.branches.map((c) => c.children?.length ?? 0));
   const leaves: SplitMode = n * most <= ACROSS ? "across" : "down";
