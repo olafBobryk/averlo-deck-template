@@ -47,7 +47,7 @@ function Card({
   children,
   ...rest
 }: {
-  as: "li" | "div" | "dl";
+  as: "li" | "div" | "dl" | "ol";
   surface?: Surface;
   className?: string;
   children: ReactNode;
@@ -87,7 +87,8 @@ export const holdsGlass = (block: Block) =>
   block.type === "org" ||
   block.type === "fork" ||
   block.type === "week" ||
-  (block.type === "points" && (block.style ?? "cards") !== "numbered");
+  block.type === "plan" ||
+  block.type === "points";
 
 /** Months from `from` to `to` (YYYY-MM), for the plan's axis. */
 const months = (from: string, to: string) => {
@@ -107,6 +108,24 @@ function Glyph({ name }: { name?: IconName }) {
   return (
     <span className={styles.glyph}>
       <Icon name={name} className="size-[var(--icon-slot-size)]" />
+    </span>
+  );
+}
+
+/** A number in a small round badge, in the step label's muted style: a
+ *  node of the steps block (with its status) or a numbered point. Hidden
+ *  from assistive technology: the ordered list numbers its items. */
+function Badge({ n, status }: { n: number; status?: string }) {
+  return (
+    <span
+      className={styles.badge}
+      data-node=""
+      data-status={status}
+      aria-hidden="true"
+    >
+      <span className={styles.when} data-step-label="">
+        {n}
+      </span>
     </span>
   );
 }
@@ -156,8 +175,7 @@ export function BlockView({
       );
     case "points": {
       const style = block.style ?? "cards";
-      const surface: Surface | undefined =
-        style === "cards" ? "card" : style === "chips" ? "pill" : undefined;
+      const surface: Surface = style === "chips" ? "pill" : "card";
       return (
         <ol
           className={styles.points}
@@ -171,11 +189,7 @@ export function BlockView({
               surface={surface}
               className={styles.point}
             >
-              {style === "numbered" && (
-                <span className={styles.numeral} aria-hidden="true">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-              )}
+              {style === "numbered" && <Badge n={i + 1} />}
               {style !== "numbered" && <Glyph name={p.icon} />}
               <Label text={p.label} lang={lang} />
               <Body text={p.text} lang={lang} />
@@ -195,12 +209,7 @@ export function BlockView({
             <li key={s.label.en} className={styles.step}>
               {block.style === "nodes" ? (
                 <span className={styles.nodeRow} aria-hidden="true">
-                  <span
-                    className={styles.node}
-                    data-status={s.status ?? "upcoming"}
-                  >
-                    {i + 1}
-                  </span>
+                  <Badge n={i + 1} status={s.status ?? "upcoming"} />
                   {i < block.items.length - 1 && (
                     <span className={styles.link} />
                   )}
@@ -213,6 +222,7 @@ export function BlockView({
                       variant="label-m"
                       tone="secondary"
                       className={styles.when}
+                      data-step-label=""
                     >
                       {say(s.when, lang)}
                     </Type>
@@ -242,9 +252,17 @@ export function BlockView({
       );
     case "facts":
       return (
-        <Card as="dl" surface="card" className={styles.facts}>
+        <dl
+          className={styles.facts}
+          data-cols={Math.min(block.items.length, 4)}
+        >
           {block.items.map((f) => (
-            <div key={f.label.en} className={styles.fact}>
+            <Card
+              as="div"
+              surface="card"
+              key={f.label.en}
+              className={styles.fact}
+            >
               <Type
                 as="dt"
                 variant="label-l"
@@ -255,15 +273,15 @@ export function BlockView({
               </Type>
               <Type
                 as="dd"
-                variant="body-l"
+                variant="title-l"
                 tone="primary"
                 className={styles.factText}
               >
                 {rich(f.text!, lang)}
               </Type>
-            </div>
+            </Card>
           ))}
-        </Card>
+        </dl>
       );
     case "org":
     case "fork":
@@ -291,14 +309,17 @@ export function BlockView({
       );
     case "week":
       return (
-        <ol className={styles.week}>
+        <Card
+          as="ol"
+          surface="card"
+          className={styles.week}
+          style={{ ["--days" as string]: block.days.length }}
+        >
           {block.days.map((day) => {
             const item = block.items.find((d) => d.day.en === day.en);
             return (
-              <Card
-                as="li"
+              <li
                 key={day.en}
-                surface={item ? "card" : undefined}
                 className={styles.day}
                 data-empty={item ? undefined : ""}
               >
@@ -317,18 +338,20 @@ export function BlockView({
                     <Body text={item.text} lang={lang} />
                   </>
                 )}
-              </Card>
+              </li>
             );
           })}
-        </ol>
+        </Card>
       );
     case "plan":
       return <Plan block={block} lang={lang} />;
   }
 }
 
-/** The plan's time axis: dated marks at their month, an undated span as a
- *  band across its months, in order, with no dates of its own. */
+/** The plan's time axis, on one card: dated marks at their month, above
+ *  and below the axis in turn, each with its dot on the axis; an undated
+ *  span as a bar under the axis across its months, in order, with no dates
+ *  of its own. */
 function Plan({
   block,
   lang,
@@ -342,9 +365,12 @@ function Plan({
     Boolean(m.at),
   );
   const spans = block.items.filter((m) => m.span);
+  const edge = (m: Mark & { at: string }) =>
+    m.at === block.start ? "start" : m.at === block.end ? "end" : undefined;
+  const side = (m: Mark & { at: string }, i: number) =>
+    m.at === block.end || i % 2 === 0 ? "above" : "below";
   return (
-    <div className={styles.plan}>
-      <div className={styles.axis} aria-hidden="true" />
+    <Card as="div" surface="card" className={styles.plan}>
       <ol className={styles.marks}>
         {dated.map((m, i) => (
           <li
@@ -352,14 +378,8 @@ function Plan({
             className={styles.mark}
             style={{ ["--at" as string]: `${at(m.at)}%` }}
             data-status={m.status ?? "upcoming"}
-            data-side={m.at === block.end || i % 2 === 0 ? "above" : "below"}
-            data-edge={
-              m.at === block.start
-                ? "start"
-                : m.at === block.end
-                  ? "end"
-                  : undefined
-            }
+            data-side={side(m, i)}
+            data-edge={edge(m)}
           >
             <Type
               as="p"
@@ -375,25 +395,39 @@ function Plan({
           </li>
         ))}
       </ol>
-      {spans.map((m) => (
-        <div
-          key={m.label.en}
-          className={styles.span}
-          style={{
-            ["--from" as string]: `${at(m.span![0])}%`,
-            ["--to" as string]: `${at(m.span![1])}%`,
-          }}
-        >
-          <Type
-            as="p"
-            variant="label-l"
-            tone="secondary"
-            className={styles.spanLabel}
-          >
-            {say(m.label, lang)}
-          </Type>
-        </div>
-      ))}
-    </div>
+      <div className={styles.axis} aria-hidden="true">
+        {dated.map((m) => (
+          <span
+            key={m.label.en}
+            className={styles.dot}
+            style={{ ["--at" as string]: `${at(m.at)}%` }}
+            data-status={m.status ?? "upcoming"}
+          />
+        ))}
+      </div>
+      {spans.length > 0 && (
+        <ol className={styles.spans}>
+          {spans.map((m) => (
+            <li
+              key={m.label.en}
+              className={styles.span}
+              style={{
+                ["--from" as string]: `${at(m.span![0])}%`,
+                ["--to" as string]: `${at(m.span![1])}%`,
+              }}
+            >
+              <Type
+                as="p"
+                variant="label-l"
+                tone="secondary"
+                className={styles.spanLabel}
+              >
+                {say(m.label, lang)}
+              </Type>
+            </li>
+          ))}
+        </ol>
+      )}
+    </Card>
   );
 }

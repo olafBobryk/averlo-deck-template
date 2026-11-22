@@ -199,38 +199,8 @@
   line-height: 1.5;
   text-wrap: pretty;
 }
-/* Numbered: bare rows (or columns) led by a large numeral, no surface. */
-.points[data-style="numbered"] .point {
-  padding: calc(var(--u) * 1.4) 0 0;
-  border-top: 1px solid var(--deck-border-subtle);
-}
-:global([data-layout="split"]) .points[data-style="numbered"] {
-  --cols: 1 !important;
-  gap: calc(var(--u) * 1.6);
-}
-:global([data-layout="split"]) .points[data-style="numbered"] .point {
-  display: grid;
-  grid-template-columns: calc(var(--u) * 6) minmax(0, 1fr);
-  column-gap: calc(var(--u) * 1.6);
-  row-gap: calc(var(--u) * 0.4);
-}
-:global([data-layout="split"])
-  .points[data-style="numbered"]
-  .point
-  > :not(.numeral) {
-  grid-column: 2;
-}
-:global([data-layout="split"]) .points[data-style="numbered"] .numeral {
-  grid-row: 1 / span 2;
-}
-.numeral {
-  font-size: calc(var(--u) * 3.4);
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  color: var(--deck-text-accent);
-}
+/* Numbered: the points' cards, each led by its number in a badge (the
+   steps' node), where a card shows its glyph. */
 /* Chips: a short checklist of glass pills. */
 .points[data-style="chips"] {
   display: flex;
@@ -265,11 +235,20 @@
   gap: calc(var(--u) * 0.8);
   min-width: 0;
 }
+/* The step label (a step's `when`, a node's or a numbered point's number,
+   a day, a month): the navigator's muted step label, the questionnaire's
+   small "n / N" (shell.css: `.topline`'s muted grey at the regular weight,
+   line height 1.5, no tracking), on the deck's tokens: the Averlo muted text
+   colour, a step smaller than the step's own text, its figures tabular
+   (owner: "Muted step label only"). */
 .when.when {
   margin: 0;
-  font-size: calc(var(--u) * 1.3);
-  font-weight: 450;
+  font-size: calc(var(--u) * 1.1);
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
 }
 .rail {
   position: relative;
@@ -289,9 +268,9 @@
 }
 /* Lines run under the dots to their centres, so they meet every dot's edge.
    A hollow dot is filled solid to hide the line: the canvas between its top
-   and middle stops, where the rail and the plan's axis sit (--deck-canvas
-   is a gradient). The current dot's halo stays translucent: the line meets
-   the dot itself. */
+   and middle stops, where the rail sits (--deck-canvas is a gradient); on
+   the plan's card, the card's surface. The current dot's halo stays
+   translucent: the line meets the dot itself. */
 .steps,
 .plan {
   --dot: calc(var(--u) * 1.2);
@@ -301,8 +280,11 @@
     var(--deck-bg-canvas-top)
   );
 }
+.plan {
+  --dot-fill: var(--color-surface);
+}
 .rail::after,
-.mark::before {
+.dot {
   content: "";
   position: absolute;
   top: 0;
@@ -314,12 +296,12 @@
   box-sizing: border-box;
 }
 .rail[data-status="current"]::after,
-.mark[data-status="current"]::before {
+.dot[data-status="current"] {
   background: var(--deck-text-accent);
   box-shadow: 0 0 0 calc(var(--u) * 0.4) var(--deck-surface-subtle);
 }
 .rail[data-status="upcoming"]::after,
-.mark[data-status="upcoming"]::before {
+.dot[data-status="upcoming"] {
   border: max(1px, calc(var(--u) * 0.15)) solid var(--deck-text-tertiary);
   background: var(--dot-fill);
 }
@@ -377,7 +359,7 @@
   display: block;
   bottom: 50%;
 }
-/* Nodes: an ordered sequence of large numbered circles, joined. */
+/* Nodes: an ordered sequence of numbered badges, joined. */
 .steps[data-style="nodes"] {
   gap: calc(var(--u) * 3);
 }
@@ -397,47 +379,62 @@
   margin-inline-end: calc(var(--u) * -3);
   background: var(--deck-border-subtle);
 }
-.node {
+/* A badge: a step label's number in a small circle, sized to it (a node of
+   the steps block, a numbered point). The current node's ring is the
+   accent; the number keeps the label's muted grey. */
+.badge {
   flex: none;
   display: grid;
   place-items: center;
-  width: calc(var(--u) * 7);
-  height: calc(var(--u) * 7);
-  border: max(1px, calc(var(--u) * 0.15)) solid var(--deck-border-strong);
-  border-radius: 50%;
-  font-size: calc(var(--u) * 3);
-  font-weight: 600;
-  color: var(--deck-text-primary);
+  box-sizing: border-box;
+  width: calc(var(--u) * 2.6);
+  height: calc(var(--u) * 2.6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
 }
-.node[data-status="current"] {
+.badge[data-status="done"] {
+  border-color: var(--deck-border-strong);
+}
+.badge[data-status="current"] {
   border-color: var(--deck-text-accent);
-  color: var(--deck-text-accent);
 }
 .steps[data-style="nodes"] .stepLabel {
   font-size: calc(var(--u) * 2);
 }
 
-/* ---------- Facts: label and value rows on one card ---------- */
+/* ---------- Facts: one card per fact, label over value ---------- */
 
+/* The points' cards: each fact's label in the muted label, its value at the
+   points' label size, in up to four columns (two beside a headline). */
 .facts {
   display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  gap: calc(var(--u) * 1.4);
   margin: 0;
-  padding: calc(var(--u) * 0.6) calc(var(--u) * 2);
+}
+.facts[data-cols="1"] {
+  --cols: 1;
+}
+.facts[data-cols="2"] {
+  --cols: 2;
+}
+.facts[data-cols="3"] {
+  --cols: 3;
+}
+.facts[data-cols="4"] {
+  --cols: 4;
+}
+:global([data-layout="split"]) .facts[data-cols="3"],
+:global([data-layout="split"]) .facts[data-cols="4"],
+:global([data-layout="split-end"]) .facts[data-cols="3"],
+:global([data-layout="split-end"]) .facts[data-cols="4"] {
+  --cols: 2;
 }
 .fact {
-  display: grid;
-  grid-template-columns: minmax(0, 0.32fr) minmax(0, 1fr);
-  gap: calc(var(--u) * 2);
-  align-items: baseline;
-  padding-block: calc(var(--u) * 1.2);
-}
-:global([data-layout="split"]) .fact,
-:global([data-layout="split-end"]) .fact {
-  grid-template-columns: minmax(0, 1fr);
-  gap: calc(var(--u) * 0.6);
-}
-.fact + .fact {
-  border-top: 1px solid var(--deck-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 0.8);
+  padding: calc(var(--u) * 1.8);
 }
 .factLabel.factLabel {
   margin: 0;
@@ -446,12 +443,10 @@
   line-height: 1.3;
 }
 .factText.factText {
-  max-width: 60ch;
   margin: 0;
-  font-size: calc(var(--u) * 1.75);
-  font-weight: 450;
-  line-height: 1.5;
-  text-wrap: pretty;
+  font-size: calc(var(--u) * 1.9);
+  line-height: 1.2;
+  text-wrap: balance;
 }
 
 /* ---------- Org and fork: a node and what hangs off it ---------- */
@@ -583,14 +578,14 @@
   bottom: calc(50% - var(--line) / 2);
 }
 
-/* ---------- Week: the five working days and their fixed moments ---------- */
+/* ---------- Week: the working days and their fixed moments ---------- */
 
+/* One card, a column per day between hairlines, each led by its day in the
+   step label; a day with no moment keeps its column, its day alone. */
 .week {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: calc(var(--u) * 1.2);
+  grid-template-columns: repeat(var(--days), minmax(0, 1fr));
   margin: 0;
-  padding: 0;
   list-style: none;
 }
 .day {
@@ -598,83 +593,109 @@
   flex-direction: column;
   gap: calc(var(--u) * 0.6);
   min-height: calc(var(--u) * 8);
-  padding: calc(var(--u) * 1.4) calc(var(--u) * 1.6);
+  padding: calc(var(--u) * 1.8);
 }
-.day[data-empty] {
-  border: 1px dashed var(--deck-border-subtle);
-  border-radius: var(--deck-radius-lg);
+.day + .day {
+  border-inline-start: 1px solid var(--color-border);
 }
 
 /* ---------- Plan: a time axis with marks and an undated span ---------- */
 
-/* Every dot's centre sits on the axis's centre line (50%): a mark's text
-   starts --off from it, and its dot reaches back --off plus half a dot. */
+/* One card. Its rows: the marks above the axis, the axis with a dot per
+   mark, the marks below it, then the spans. A mark's text is centred on its
+   month (its edge's side at the start and the end) and kept on the card; its
+   dot sits on the axis at its month. A span is a bar across its months under
+   the axis, its label inside it. */
 .plan {
-  --off: calc(var(--u) * 1.8);
-  position: relative;
-  height: calc(var(--u) * 30);
-  margin-inline: calc(var(--u) * 2) calc(var(--u) * 8);
-}
-.axis {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: max(2px, calc(var(--u) * 0.18));
-  translate: 0 -50%;
-  background: var(--deck-border-strong);
+  --w: calc(var(--u) * 14);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto var(--dot) auto auto;
+  row-gap: calc(var(--u) * 0.8);
+  padding: calc(var(--u) * 1.8);
 }
 .marks {
+  grid-row: 1 / span 3;
+  grid-column: 1;
+  display: grid;
+  grid-template-rows: subgrid;
   margin: 0;
   padding: 0;
   list-style: none;
 }
-/* Doubled, so diff mode's position: relative never moves a mark. */
-.mark.mark {
-  position: absolute;
-  left: var(--at);
-  top: 50%;
+.mark {
+  grid-column: 1;
   display: grid;
   gap: calc(var(--u) * 0.4);
-  width: calc(var(--u) * 14);
-  translate: calc(var(--dot) / -2) 0;
-}
-/* The last mark ends at the axis's end: its text runs back from it. */
-.mark[data-edge="end"] {
-  translate: calc(-100% + var(--dot) / 2) 0;
-  justify-items: end;
-  text-align: end;
-}
-.mark[data-edge="end"]::before {
-  left: auto;
-  right: 0;
+  width: var(--w);
+  margin-inline-start: clamp(
+    0px,
+    calc(var(--at) - var(--w) / 2),
+    calc(100% - var(--w))
+  );
+  text-align: center;
+  justify-items: center;
 }
 .mark[data-side="above"] {
-  bottom: calc(50% + var(--off));
-  top: auto;
+  grid-row: 1;
+  align-self: end;
 }
 .mark[data-side="below"] {
-  top: calc(50% + var(--off));
+  grid-row: 3;
+  align-self: start;
 }
-.mark[data-side="above"]::before {
-  top: auto;
-  bottom: calc(var(--off) * -1 - var(--dot) / 2);
+.mark[data-edge="start"] {
+  margin-inline-start: 0;
+  text-align: start;
+  justify-items: start;
 }
-.mark[data-side="below"]::before {
-  top: calc(var(--off) * -1 - var(--dot) / 2);
+.mark[data-edge="end"] {
+  margin-inline-start: calc(100% - var(--w));
+  text-align: end;
+  justify-items: end;
 }
-.span.span {
+.axis {
+  grid-row: 2;
+  grid-column: 1;
+  position: relative;
+}
+.axis::before {
+  content: "";
   position: absolute;
-  left: var(--from);
+  inset: 50% 0 auto;
+  height: 1px;
+  translate: 0 -50%;
+  background: var(--deck-border-strong);
+}
+.dot {
+  left: clamp(0px, calc(var(--at) - var(--dot) / 2), calc(100% - var(--dot)));
+}
+.spans {
+  grid-row: 4;
+  grid-column: 1;
+  display: grid;
+  gap: calc(var(--u) * 0.6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.span {
+  margin-inline-start: var(--from);
   width: calc(var(--to) - var(--from));
-  top: calc(50% + var(--u) * 6.6);
-  padding-top: calc(var(--u) * 1);
-  border-top: max(2px, calc(var(--u) * 0.3)) dashed var(--deck-text-accent);
+  min-width: 0;
+  padding: calc(var(--u) * 0.6) calc(var(--u) * 1.2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--deck-surface-subtle);
 }
 .spanLabel.spanLabel {
   margin: 0;
-  font-size: calc(var(--u) * 1.4);
+  overflow: hidden;
+  font-size: calc(var(--u) * 1.3);
   font-weight: 450;
+  line-height: 1.3;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 /* ---------- Phones: portrait and narrow (the reflow) ---------- */
@@ -719,17 +740,9 @@
     padding: 14px 16px;
     gap: 4px;
   }
-  :global(:where([data-deck-title])) .points[data-style="numbered"] .point {
-    padding: 12px 0 0;
-  }
-  :global(:where([data-deck-title])) .numeral {
-    font-size: max(22px, 6cqw);
-  }
-  :global(:where([data-deck-title])[data-layout="split"])
-    .points[data-style="numbered"]
-    .point {
-    grid-template-columns: 44px minmax(0, 1fr);
-    column-gap: 10px;
+  :global(:where([data-deck-title])) .badge {
+    width: 28px;
+    height: 28px;
   }
   :global(:where([data-deck-title])) .glyph,
   :global(:where([data-deck-title])) .points[data-style="chips"] .glyph {
@@ -790,21 +803,16 @@
     grid-column: 1;
     align-self: start;
   }
-  :global(:where([data-deck-title])) .node {
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
-  }
   :global(:where([data-deck-title])) .steps[data-style="nodes"] .step {
-    grid-template-columns: 40px minmax(0, 1fr);
+    grid-template-columns: 28px minmax(0, 1fr);
   }
-  :global(:where([data-deck-title])) .when.when,
+  :global(:where([data-deck-title])) .step > .when.when,
   :global(:where([data-deck-title])) .stepLabel.stepLabel,
   :global(:where([data-deck-title])) .stepText.stepText {
     grid-column: 2;
   }
   :global(:where([data-deck-title])) .when.when {
-    font-size: max(12px, 3.2cqw);
+    font-size: max(12px, 3cqw);
   }
   :global(:where([data-deck-title])) .stepLabel.stepLabel,
   :global(:where([data-deck-title])) .steps[data-style="nodes"] .stepLabel {
@@ -814,18 +822,18 @@
     font-size: max(13px, 3.6cqw);
   }
   :global(:where([data-deck-title])) .facts {
-    padding: 4px 16px;
+    --cols: 1 !important;
+    gap: 10px;
   }
   :global(:where([data-deck-title])) .fact {
-    grid-template-columns: minmax(0, 1fr);
     gap: 4px;
-    padding-block: 12px;
+    padding: 14px 16px;
   }
   :global(:where([data-deck-title])) .factLabel.factLabel {
     font-size: max(12px, 3.2cqw);
   }
   :global(:where([data-deck-title])) .factText.factText {
-    font-size: max(15px, 4cqw);
+    font-size: max(16px, 4.4cqw);
   }
   :global(:where([data-deck-title])) .org .branches,
   :global(:where([data-deck-title])) .fork,
@@ -843,28 +851,32 @@
     padding: 14px 16px;
     min-height: 0;
   }
-  :global(:where([data-deck-title])) .day[data-empty] {
-    display: none;
+  :global(:where([data-deck-title])) .day + .day {
+    border-inline-start: 0;
+    border-top: 1px solid var(--color-border);
   }
+  /* The plan on a phone: its marks one under another, each led by its dot,
+     then its spans across the card. */
   :global(:where([data-deck-title])) .plan {
-    height: auto;
-    margin: 0;
-    display: grid;
+    grid-template-rows: none;
     gap: 12px;
+    padding: 14px 16px;
   }
   :global(:where([data-deck-title])) .axis {
     display: none;
   }
   :global(:where([data-deck-title])) .marks {
-    display: grid;
+    grid-row: auto;
+    grid-template-rows: none;
     gap: 12px;
   }
   :global(:where([data-deck-title])) .mark.mark,
-  :global(:where([data-deck-title])) .mark.mark[data-side] {
+  :global(:where([data-deck-title])) .mark.mark[data-side],
+  :global(:where([data-deck-title])) .mark.mark[data-edge] {
     position: relative;
-    inset: auto;
+    grid-row: auto;
     width: auto;
-    translate: none;
+    margin: 0;
     padding-left: 24px;
     justify-items: start;
     text-align: start;
@@ -873,19 +885,30 @@
   :global(:where([data-deck-title])) .mark.mark .stepLabel.stepLabel {
     grid-column: 1;
   }
-  :global(:where([data-deck-title])) .mark.mark::before,
-  :global(:where([data-deck-title])) .mark.mark[data-side]::before {
+  :global(:where([data-deck-title])) .mark::before {
+    content: "";
+    position: absolute;
     top: 4px;
-    right: auto;
-    bottom: auto;
     left: 0;
+    box-sizing: border-box;
     width: 12px;
     height: 12px;
+    border-radius: 50%;
+    background: var(--deck-text-secondary);
+  }
+  :global(:where([data-deck-title])) .mark[data-status="current"]::before {
+    background: var(--deck-text-accent);
+  }
+  :global(:where([data-deck-title])) .mark[data-status="upcoming"]::before {
+    border: 1px solid var(--deck-text-tertiary);
+    background: var(--dot-fill);
+  }
+  :global(:where([data-deck-title])) .spans {
+    grid-row: auto;
   }
   :global(:where([data-deck-title])) .span.span {
-    position: relative;
-    inset: auto;
     width: auto;
+    margin: 0;
   }
   :global(:where([data-deck-title])) .spanLabel.spanLabel {
     font-size: max(13px, 3.6cqw);
