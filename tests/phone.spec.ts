@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
-import { slideContent } from "../src/deck/content";
 import { langs } from "../src/deck/langs";
 import { slides } from "../src/deck/slides";
+import { slideData } from "../src/slides/data";
 
 // Phone layout: on a portrait phone no slide text
 // sits under the footer's counter or menu button at any scroll position, the
@@ -12,7 +12,7 @@ import { slides } from "../src/deck/slides";
 const TOTAL = slides.length;
 /** The placeholders all fit, so the first slide with a headline is made long
  *  by adding placeholder lines to its body in the page. */
-const LONG = slides.findIndex((slide) => slideContent(slide.id).headline) + 1;
+const LONG = slideData.findIndex((slide) => slide.meta.layout) + 1;
 const pad = (n: number) => String(n).padStart(2, "0");
 
 async function openDeck(page: Page, query: string) {

@@ -2,9 +2,9 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { langs } from "../../src/deck/langs";
 import { galleryPdfName } from "../../src/deck/pdf-name";
-import { slideContent } from "../../src/deck/content";
 import { composedExamples, gallery } from "../../src/presets/gallery";
 import { registry } from "../../src/presets/registry";
+import { slideData } from "../../src/slides/data";
 import { expectSplitAcross, expectSplitDown, measureSplit } from "../branching";
 import { expectFits } from "./fit";
 
@@ -106,9 +106,10 @@ test("the composed visual example has its gallery slide, drawn and fitting", asy
   }
 });
 
-test("the gallery's content is its own: the default deck's is unchanged", () => {
+test("the gallery's slides are its own: none is a slide of the deck", () => {
+  const deck = new Set(slideData.map((slide) => slide.id));
   for (const slide of gallery.slides)
-    expect(slideContent(slide.id).blocks, slide.id).toEqual([]);
+    expect(deck.has(slide.id), slide.id).toBe(false);
 });
 
 test("/gallery opens on its title slide", async ({ page }) => {

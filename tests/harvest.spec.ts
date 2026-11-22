@@ -1,20 +1,22 @@
 import { expect, test, type Page } from "@playwright/test";
-import { slideContent, type Block } from "../src/deck/content";
 import { langs } from "../src/deck/langs";
 import { slides } from "../src/deck/slides";
+import { slideData } from "../src/slides/data";
+import { findBlock, printedBlocks, type PrintedBlock } from "./printed";
 
 // Single tests kept from origin specs that are otherwise not carried (their
 // origin is listed in docs/carried/tests.md): the square window's 16:9
 // slide, glass cards fading on their own glass, the centre layout's one
 // vertical axis, the print page count and `**bold**` key phrases. Each finds
-// its placeholder slide in the data.
+// its placeholder slide in the slides' data (src/slides/data.ts), or by the
+// blocks the deck draws (./printed).
 
 const current = (page: Page) => page.locator("main:not([aria-hidden])");
 const lang = langs[0];
 
 /** A block that holds glass cards (SlideBody's `holdsGlass`, for the blocks
  *  the template keeps). */
-const holdsGlass = (block: Block) =>
+const holdsGlass = (block: PrintedBlock) =>
   block.type === "facts" ||
   block.type === "org" ||
   block.type === "fork" ||
@@ -22,9 +24,11 @@ const holdsGlass = (block: Block) =>
   block.type === "plan" ||
   block.type === "points";
 
-/** The first slide (1-based) whose content matches, or 0. */
-const first = (match: (id: string) => boolean, from = 0) =>
-  slides.findIndex((slide, i) => i >= from && match(slide.id)) + 1;
+/** The first slide (1-based) whose data matches, or 0. */
+const first = (
+  match: (slide: (typeof slideData)[number]) => boolean,
+  from = 0,
+) => slideData.findIndex((slide, i) => i >= from && match(slide)) + 1;
 
 // ---------- From the review spec ----------
 
@@ -45,7 +49,8 @@ async function openDeck(page: Page, query: string) {
 test("a square window keeps the 16:9 slide; the phone reflow is for narrow screens", async ({
   page,
 }) => {
-  const s = first((id) => Boolean(slideContent(id).headline));
+  // A slide with a layout has a headline (src/deck/slide.ts).
+  const s = first((slide) => Boolean(slide.meta.layout));
   expect(s, "a slide with a headline").toBeGreaterThan(0);
   await page.setViewportSize({ width: 1000, height: 1000 });
   await openDeck(page, `?s=${s}`);
@@ -69,7 +74,7 @@ test("glass cards fade on their own glass as the slide enters", async ({
 }) => {
   // A slide after the first that holds glass cards: the step onto it is
   // measured.
-  const glass = first((id) => slideContent(id).blocks.some(holdsGlass), 1);
+  const glass = (await findBlock(page, holdsGlass, 1))?.n ?? 0;
   expect(glass, "a slide after the first holding glass cards").toBeGreaterThan(
     1,
   );
@@ -157,24 +162,21 @@ async function settle(page: Page) {
 }
 
 test.describe("centre layout: one vertical axis", () => {
-  const centred = slides
+  const centred = slideData
     .map((slide, i) => ({ slide, at: i + 1 }))
-    .filter(({ slide }) => {
-      const content = slideContent(slide.id);
-      return content.headline && content.layout === "center";
-    });
+    .filter(({ slide }) => slide.meta.layout === "center");
 
   test("the deck has a centred slide", () => {
     expect(centred.length).toBeGreaterThan(0);
   });
 
-  for (const { slide, at } of centred)
+  for (const { at } of centred)
     for (const lang of langs)
       test(`slide ${at} in ${lang}: title, headline and lead share the slide's centre`, async ({
         page,
       }, info) => {
         test.skip(info.project.name !== "desktop", "sizes itself; runs once");
-        const lead = slideContent(slide.id).blocks.some(
+        const lead = (await printedBlocks(page))[at - 1].some(
           (b) => b.type === "lead",
         );
         for (const size of [desk, square, phone]) {
@@ -244,9 +246,7 @@ test("/print renders the deck: one page per slide", async ({ page }) => {
 
 test("bold key phrases render, words unchanged", async ({ page }) => {
   // The first slide whose body marks a key phrase as **bold**.
-  const index = first((id) =>
-    JSON.stringify(slideContent(id).blocks).includes("**"),
-  );
+  const index = first((slide) => JSON.stringify(slide.copy).includes("**"));
   expect(index, "a slide with a **bold** key phrase").toBeGreaterThan(0);
   for (const lang of langs) {
     await openDeck(page, `?s=${index}&lang=${lang}`);

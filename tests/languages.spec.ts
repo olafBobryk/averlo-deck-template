@@ -1,4 +1,4 @@
-import { spawn, type ChildProcess } from "node:child_process";
+import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import {
   cpSync,
   existsSync,
@@ -10,6 +10,7 @@ import {
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test, type Page } from "@playwright/test";
+import ts from "typescript";
 import { langNames, langs } from "../src/deck/langs";
 import { config } from "../src/brand/config";
 import { pdfName } from "../src/deck/pdf-name";
@@ -25,6 +26,8 @@ import { slides } from "../src/deck/slides";
 // of the template's app under .next/ (ignored by git, lint, prettier and
 // tsc) whose langs.ts adds a second code and whose Text strings gain it,
 // built with `next build` (no PDFs) and served on LANGS_PORT (default 3296).
+// Each slide file's words (`copy`, src/slides/, feature 003) gain the second
+// language too, and the copy's slide data is generated again from them.
 // The template's own files are never touched. Desktop project only: one
 // build per run. A deck that already has two languages is tested as it is.
 
@@ -165,11 +168,69 @@ function sources(folder: string): string[] {
   );
 }
 
+/** A slide file's source with a second language in its `copy`: after the
+ *  first language's words (`en: { … }`), the same words under `second`,
+ *  each string that holds a letter marked with the language's code, so a
+ *  switch shows on the slide. Figures (numbers, months, a stat's value) stay
+ *  as they are. */
+function addToCopy(source: string, first: string, second: string) {
+  const file = ts.createSourceFile(
+    "slide.tsx",
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  let words: ts.PropertyAssignment | undefined;
+  for (const statement of file.statements) {
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name)) continue;
+      if (declaration.name.text !== "copy") continue;
+      let value = declaration.initializer!;
+      while (ts.isSatisfiesExpression(value) || ts.isAsExpression(value))
+        value = value.expression;
+      if (!ts.isObjectLiteralExpression(value)) continue;
+      words = value.properties.find(
+        (p): p is ts.PropertyAssignment =>
+          ts.isPropertyAssignment(p) && p.name.getText(file) === first,
+      );
+    }
+  }
+  if (!words) throw new Error(`no copy.${first} in a slide file`);
+  const value = words.initializer;
+  const start = value.getStart(file);
+  const strings: ts.StringLiteral[] = [];
+  const visit = (node: ts.Node) => {
+    if (
+      ts.isStringLiteral(node) &&
+      !(ts.isPropertyAssignment(node.parent) && node.parent.name === node)
+    )
+      strings.push(node);
+    ts.forEachChild(node, visit);
+  };
+  visit(value);
+  let text = value.getText(file);
+  for (const node of strings.reverse()) {
+    if (!/\p{L}/u.test(node.text)) continue;
+    const from = node.getStart(file) - start;
+    text =
+      text.slice(0, from) +
+      JSON.stringify(`${second.toUpperCase()} ${node.text}`) +
+      text.slice(node.getEnd() - start);
+  }
+  return (
+    source.slice(0, words.getEnd()) +
+    `, ${second}: ${text}` +
+    source.slice(words.getEnd())
+  );
+}
+
 /** The two-language copy: the app's files, with a second language added to
- *  langs.ts (its code and its name) and to every `Text` string. The second
- *  language's slide strings (slides.ts) are marked with its code, so a
- *  switch shows on the slide; the build's type check fails if any `Text`
- *  is left without it. */
+ *  langs.ts (its code and its name), to every `Text` string and to every
+ *  slide file's words. The second language's slide words are marked with
+ *  its code, so a switch shows on the slide; the build's type check fails
+ *  if any `Text` or slide file is left without it. */
 function writeCopy(second: string) {
   rmSync(copy, { recursive: true, force: true });
   for (const file of [
@@ -182,6 +243,8 @@ function writeCopy(second: string) {
     // next.config.ts reads the port lock to resolve the ports' `.js`
     // specifiers (P4).
     "scripts/ports.lock.json",
+    // The slide files' generated index and data (feature 003).
+    "scripts/slides-index.mjs",
   ])
     cpSync(join(root, file), join(copy, file), {
       recursive: true,
@@ -211,18 +274,14 @@ function writeCopy(second: string) {
   ).toBe(true);
   const string = /"(?:[^"\\]|\\.)*"/.source;
   const first = new RegExp(`\\b${lang}: (${string})`, "g");
-  const marked = (value: string) =>
-    JSON.stringify(`${second.toUpperCase()} ${JSON.parse(value)}`);
   let changed = 0;
   for (const file of textFolders.flatMap(sources)) {
     if (file === "src/deck/langs.ts") continue;
-    const slidesFile = file === "src/deck/slides.ts";
     if (
       edit(file, (text) =>
         text.replace(
           first,
-          (all, value: string) =>
-            `${all}, ${second}: ${slidesFile ? marked(value) : value}`,
+          (all, value: string) => `${all}, ${second}: ${value}`,
         ),
       )
     )
@@ -231,6 +290,25 @@ function writeCopy(second: string) {
   expect(changed, "files whose Text gains the second language").toBeGreaterThan(
     1,
   );
+  // Every slide file's words, and the slide data generated from them.
+  const slideFiles = readdirSync(join(copy, "src", "slides")).filter((name) =>
+    /^\d+-.+\.tsx$/.test(name),
+  );
+  expect(slideFiles.length, "slide files").toBeGreaterThan(0);
+  for (const name of slideFiles)
+    expect(
+      edit(`src/slides/${name}`, (text) => addToCopy(text, lang, second)),
+      `${name} gains the second language`,
+    ).toBe(true);
+  const indexed = spawnSync(
+    process.execPath,
+    [join(copy, "scripts", "slides-index.mjs")],
+    { cwd: copy, encoding: "utf8" },
+  );
+  expect(indexed.status, indexed.stderr).toBe(0);
+  expect(
+    readFileSync(join(copy, "src", "slides", "data.ts"), "utf8"),
+  ).toContain(`${second}: {`);
 }
 
 test.describe("two languages", () => {
