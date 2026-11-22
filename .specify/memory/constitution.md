@@ -2,6 +2,10 @@
 
 These principles govern agents working in this repository, a public template for full-screen web slide decks built on the Averlo design system. "The owner" is whoever owns the repository or deck being worked on. [AGENTS.md](../../AGENTS.md) is the short entry point, the [workflow menu](../../WORKFLOWS.md) lists the procedures, and the [orchestration guide](../../docs/orchestration.md) says how work is delegated. The whole constitution is loaded into every Claude Code session by the `SessionStart` hook in [`.claude/settings.json`](../../.claude/settings.json), so every rule here is in context at all times.
 
+## Scope
+
+These principles bind work on this template: its engine, motion, ports, checks, docs and placeholder deck. A deck made from the template follows the "Making a deck" section of [AGENTS.md](../../AGENTS.md#making-a-deck) instead. Its light rules keep Principle III (only the owner's words and figures) and run `npm run check:deck` before anything is shown. The Spec Kit cycle, the port and motion rules, the gate and the branch-and-merge rules do not bind a deck, and its public scan is off until the owner turns it on.
+
 ## Core Principles
 
 ### I. Decisions are recorded, not assumed
@@ -70,6 +74,6 @@ Resolve each skill at use time; if one is unavailable, follow the linked procedu
 
 ## Governance
 
-These principles record the owner's standing instructions. The owner's corrections take precedence: record each with its date, and in the same change reconcile every rule that conflicts with it. Record substantive changes here and increment the version: major for incompatible rule changes, minor for additions, patch for clarifications. 1.0.0 adopted 21 November 2026. 1.0.1 (21 November 2026): Principle VIII says ports are whole, unchanged copies, and that the Averlo look binds the template's build, not decks made from it. 1.0.2 (21 November 2026): the Layout paragraph lists every folder ports and template-owned code live in. 1.0.3 (21 November 2026): Principle VIII states the principle only; the porting mechanics, including licence-based exclusions, move to the port procedure.
+These principles record the owner's standing instructions. The owner's corrections take precedence: record each with its date, and in the same change reconcile every rule that conflicts with it. Record substantive changes here and increment the version: major for incompatible rule changes, minor for additions, patch for clarifications. 1.0.0 adopted 21 November 2026. 1.0.1 (21 November 2026): Principle VIII says ports are whole, unchanged copies, and that the Averlo look binds the template's build, not decks made from it. 1.0.2 (21 November 2026): the Layout paragraph lists every folder ports and template-owned code live in. 1.0.3 (21 November 2026): Principle VIII states the principle only; the porting mechanics, including licence-based exclusions, move to the port procedure. 1.1.0 (22 November 2026): a Scope section: the principles bind work on the template, and a deck made from it follows AGENTS.md's "Making a deck" section (owner, spec 004's clarify session: "Amend: decks follow AGENTS.md").
 
-**Version**: 1.0.3 | **Ratified**: 2026-11-21 | **Last Amended**: 2026-11-21
+**Version**: 1.1.0 | **Ratified**: 2026-11-21 | **Last Amended**: 2026-11-22
