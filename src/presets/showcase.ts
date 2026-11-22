@@ -2,7 +2,8 @@
 // "Session 2026-11-22 (owner, after the final build)": "Put them in the
 // demo"): a divider "Presets", then one slide per registry preset, in the
 // registry's order, with its example in the layout its entry names (stack by
-// default). Built from the registry, so it stays in step with it; the
+// default), after a short body text (`presetBlocks`; T051). Built from the
+// registry, so it stays in step with it; the
 // gallery at /gallery stays the full reference, with each alternate. Its
 // section and titles are the preset names, as the gallery's are; everything
 // on a slide is the registry's placeholder content. src/deck/slides.ts
@@ -10,7 +11,7 @@
 import type { SlideContent } from "../deck/content";
 import { langs } from "../deck/langs";
 import type { Slide, Text } from "../deck/model";
-import { registry, type PresetEntry } from "./registry";
+import { presetBlocks, registry, type PresetEntry } from "./registry";
 
 /** The same words in every language. */
 const words = (value: string) =>
@@ -40,7 +41,7 @@ export function showcase(entries: PresetEntry[] = registry): {
     content[id] = {
       headline: { text: words("Placeholder text") },
       layout: entry.layout ?? "stack",
-      blocks: [entry.example],
+      blocks: presetBlocks(entry, entry.example),
     };
   }
   return { slides, content };

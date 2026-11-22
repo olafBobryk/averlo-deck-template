@@ -6,6 +6,7 @@
 - `kind`: `title` | `divider` | `slide` | `closing`.
 - `section?`, `parent?`, `title`: `Text` (one string per configured language).
 - Content lives in a separate map keyed by slide id, read through the carried `slideContent(id)` (types in carried `src/deck/content.ts`): `{ headline?, blocks: Block[], layout?: "stack" | "split" | "split-end" | "center" | "statement" | "module", notes? }`.
+- In a `split` or `split-end` layout, a plain `lead` that comes first, before another block, is the slide's body text: it is drawn under the headline, in the heading's column, beside the visual (T051). The preset slides of the showcase and the gallery each carry such a body text (`presetBlocks` in `src/presets/registry.ts`).
 - `Block`, the generic types kept from the origin:
   - `lead`, `note`
   - `points` (2 to 5 columns; cards, numbered or chips)

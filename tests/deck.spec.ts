@@ -142,7 +142,16 @@ test("the placeholder deck ends with a showcase of every preset, before the clos
       expect(slide.title[lang], entry.name).toBe(entry.name);
     }
     const content = slideContent(slide.id);
-    expect(content.blocks, entry.name).toEqual([entry.example]);
+    // T051 (owner on T050: "all these slides dont come with slide body
+    // text, they porbably should"): a short body text, a plain lead of
+    // placeholder text, with the example; before it, or after it on the
+    // statement, whose example is the claim itself.
+    const body = { type: "lead", item: { text: { en: "Placeholder text" } } };
+    expect(content.blocks, entry.name).toEqual(
+      entry.layout === "statement"
+        ? [entry.example, body]
+        : [body, entry.example],
+    );
     expect(content.layout ?? "stack", entry.name).toBe(entry.layout ?? "stack");
     for (const word of texts(content.headline))
       expect(word, entry.name).toBe("Placeholder text");
@@ -190,6 +199,47 @@ test("a content slide's text starts well below the top bar", async ({
     checked++;
   }
   test.skip(checked === 0, "the top bar is hidden on this screen");
+});
+
+// T051: on a split preset slide the body text stands beside the visual,
+// under the headline, so the slide shows text and a visual side by side.
+test("a split showcase slide sets its body text beside the visual", async ({
+  page,
+}) => {
+  const split = slides
+    .map((slide, i) => ({ slide, s: i + 1, content: slideContent(slide.id) }))
+    .filter(
+      ({ slide, content }) =>
+        shown.has(slide.id) &&
+        content.layout === "split" &&
+        content.blocks[0]?.type === "lead",
+    );
+  expect(split.length).toBeGreaterThan(0);
+  const phone = (page.viewportSize()?.width ?? 0) < 700;
+  for (const { slide, s } of split) {
+    await openDeck(page, s);
+    const main = page.locator("main:not([aria-hidden])");
+    const head = (await main
+      .locator("[data-kind] > :first-child")
+      .boundingBox())!;
+    const lead = (await main.locator('[data-block="lead"]').boundingBox())!;
+    const visual = (await main
+      .locator('[data-block]:not([data-block="lead"])')
+      .first()
+      .boundingBox())!;
+    // Under the headline, in every layout.
+    expect(lead.y, slide.id).toBeGreaterThanOrEqual(head.y + head.height - 1);
+    if (phone) {
+      // One column: headline, body text, visual.
+      expect(visual.y, slide.id).toBeGreaterThanOrEqual(
+        lead.y + lead.height - 1,
+      );
+    } else {
+      // Beside the visual, in the headline's column.
+      expect(lead.x + lead.width, slide.id).toBeLessThanOrEqual(visual.x + 1);
+      expect(Math.abs(lead.x - head.x), slide.id).toBeLessThanOrEqual(1);
+    }
+  }
 });
 
 test("the menu's PDF download returns the deck as a file", async ({ page }) => {

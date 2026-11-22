@@ -64,6 +64,45 @@
   font-size: calc(var(--u) * 3.4);
   max-width: none;
 }
+/* A split slide's body text (SlideView's `aside`; T051): under the
+   headline, in the heading's column, beside the visual. The heading sits
+   on the first row's floor and the body text on the second's top, the
+   visual centred across both. */
+:global([data-layout="split"]):has(> .aside),
+:global([data-layout="split-end"]):has(> .aside) {
+  grid-template-rows: auto auto;
+  row-gap: calc(var(--u) * 2.4);
+}
+:global([data-layout="split"]):has(> .aside) .head {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+}
+.aside {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: start;
+}
+:global([data-layout="split"]) > .aside ~ .body {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+:global([data-layout="split-end"]) > .aside {
+  grid-column: 2;
+}
+:global([data-layout="split-end"]):has(> .aside) .head {
+  align-self: end;
+}
+:global([data-layout="split-end"]) > .aside ~ .body {
+  grid-row: 1 / span 2;
+}
+/* A stack slide's body text before its visual (a preset slide's; T051):
+   closer to the headline it explains, with the visual's usual room under
+   it. */
+:global([data-layout="stack"]) .body > .block[data-block="lead"]:first-child:not(:only-child) {
+  margin-top: calc(var(--u) * -1.2);
+  margin-bottom: calc(var(--u) * 0.8);
+}
 /* center: a quote or the closing message in the middle of the stage. Every
    part (eyebrow, headline, lead) on one vertical axis: the closing
    kind's start alignment (deck.module.css) must not win. */
@@ -755,6 +794,13 @@
   }
   :global(:where([data-deck-title])[data-layout="split-end"]) .head,
   :global(:where([data-deck-title])[data-layout="split-end"]) .body {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  /* A split's body text: one column, headline, body text, visual. */
+  :global([data-deck-title][data-layout]):has(> .aside) > .head,
+  :global([data-deck-title][data-layout]) > .aside,
+  :global([data-deck-title][data-layout]) > .aside ~ .body {
     grid-column: 1;
     grid-row: auto;
   }

@@ -31,6 +31,15 @@ const N = gallery.slides.length;
 /** A gallery slide's position (1-based), by id. */
 const at = (id: string) => gallery.slides.findIndex((s) => s.id === id) + 1;
 
+/** A gallery slide's preset block: the block beside its body text (T051:
+ *  each preset slide carries a plain `lead` of placeholder body text). */
+const shown = (id: string) => {
+  const blocks = gallery.content[id].blocks;
+  const body = (b: (typeof blocks)[number]) =>
+    b.type === "lead" && !b.size && blocks.length > 1;
+  return blocks.find((b) => !body(b)) ?? blocks[0];
+};
+
 test("the gallery has a title slide, a divider per family in use and two slides per preset", () => {
   const families = new Set(registry.map((entry) => entry.family));
   // Then a divider and a slide for each composed visual example (T143).
@@ -53,6 +62,20 @@ test("every registry entry has a gallery slide for its example and its alternate
     expect(gallery.content[alternate!.id].blocks).toContainEqual(
       entry.alternate,
     );
+    // T051 (owner on T050: "all these slides dont come with slide body
+    // text, they porbably should"): each preset slide carries a short body
+    // text, a plain lead of placeholder text, before its visual; after it
+    // on the statement, whose visual is the claim itself.
+    for (const [slide, block] of [
+      [example!, entry.example],
+      [alternate!, entry.alternate],
+    ] as const) {
+      const body = { type: "lead", item: { text: { en: "Placeholder text" } } };
+      const blocks = gallery.content[slide.id].blocks;
+      expect(blocks, slide.id).toEqual(
+        entry.layout === "statement" ? [block, body] : [body, block],
+      );
+    }
   }
 });
 
@@ -114,7 +137,9 @@ test("each preset renders its example and its alternate, and both fit (SC-005)",
     for (const slide of [slides.example!, slides.alternate!]) {
       await openGallery(page, at(slide.id));
       await expect(
-        page.locator(`main:not([aria-hidden]) [data-block="${entry.block}"]`),
+        page
+          .locator(`main:not([aria-hidden]) [data-block="${entry.block}"]`)
+          .first(),
         `${entry.name}: ${slide.id}`,
       ).toBeVisible();
       await expectFits(page, `${entry.name}: ${slide.id}`);
@@ -202,7 +227,7 @@ for (const kind of chartKinds) {
     expect(entry, kind).toBeTruthy();
     const slides = gallery.presetSlides(entry!.name);
     for (const slide of [slides.example!, slides.alternate!]) {
-      const block = gallery.content[slide.id].blocks[0];
+      const block = shown(slide.id);
       if (block.type !== "chart") throw new Error(`${slide.id}: not a chart`);
       await openGallery(page, at(slide.id));
       const main = page.locator("main:not([aria-hidden])");
@@ -415,7 +440,7 @@ for (const [key, layout] of [
         layout,
       );
       await expect(
-        main.locator(`[data-block="${entry.block}"]`),
+        main.locator(`[data-block="${entry.block}"]`).first(),
         slide.id,
       ).toBeVisible();
       await expect(main.locator("[data-preset-pending]")).toHaveCount(0);
@@ -428,7 +453,7 @@ test("the quote shows its text, and who said it when given", async ({
 }) => {
   const { slides } = v3Slides("quote");
   for (const slide of slides) {
-    const block = gallery.content[slide.id].blocks[0];
+    const block = shown(slide.id);
     if (block.type !== "quote") throw new Error(`${slide.id}: not a quote`);
     await openGallery(page, at(slide.id));
     const quote = page.locator("main:not([aria-hidden]) [data-quote]");
@@ -446,7 +471,7 @@ test("the quote shows its text, and who said it when given", async ({
 test("the agenda numbers its items in order", async ({ page }) => {
   const { slides } = v3Slides("agenda");
   for (const slide of slides) {
-    const block = gallery.content[slide.id].blocks[0];
+    const block = shown(slide.id);
     if (block.type !== "agenda") throw new Error(`${slide.id}: not an agenda`);
     await openGallery(page, at(slide.id));
     const agenda = page.locator("main:not([aria-hidden]) [data-agenda]");
@@ -490,7 +515,7 @@ test("the compare shows both sides, each with its title and every point", async 
 }) => {
   const { slides } = v3Slides("compare");
   for (const slide of slides) {
-    const block = gallery.content[slide.id].blocks[0];
+    const block = shown(slide.id);
     if (block.type !== "compare") throw new Error(`${slide.id}: not a compare`);
     await openGallery(page, at(slide.id));
     const compare = page.locator("main:not([aria-hidden]) [data-compare]");
@@ -510,7 +535,7 @@ test("the compare shows both sides, each with its title and every point", async 
 
 /** The images a gallery image block holds. */
 const imagesOf = (id: string) => {
-  const block = gallery.content[id].blocks[0];
+  const block = shown(id);
   if (block.type === "image") return [block];
   if (block.type === "imageGrid") return block.images;
   throw new Error(`${id}: not an image block`);
@@ -622,7 +647,7 @@ function diagramSlides<T extends DiagramBlock>(block: T) {
   expect(entry, block).toBeTruthy();
   const { example, alternate } = gallery.presetSlides(entry!.name);
   return [example!, alternate!].map((slide) => {
-    const b = gallery.content[slide.id].blocks[0];
+    const b = shown(slide.id);
     if (b.type !== block) throw new Error(`${slide.id}: not a ${block}`);
     return { slide, block: b as Extract<typeof b, { type: T }> };
   });
