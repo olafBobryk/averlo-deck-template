@@ -48,8 +48,8 @@ async function openDeck(page: Page, query: string) {
 }
 
 const pad = (n: number) => String(n).padStart(2, "0");
-/** The footer's wordmark: the first part of its row. */
-const wordmark = (page: Page) =>
+/** The footer's section label: the first part of its row. */
+const sectionPart = (page: Page) =>
   page
     .getByRole("contentinfo")
     .locator(":scope > div")
@@ -91,8 +91,6 @@ async function expectPortraitFooter(page: Page, slide: number) {
   await expect(
     footer.getByRole("button", { name: "Menu", exact: true }),
   ).toBeVisible();
-  // The wordmark comes first; the section label is a <p>, below.
-  await expect(wordmark(page)).toBeHidden();
   // The section label (a <p>, empty on the title slide) is not shown.
   expect(
     await footer
@@ -104,8 +102,8 @@ async function expectPortraitFooter(page: Page, slide: number) {
 
 async function expectLandscapeFooter(page: Page, label: string, slide: number) {
   const footer = page.getByRole("contentinfo");
-  await expect(wordmark(page)).toBeVisible();
-  await expect(footer.getByText(label)).toBeVisible();
+  await expect(sectionPart(page)).toBeVisible();
+  await expect(sectionPart(page)).toHaveText(label);
   await expect(footer.getByText(`${pad(slide)} / ${pad(TOTAL)}`)).toBeVisible();
   await expect(
     footer.getByRole("button", { name: "Menu", exact: true }),

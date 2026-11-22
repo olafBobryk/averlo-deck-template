@@ -1,33 +1,52 @@
 /* The menu popup's slide list (slide-list.tsx). Template-owned; the rows
    also keep the carried `.slideItem` and `.number` (menu.module.css). */
 
-/* Every row and chevron is the Averlo ghost Button without its resting
-   fill: only the current row is filled (its `!bg-background-hover`). The
-   ghost's hover fill stays. Unlayered, so it outranks the ghost's
-   `bg-background` utility. */
-.row.row:not([aria-current="true"]),
-.chevron.chevron {
+/* Every row is the Averlo ghost Button without its resting fill: only the
+   current row is filled (its `!bg-background-hover`). The ghost's hover fill
+   stays. Unlayered, so it outranks the ghost's `bg-background` utility. */
+.row.row:not([aria-current="true"]) {
   background-color: transparent;
 }
 @media (hover: hover) {
-  .row.row:not([aria-current="true"]):hover,
-  .chevron.chevron:hover {
+  .row.row:not([aria-current="true"]):hover {
     background-color: var(--color-background-hover);
   }
 }
 
-/* A section's row: the slide's row, then its chevron, on one line. */
+/* A section's row: the slide's row, then its chevron, on one line that draws
+   the row's fill across its whole width, chevron included (owner, after
+   reviewing the merged build: "purely visual"). The line takes the ghost
+   row's pill shape, hover fill and colour transition; the row and the
+   chevron inside it draw no fill of their own, at rest, hovered or focused.
+   The chevron keeps the Button's focus ring for the keyboard. */
 .head {
   display: flex;
   align-items: center;
-  gap: var(--deck-space-4);
+  border-radius: var(--radius-pill);
+  transition-property: background-color;
+  transition-duration: var(--motion-interactive-duration);
+  transition-timing-function: var(--motion-interactive-ease);
+}
+.head[data-current] {
+  background-color: var(--color-background-hover);
+}
+@media (hover: hover) {
+  .head:hover {
+    background-color: var(--color-background-hover);
+  }
+}
+.head > .row.row,
+.head > .row.row:hover,
+.head > .chevron.chevron,
+.head > .chevron.chevron:hover {
+  background-color: transparent;
 }
 .head > .row.row {
   flex: 1 1 0;
   width: auto;
   min-width: 0;
 }
-/* As tall as a row, so the chevron's hover fill is the row's. */
+/* As tall as a row, inside the line's fill. */
 .chevron.chevron {
   width: 2rem;
   height: 2rem;

@@ -69,6 +69,15 @@
   - Q: The bar's ported `utilities.css` and `foundations.css` turn the deck light when imported. → A: "Port, don't import": they stay ported and drift-tested, not imported.
   - Q: The bar's small deviations. → A: the muted grey becomes `#767676` (4.5:1), and the step number gets a visible focus ring. The Review button is left out ("Remove it, adjust parity"); the parity test removes it from the reference too. The bar fades out while the expanded overview is open ("Fade it after all").
   - Q: The top bar on small screens. → A: "on small screens its not neccesary can be removed": the bar is hidden on phones (under about 480 px wide or 500 px tall), and the slides take the full stage.
+- After reviewing the merged build (2026-11-22), the owner said:
+  - Q: The menu's accordion rows. → A: the chevron button is a bare ghost button with no hover background of its own; a row's hover covers its whole width, chevron included ("purely visual").
+  - Q: The step track. → A: "The track for switching should be removed, and instead the bottom track becomes this track. We simply just invert the direction in which the mound goes": the navigator moves to the bottom edge, its mound pointing up, and replaces the footer's thin progress line; the footer row (section, slide number, menu) stays above it ("Footer row + navigator").
+  - Q: The top. → A: "keep the top bar as overlay": the logo and the deck title float over the slides, with no white band ("this whole white area is a huge design flaw"); the text next to the logo is muted.
+  - Q: The footer wordmark. → A: "no branding in the footer, remove the averlo text there".
+  - Q: The slide components. → A: the steps block keeps its layout, and every step label uses the navigator's muted step label style ("Muted step label only"); the facts, numbered points, week and plan blocks are redone, composed from the Averlo design system.
+  - Q: The logo keeps the questionnaire's header position, out of line with the slides. → A: "align to slide text and create padding / margins".
+  - Q: The top step label, where a number could be typed to jump, went with the step track. → A: "Yes, in the footer": the footer's slide number can be pressed to type a slide number and jump.
+  - These answers replace FR-005's footer wordmark, FR-012's top navigator and FR-013's footer progress line where they differ.
 
 ## User Scenarios & Testing *(mandatory)*
 

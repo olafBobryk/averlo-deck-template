@@ -1,6 +1,5 @@
 "use client";
 import {
-  type CSSProperties,
   useCallback,
   useEffect,
   useRef,
@@ -67,8 +66,6 @@ export function Deck({
   const [index, setIndex] = useState(clamp(initialIndex, count));
   const [lang, setLang] = useState<Lang>(initialLang);
   const [fullscreen, setFullscreen] = useState(false);
-  // The top bar's height: the slides begin below its navigator's track.
-  const [barHeight, setBarHeight] = useState(0);
   // The slide asked for last, so rapid presses land on the right one even
   // while a page step has not committed yet.
   const wanted = useRef(index);
@@ -211,17 +208,8 @@ export function Deck({
   return (
     <DeckContext.Provider value={deck}>
       <OverflowReport />
-      <div
-        className={styles.stage}
-        aria-roledescription="slide deck"
-        style={{ "--deck-bar": `${barHeight}px` } as CSSProperties}
-      >
-        <TopBar
-          index={index}
-          lang={lang}
-          onNavigate={(step) => go(step - 1)}
-          onMeasure={setBarHeight}
-        />
+      <div className={styles.stage} aria-roledescription="slide deck">
+        <TopBar lang={lang} onNavigate={(step) => go(step - 1)} />
         <div
           ref={area}
           className={`${styles.slides} ${swipeStyles.area}`}
@@ -244,6 +232,7 @@ export function Deck({
         <Footer
           index={index}
           lang={lang}
+          onNavigate={(step) => go(step - 1)}
           menu={
             <MenuCard
               index={index}

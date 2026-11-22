@@ -1,5 +1,6 @@
 // The brand's name and logo as the deck's chrome shows them (FR-005): the
-// top bar's brand slot and the footer wordmark.
+// top bar's brand slot (the footer carries no brand, owner after reviewing
+// the merged build).
 import type { Brand } from "./config";
 
 /** "Averlo" by default, else the owner's brand name. */

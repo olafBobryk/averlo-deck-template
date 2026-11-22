@@ -5,25 +5,36 @@ import {
   type Page,
   type TestInfo,
 } from "@playwright/test";
+import { config } from "../src/brand/config";
+import { brandName } from "../src/brand/name";
 import { slides } from "../src/deck/slides";
+import { progressFillPosition } from "../src/questionnaire/progress-model";
 import {
   buildReference,
   findReference,
   serveReference,
 } from "./fixtures/questionnaire-top";
 
-// The top bar (User Story 2, scenario 3; FR-005, FR-012, FR-013; T028).
-// Runs at 390 and 1440 (the two projects) against the local production build.
-// On phones (390) the bar is hidden and the slides take the whole stage
-// (owner, spec "During P4"): there only that and the footer are checked; the
-// bar's own checks and its parity run at 1440.
+// The top bar and the progress navigator (User Story 2, scenario 3; FR-005,
+// FR-012, FR-013; T028, and T043 after the owner's review of the merged
+// build). Runs at 390 and 1440 (the two projects) against the local
+// production build.
 //
-// The bar is the questionnaire's whole top, ported as it is (research R4):
-// its header band (`header.top[data-site-header]`: brand on the left,
-// controls on the right), its step label (`.topline`, without the Review
-// button) and its progress navigator (`.inline-progress >
-// .progress-navigator`), inside a template-owned `.aq` wrapper that sets the
-// `--aq-*` variables and `--font-sf-pro: var(--font-inter)` inline.
+// The questionnaire's top is ported as it is (research R4) and composed in
+// two places (owner, spec "After reviewing the merged build"):
+//   - the top bar keeps only its header band (`header.top[data-site-header]`:
+//     the brand and the deck's title), inside a template-owned `.aq` wrapper,
+//     and floats over the slides as an overlay with no white band ("keep the
+//     top bar as overlay"; "this whole white area is a huge design flaw"),
+//     the title next to the logo muted. The step label and the step track
+//     are gone from it. On phones the overlay is hidden (spec, "During P4"),
+//     and the slides take the whole stage;
+//   - the progress navigator (`.inline-progress > .progress-navigator`)
+//     replaces the footer's thin progress line at the bottom edge, full
+//     width, its mound pointing up ("we simply just invert the direction in
+//     which the mound goes"); the footer row (section, slide number, menu)
+//     stays above it ("Footer row + navigator"). It shows on phones too.
+// The footer has no wordmark ("no branding in the footer").
 //
 // Parity reference: tests/fixtures/questionnaire-top.ts builds the
 // questionnaire's own runtime from its clone under PORT_SOURCES_DIR (at the
@@ -31,30 +42,26 @@ import {
 // .local/questionnaire-top/, as a static page with the same font override and
 // as many steps as the deck has slides, and serves it from this process on
 // REFERENCE_PORT (default 3195, plus the worker's parallel index). Without the
-// clone those tests are skipped as "not run", as check:ports is. Parity is
-// checked three ways, each against the reference at the same viewport and
-// step, with reduced motion so nothing is mid-spring:
-//   - DOM: the same elements, classes, roles and attribute names for the
-//     header band, the step label and the navigator (text and aria values
-//     may differ; the header's right-hand controls and the Review caption
-//     are left out, as the deck has neither the save chip nor Review);
-//   - boxes: the same position and size for every part whose size does not
-//     follow its text;
-//   - pixels: the top, from the page's top edge to the navigator's track,
-//     with the text-bearing parts hidden in both, within a small tolerance.
+// clone those tests are skipped as "not run", as check:ports is. At 1440, with
+// reduced motion so nothing is mid-spring, the deck's header band and
+// navigator have the reference's elements, classes, roles and attribute names
+// (text and aria values may differ; the header's right-hand controls are left
+// out, as the deck has neither the save chip nor Review), and the header
+// band's parts sit and size as in the reference. Their colours are the
+// deck's own: the reference's white page is what the owner removed.
 
 const TOTAL = slides.length;
 const reference = findReference();
 
-/** On phones the bar is hidden: under about 480 px wide or 500 px tall
- *  (owner, spec "During P4": "on small screens its not neccesary can be
- *  removed"). The bar's own checks run where it shows, at 1440. */
+/** On phones the top overlay is hidden: under about 480 px wide or 500 px
+ *  tall (owner, spec "During P4": "on small screens its not neccesary can be
+ *  removed"). The overlay's own checks run where it shows, at 1440. */
 const phone = ({
   viewport,
 }: {
   viewport: { width: number; height: number } | null;
 }) => !viewport || viewport.width <= 480 || viewport.height <= 500;
-const onPhones = "the top bar is hidden on phones (spec, During P4)";
+const onPhones = "the top overlay is hidden on phones (spec, During P4)";
 
 /** Open the deck at `query` with the intro already played this session, and
  *  wait until the hard-load screen has lifted and the page has arrived. */
@@ -83,45 +90,92 @@ async function expectSlide(page: Page, n: number) {
   ).toHaveCount(1);
 }
 
-/** The bar's parts, in the deck and in the reference alike. */
-const bar = {
-  header: "header.top[data-site-header]",
+/** The top bar's header band, in the deck and in the reference alike. */
+const header = "header.top[data-site-header]";
+/** The deck's top bar: the `.aq` wrapper that holds the header band. */
+const top = `.aq:has(${header})`;
+
+/** The progress navigator: in the deck, at the bottom of the footer; in the
+ *  reference, under its step label. */
+const deckNav = {
+  wrapper: "footer [data-progress]",
+  inline: "footer [data-progress] .inline-progress",
+  navigator: "footer [data-progress] .progress-navigator",
+  track: "footer [data-progress] .progress-track",
+  fill: "footer [data-progress] .progress-track > div",
+  mound: "footer [data-progress] .progress-mound path",
+  moundButton: "footer [data-progress] .progress-mound-button",
+};
+const refNav = {
+  inline: ".aq .inline-progress",
   navigator: ".aq .inline-progress .progress-navigator",
   track: ".aq .inline-progress .progress-track",
   moundButton: ".aq .progress-mound-button",
   label: ".aq .topline .progress-caption-step small",
 };
 
-/** The x of step `step`'s middle on the navigator's track. */
-async function stepX(page: Page, step: number, total: number) {
-  const navigator = page.locator(bar.navigator);
-  await expect(navigator, "the progress navigator").toBeVisible();
-  const box = (await navigator.boundingBox())!;
-  return { x: box.x + (box.width * (step - 0.5)) / total, top: box.y };
+type Box = { x: number; y: number; width: number; height: number };
+const boxOf = async (page: Page, selector: string): Promise<Box> => {
+  const box = await page.locator(selector).boundingBox();
+  expect(box, selector).not.toBeNull();
+  return box!;
+};
+
+/** Where the pointer goes to raise the mound over step `step`, and where a
+ *  finger drags along the track. In the deck the mound points up, so the
+ *  pointer comes from above the track; in the reference from below. */
+async function stepPoint(
+  page: Page,
+  nav: { navigator: string; track: string },
+  step: number,
+  total: number,
+  up: boolean,
+) {
+  await expect(page.locator(nav.navigator), "the navigator").toHaveCount(1);
+  const navigator = await boxOf(page, nav.navigator);
+  const track = await boxOf(page, nav.track);
+  return {
+    x: navigator.x + (navigator.width * (step - 0.5)) / total,
+    hover: up ? track.y - 6 : track.y + track.height + 1,
+    touch: up ? track.y - 10 : track.y + 10,
+  };
 }
 
-/** A pointer press on the step track: move over step `step`, wait for the
- *  mound to rise and name that step, then press it. */
-async function pressTrack(page: Page, step: number, total: number) {
-  const { x, top } = await stepX(page, step, total);
-  await page.mouse.move(x, top + 1, { steps: 4 });
+/** A pointer press on the step track: move near the track over step `step`,
+ *  wait for the mound to rise and name that step, then press it. */
+async function pressTrack(
+  page: Page,
+  nav: { navigator: string; track: string; moundButton: string },
+  step: number,
+  total: number,
+  up: boolean,
+) {
+  const { x, hover } = await stepPoint(page, nav, step, total, up);
+  await page.mouse.move(x, hover, { steps: 4 });
   await page.waitForFunction(
     ([selector, label]) => {
       const button = document.querySelector<HTMLButtonElement>(selector);
       return !!button && !button.disabled && button.textContent === label;
     },
-    [bar.moundButton, String(step)] as const,
+    [nav.moundButton, String(step)] as const,
   );
-  await page.locator(bar.moundButton).click();
+  await page.locator(nav.moundButton).click();
 }
 
 /** A finger drag along the step track from step `from` to step `to`, through
  *  Chromium's touch input (the navigator's touch zone shows on a coarse
  *  pointer, so the page must be in a `hasTouch` context). */
-async function dragTrack(page: Page, from: number, to: number, total: number) {
-  const a = await stepX(page, from, total);
-  const b = await stepX(page, to, total);
-  const y = a.top + 10;
+async function dragTrack(
+  page: Page,
+  nav: { navigator: string; track: string },
+  from: number,
+  to: number,
+  total: number,
+  up: boolean,
+) {
+  const a = await stepPoint(page, nav, from, total, up);
+  const b = await stepPoint(page, nav, to, total, up);
+  const y = a.touch;
   const cdp = await page.context().newCDPSession(page);
   await cdp.send("Input.dispatchTouchEvent", {
     type: "touchStart",
@@ -139,12 +193,46 @@ async function dragTrack(page: Page, from: number, to: number, total: number) {
   await cdp.detach();
 }
 
-test.describe("where the bar shows", () => {
+/** WCAG contrast of two computed colours, `rgb()`/`rgba()` or
+ *  `color(srgb …)` (as a `color-mix()` computes), the first over the second,
+ *  alpha ignored. */
+function contrast(a: string, b: string) {
+  const channels = (color: string) => {
+    const values = (color.replace(/^color\(srgb/, "").match(/[\d.]+/g) ?? [])
+      .slice(0, 3)
+      .map(Number);
+    return color.startsWith("color(srgb")
+      ? values.map((value) => value * 255)
+      : values;
+  };
+  const luminance = (color: string) => {
+    const [r, g, b] = channels(color).map((value) => {
+      const c = value / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/** A token's colour as the page resolves it, through a probe element. */
+const tokenColor = (page: Page, token: string) =>
+  page.evaluate((token) => {
+    const probe = document.createElement("span");
+    probe.style.color = `var(${token})`;
+    document.body.append(probe);
+    const color = getComputedStyle(probe).color;
+    probe.remove();
+    return color;
+  }, token);
+
+test.describe("where the top overlay shows", () => {
   test.skip(phone, onPhones);
 
-  // ---------------------------------------------------------------- the bar ---
+  // ------------------------------------------------------------ the overlay ---
 
-  test("the bar spans the full width at the top of every slide, with the stage below it", async ({
+  test("the bar floats over the slides at the top, with the stage under it from the top edge", async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
@@ -152,124 +240,285 @@ test.describe("where the bar shows", () => {
     for (let n = 1; n <= TOTAL; n++) {
       if (n > 1) await page.keyboard.press("ArrowRight");
       await expectSlide(page, n);
-      const header = page.locator(bar.header);
-      await expect(header, `slide ${n}: the header band`).toHaveCount(1);
-      await expect(header).toBeVisible();
-      const layout = await page.evaluate((selectors) => {
-        const header = document.querySelector(selectors.header)!;
-        const wrapper = header.closest(".aq");
-        const track = document.querySelector(selectors.track);
+      await expect(
+        page.locator(header),
+        `slide ${n}: the header band`,
+      ).toBeVisible();
+      const layout = await page.evaluate((header) => {
+        const band = document.querySelector(header)!;
+        const brand = band.querySelector(".brand-logo")!;
+        const h = band.getBoundingClientRect();
+        const b = brand.getBoundingClientRect();
         const slide = document.querySelector("main:not([aria-hidden])")!;
-        const h = header.getBoundingClientRect();
-        const t = track?.getBoundingClientRect();
-        const hit = document.elementFromPoint(innerWidth / 2, h.top + 2);
+        const stage = slide.getBoundingClientRect();
+        const hit = document.elementFromPoint(
+          b.left + b.width / 2,
+          b.top + b.height / 2,
+        );
         return {
-          viewport: innerWidth,
-          wrapped: !!wrapper,
-          header: {
-            left: h.left,
-            top: h.top,
-            width: h.width,
-            bottom: h.bottom,
-          },
-          trackBottom: t ? t.bottom : null,
-          slideTop: slide.getBoundingClientRect().top,
-          onTop: !!hit && !!wrapper?.contains(hit),
+          viewport: { width: innerWidth, height: innerHeight },
+          wrapped: !!band.closest(".aq"),
+          header: { left: h.left, top: h.top, width: h.width },
+          stage: { top: stage.top, height: stage.height },
+          brandOnTop: !!hit && brand.contains(hit),
         };
-      }, bar);
+      }, header);
       expect(layout.wrapped, `slide ${n}: the bar is inside .aq`).toBe(true);
       expect(layout.header.left, `slide ${n}: left edge`).toBeCloseTo(0, 0);
       expect(layout.header.top, `slide ${n}: top edge`).toBeCloseTo(0, 0);
       expect(layout.header.width, `slide ${n}: full width`).toBeCloseTo(
-        layout.viewport,
+        layout.viewport.width,
         0,
       );
-      expect(layout.onTop, `slide ${n}: nothing covers the bar`).toBe(true);
-      expect(layout.trackBottom, `slide ${n}: the navigator`).not.toBeNull();
-      const bottom = Math.max(layout.header.bottom, layout.trackBottom!);
       expect(
-        layout.slideTop,
-        `slide ${n}: the stage starts below the bar (${bottom} px)`,
-      ).toBeGreaterThanOrEqual(bottom - 0.5);
+        layout.brandOnTop,
+        `slide ${n}: nothing covers the brand's link`,
+      ).toBe(true);
+      // An overlay: the slides take the whole stage, from the top edge.
+      expect(
+        layout.stage.top,
+        `slide ${n}: the stage starts at the top`,
+      ).toBeCloseTo(0, 0);
+      expect(
+        layout.stage.height,
+        `slide ${n}: the stage is the viewport's height`,
+      ).toBeCloseTo(layout.viewport.height, 0);
     }
   });
 
-  // ---------------------------------------------------------- the navigator ---
+  test("no band: the bar draws nothing but its brand and title over the deck's background", async ({
+    page,
+  }, info) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openDeck(page, "s=3");
+    await expect(page.locator(header)).toBeVisible();
+    // Every box of the bar is see-through.
+    const fills = await page.evaluate((top) => {
+      const bar = document.querySelector(top)!;
+      const clear = (color: string) =>
+        color === "transparent" || /rgba\(.*,\s*0\)$/.test(color);
+      return [bar, ...bar.querySelectorAll("*")]
+        .filter((el) => !el.closest(".brand"))
+        .filter((el) => {
+          const s = getComputedStyle(el);
+          return (
+            el.checkVisibility({ opacityProperty: true }) &&
+            (!clear(s.backgroundColor) || s.backgroundImage !== "none")
+          );
+        })
+        .map(
+          (el) => `${el.tagName.toLowerCase()}.${[...el.classList].join(".")}`,
+        );
+    }, top);
+    expect(fills, "boxes of the bar that draw a fill").toEqual([]);
+    // And in pixels: with the brand hidden, the top of the stage is the
+    // deck's own background, edge to edge.
+    const band = await boxOf(page, header);
+    await page.addStyleTag({
+      content: `${top} .brand { visibility: hidden !important; }`,
+    });
+    await page.mouse.move(band.width / 2, band.height + 300);
+    const shot = await page.screenshot({
+      clip: { x: 0, y: 0, width: band.width, height: band.height },
+      animations: "disabled",
+    });
+    await info.attach("top.png", { body: shot, contentType: "image/png" });
+    const background = await tokenColor(page, "--color-background");
+    const share = await page.evaluate(
+      async ([png, background]) => {
+        const [r, g, b] = (background.match(/[\d.]+/g) ?? []).map(Number);
+        const image = await createImageBitmap(
+          await (await fetch(`data:image/png;base64,${png}`)).blob(),
+        );
+        const canvas = new OffscreenCanvas(image.width, image.height);
+        const context = canvas.getContext("2d")!;
+        context.drawImage(image, 0, 0);
+        const data = context.getImageData(0, 0, image.width, image.height).data;
+        let off = 0;
+        for (let i = 0; i < data.length; i += 4)
+          if (
+            Math.max(
+              Math.abs(data[i] - r),
+              Math.abs(data[i + 1] - g),
+              Math.abs(data[i + 2] - b),
+            ) > 24
+          )
+            off++;
+        return off / (data.length / 4);
+      },
+      [shot.toString("base64"), background] as const,
+    );
+    expect(
+      share,
+      "share of the top that is not the deck's background",
+    ).toBeLessThanOrEqual(0.002);
+  });
 
-  test("pressing the navigator's step track jumps to that slide, and ?s= follows", async ({
+  test("the title next to the logo is muted, the logo reads on the dark background", async ({
+    page,
+  }) => {
+    await openDeck(page, "s=1");
+    const sub = page.locator(`${header} .brand-sub`);
+    await expect(sub).toHaveText(config.deckTitle);
+    const muted = await tokenColor(page, "--color-muted");
+    const background = await tokenColor(page, "--color-background");
+    const colors = await page.evaluate((header) => {
+      const band = document.querySelector(header)!;
+      return {
+        sub: getComputedStyle(band.querySelector(".brand-sub")!).color,
+        logo: getComputedStyle(band.querySelector(".brand-logo")!).color,
+      };
+    }, header);
+    expect(colors.sub, "the deck title is the Averlo muted text").toBe(muted);
+    expect(contrast(colors.sub, background)).toBeGreaterThanOrEqual(4.5);
+    // The mark is drawn in currentColor: light, on the deck's dark page.
+    expect(contrast(colors.logo, background)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  test("the top keeps only the brand and the title: no step label, no step track", async ({
+    page,
+  }) => {
+    await openDeck(page, "s=3");
+    await expect(page.locator(header)).toBeVisible();
+    for (const part of [
+      ".topline",
+      ".progress-caption",
+      ".inline-progress",
+      ".progress-navigator",
+    ])
+      await expect(page.locator(`${top} ${part}`), part).toHaveCount(0);
+  });
+
+  // Owner, after reviewing the merged build: "align to slide text and create
+  // padding / margins".
+  test("the logo lines up with the slide text, with a margin above it", async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
-    await openDeck(page, "s=1");
-    const forward = Math.ceil(TOTAL / 2) + 1;
-    const back = 2;
-    await pressTrack(page, forward, TOTAL);
-    await expectSlide(page, forward);
-    await pressTrack(page, back, TOTAL);
-    await expectSlide(page, back);
+    for (const size of [
+      { width: 1440, height: 900 },
+      { width: 1280, height: 720 },
+      { width: 1024, height: 768 },
+      { width: 1920, height: 1080 },
+      { width: 600, height: 900 },
+    ]) {
+      await page.setViewportSize(size);
+      await openDeck(page, "s=3");
+      const m = await page.evaluate((header) => {
+        const logo = document
+          .querySelector(header)!
+          .querySelector(".brand-logo")!
+          .getBoundingClientRect();
+        const brand = document
+          .querySelector(header)!
+          .querySelector(".brand")!
+          .getBoundingClientRect();
+        const slide = document.querySelector(
+          "main:not([aria-hidden]) [data-kind]",
+        )!;
+        const box = slide.getBoundingClientRect();
+        const style = getComputedStyle(slide);
+        // The slide's content box: where its text starts.
+        const left = box.left + parseFloat(style.paddingLeft);
+        const top = box.top + parseFloat(style.paddingTop);
+        const eyebrow = slide
+          .querySelector("h1, [data-variant='label-l']")!
+          .getBoundingClientRect();
+        return {
+          logo: { left: logo.left, top: logo.top },
+          brandBottom: brand.bottom,
+          contentLeft: left,
+          contentTop: top,
+          textLeft: eyebrow.left,
+        };
+      }, header);
+      const at = `${size.width}×${size.height}: ${JSON.stringify(m)}`;
+      expect(m.logo.left, `${at}: the logo's left edge`).toBeCloseTo(
+        m.contentLeft,
+        0,
+      );
+      expect(m.textLeft, `${at}: the slide text's left edge`).toBeCloseTo(
+        m.contentLeft,
+        0,
+      );
+      expect(
+        m.logo.top,
+        `${at}: a margin above the logo`,
+      ).toBeGreaterThanOrEqual(16);
+      expect(
+        m.brandBottom,
+        `${at}: the brand ends above the slide's content`,
+      ).toBeLessThanOrEqual(m.contentTop);
+    }
   });
 
-  test.describe("on a touch screen", () => {
-    test.use({ hasTouch: true });
-
-    test("dragging the navigator's step track jumps to the slide where it lets go, and ?s= follows", async ({
-      page,
-    }) => {
-      await page.emulateMedia({ reducedMotion: "reduce" });
+  test("no slide's text runs under the brand", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    for (const size of [
+      { width: 1440, height: 900 },
+      { width: 1280, height: 720 },
+      { width: 1024, height: 768 },
+      { width: 600, height: 900 },
+    ]) {
+      await page.setViewportSize(size);
       await openDeck(page, "s=1");
-      const to = TOTAL - 1;
-      await dragTrack(page, 2, to, TOTAL);
-      await expectSlide(page, to);
-      await dragTrack(page, to, 3, TOTAL);
-      await expectSlide(page, 3);
-    });
-  });
-
-  test("the step label takes a slide number and jumps to it", async ({
-    page,
-  }) => {
-    await openDeck(page, "s=1");
-    const to = TOTAL - 2;
-    const button = page.locator(`${bar.label} .step-jump-button`);
-    await expect(button, "the step label's button").toBeVisible();
-    await button.click();
-    const input = page.locator(`${bar.label} .step-jump-input`);
-    await expect(input).toBeFocused();
-    await input.fill(String(to));
-    await input.press("Enter");
-    await expectSlide(page, to);
-    await expect(page.locator(bar.label)).toHaveText(`${to} / ${TOTAL}`);
+      for (let n = 1; n <= TOTAL; n++) {
+        if (n > 1) await page.keyboard.press("ArrowRight");
+        await expectSlide(page, n);
+        const hits = await page.evaluate((header) => {
+          const brand = document
+            .querySelector(header)!
+            .querySelector(".brand")!
+            .getBoundingClientRect();
+          const slide = document.querySelector("main:not([aria-hidden])")!;
+          const found: string[] = [];
+          const walker = document.createTreeWalker(slide, NodeFilter.SHOW_TEXT);
+          for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+            if (!node.textContent?.trim() || !node.parentElement) continue;
+            if (!node.parentElement.checkVisibility({ opacityProperty: true }))
+              continue;
+            const range = document.createRange();
+            range.selectNodeContents(node);
+            for (const r of range.getClientRects())
+              if (
+                r.right > brand.left &&
+                r.left < brand.right &&
+                r.bottom > brand.top &&
+                r.top < brand.bottom
+              )
+                found.push(node.textContent.trim());
+          }
+          return found;
+        }, header);
+        expect(hits, `${size.width}×${size.height} slide ${n}`).toEqual([]);
+      }
+    }
   });
 });
 
 // ------------------------------------------------------------- on a phone ---
 
-test("on a phone the bar is hidden and the slides take the whole stage", async ({
+test("on a phone the top overlay is hidden; the navigator stays at the bottom", async ({
   page,
 }, info) => {
   test.skip(
     !phone({ viewport: info.project.use.viewport ?? null }),
-    "the bar shows here",
+    "the overlay shows here",
   );
   await page.emulateMedia({ reducedMotion: "reduce" });
   await openDeck(page, "s=2");
   const check = async (at: string) => {
-    await expect(page.locator(".aq"), `${at}: the wrapper`).toHaveCount(1);
-    await expect(
-      page.locator(bar.header),
-      `${at}: the header band`,
-    ).toBeHidden();
-    await expect(
-      page.locator(bar.navigator),
-      `${at}: the navigator`,
-    ).toBeHidden();
+    await expect(page.locator(".aq header"), `${at}: the wrapper`).toHaveCount(
+      1,
+    );
+    await expect(page.locator(header), `${at}: the header band`).toBeHidden();
     const top = await page
       .locator("main:not([aria-hidden])")
       .evaluate((main) => main.getBoundingClientRect().top);
     expect(top, `${at}: the stage starts at the top`).toBeCloseTo(0, 0);
     await expect(
-      page.locator("footer [data-progress]"),
-      `${at}: the footer's progress bar`,
+      page.locator(deckNav.navigator),
+      `${at}: the navigator`,
     ).toBeVisible();
   };
   await check("portrait");
@@ -278,9 +527,142 @@ test("on a phone the bar is hidden and the slides take the whole stage", async (
   await check("844×390");
 });
 
+// ---------------------------------------------------------- the navigator ---
+
+test.describe("the navigator at the bottom edge", () => {
+  test("full width along the bottom edge, under the footer row, in place of the progress line", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    const n = 3;
+    await openDeck(page, `s=${n}`);
+    const viewport = page.viewportSize()!;
+    await expect(page.locator(deckNav.navigator)).toHaveCount(1);
+    const track = await boxOf(page, deckNav.track);
+    expect(track.x, "left edge").toBeCloseTo(0, 0);
+    expect(track.width, "full width").toBeCloseTo(viewport.width, 0);
+    expect(track.y + track.height, "on the bottom edge").toBeCloseTo(
+      viewport.height,
+      0,
+    );
+    // The footer row stays above it.
+    const row = await page.evaluate(() => {
+      const footer = document.querySelector("footer")!;
+      return Math.max(
+        ...[...footer.querySelectorAll("p, span, button")]
+          .filter(
+            (el) =>
+              !el.closest("[data-progress]") &&
+              el.checkVisibility({ opacityProperty: true }),
+          )
+          .map((el) => el.getBoundingClientRect().bottom),
+      );
+    });
+    expect(row, "the footer row ends above the track").toBeLessThanOrEqual(
+      track.y + 0.5,
+    );
+    // Its progress follows the slide, as the questionnaire's does.
+    const progressbar = page.locator(`${deckNav.track}[role='progressbar']`);
+    await expect(progressbar).toHaveAttribute(
+      "aria-valuenow",
+      String(Math.round((n / TOTAL) * 100)),
+    );
+    const fill = await boxOf(page, deckNav.fill);
+    expect(fill.width, "the fill follows the slide").toBeCloseTo(
+      progressFillPosition((n / TOTAL) * 100, track.width, TOTAL),
+      0,
+    );
+    // The old thin line is gone: the navigator is the footer's only progress.
+    await expect(page.locator("footer [data-progress-fill]")).toHaveCount(0);
+    await expect(page.locator("footer [role='progressbar']")).toHaveCount(1);
+  });
+
+  test("its mound points up: the pointer above the track raises it, upward", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openDeck(page, "s=2");
+    const track = await boxOf(page, deckNav.track);
+    const { x, hover } = await stepPoint(page, deckNav, 6, TOTAL, true);
+    // Far above the track, nothing rises.
+    await page.mouse.move(x, track.y - 160, { steps: 3 });
+    await expect(page.locator(deckNav.moundButton)).toBeDisabled();
+    // Near it, the mound rises above the track and names the step.
+    await page.mouse.move(x, hover, { steps: 4 });
+    await expect(page.locator(deckNav.moundButton)).toBeEnabled();
+    await expect(page.locator(deckNav.moundButton)).toHaveText("6");
+    const shape = await page.evaluate((nav) => {
+      const path = document.querySelector(nav.mound)!.getBoundingClientRect();
+      const button = document.querySelector(nav.moundButton)!;
+      /** The sign of the vertical scale from the element up to the page. */
+      const flip = (el: Element | null) => {
+        let sign = 1;
+        for (; el; el = el.parentElement) {
+          const t = getComputedStyle(el).transform;
+          if (t && t !== "none" && new DOMMatrixReadOnly(t).d < 0) sign = -sign;
+          const scale = getComputedStyle(el).scale;
+          if (scale && scale !== "none") {
+            const [, sy] = scale.split(/\s+/).map(Number);
+            if (sy !== undefined && sy < 0) sign = -sign;
+          }
+        }
+        return sign;
+      };
+      const b = button.getBoundingClientRect();
+      return {
+        top: path.top,
+        bottom: path.bottom,
+        button: b.top + b.height / 2,
+        upright: flip(button) > 0,
+      };
+    }, deckNav);
+    expect(shape.bottom, "the mound stands on the track").toBeLessThanOrEqual(
+      track.y + track.height + 1,
+    );
+    expect(shape.top, "the mound rises above the track").toBeLessThan(
+      track.y - 16,
+    );
+    expect(shape.button, "its step number sits in the mound").toBeLessThan(
+      track.y,
+    );
+    expect(shape.upright, "its step number reads upright").toBe(true);
+  });
+
+  test("pressing the navigator jumps to that slide, and ?s= follows", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openDeck(page, "s=1");
+    const forward = Math.ceil(TOTAL / 2) + 1;
+    const back = 2;
+    await pressTrack(page, deckNav, forward, TOTAL, true);
+    await expectSlide(page, forward);
+    await pressTrack(page, deckNav, back, TOTAL, true);
+    await expectSlide(page, back);
+  });
+
+  test.describe("on a touch screen", () => {
+    test.use({ hasTouch: true });
+
+    test("dragging along the navigator jumps to the slide where it lets go, and ?s= follows", async ({
+      page,
+    }) => {
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await openDeck(page, "s=1");
+      // Clear of the menu button at the right end, where a finger near the
+      // button presses the button (the browser's touch adjustment).
+      const to = Math.ceil(TOTAL * 0.7);
+      await dragTrack(page, deckNav, 2, to, TOTAL, true);
+      await expectSlide(page, to);
+      await dragTrack(page, deckNav, to, 3, TOTAL, true);
+      await expectSlide(page, 3);
+    });
+  });
+});
+
 // ------------------------------------------------------------- the footer ---
 
-test("the footer keeps its progress indicator and parts, with no divider line", async ({
+test("the footer keeps its section, number and menu, with no wordmark and no divider line", async ({
   page,
 }, info) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -288,26 +670,20 @@ test("the footer keeps its progress indicator and parts, with no divider line", 
   await openDeck(page, `s=${n}`);
   const footer = page.locator("footer:has([data-progress])");
   await expect(footer).toHaveCount(1);
-  const progress = footer.locator("[data-progress]");
-  const fill = footer.locator("[data-progress-fill]");
-  await expect(progress).toBeVisible();
-  await expect(fill).toBeVisible();
-  await expect(progress).toHaveAttribute("aria-valuenow", String(n));
   const pad = (k: number) => String(k).padStart(2, "0");
   await expect(footer.getByText(`${pad(n)} / ${pad(TOTAL)}`)).toBeVisible();
   await expect(footer.locator("[data-footer-menu] button")).toBeVisible();
-  const ratio = await page.evaluate(() => {
-    const bar = document.querySelector("footer [data-progress]")!;
-    const fill = document.querySelector("footer [data-progress-fill]")!;
-    return (
-      fill.getBoundingClientRect().width / bar.getBoundingClientRect().width
-    );
-  });
-  expect(ratio, "the fill follows the slide").toBeCloseTo(n / TOTAL, 2);
+  await expect(
+    footer.locator("[data-progress] .progress-navigator"),
+  ).toHaveCount(1);
+  // No branding in the footer: no wordmark, not even hidden.
+  await expect(
+    footer.getByText(brandName(config.brand), { exact: true }),
+  ).toHaveCount(0);
 
   // No divider: nothing draws a line along the top of the footer, between the
-  // stage and the footer row. The progress bar is the only full-width line
-  // the footer keeps, at its bottom edge.
+  // stage and the footer row. The navigator's track is the only full-width
+  // line the footer keeps, at the bottom edge.
   const lines = await page.evaluate(() => {
     const footer = document.querySelector("footer:has([data-progress])")!;
     const progress = footer.querySelector("[data-progress]")!;
@@ -352,7 +728,7 @@ test("the footer keeps its progress indicator and parts, with no divider line", 
     for (const el of footer.querySelectorAll("hr, [role='separator']"))
       if (el.checkVisibility()) found.push(`${name(el)}: a rule`);
     // Any thin, wide box along the footer's top edge, outside the slides and
-    // the progress bar.
+    // the navigator.
     for (const el of document.body.querySelectorAll<HTMLElement>("*")) {
       if (progress.contains(el) || el.closest("main[data-slide-index]"))
         continue;
@@ -368,14 +744,111 @@ test("the footer keeps its progress indicator and parts, with no divider line", 
   expect(lines, `${info.project.name}: divider lines`).toEqual([]);
 });
 
-// -------------------------------------------------- brand slot and wordmark ---
+// ----------------------------------------------- the footer's slide number ---
+
+// Owner, after reviewing the merged build: "Yes, in the footer": the slide
+// number can be pressed to type a slide number and jump, as the
+// questionnaire's step label could.
+test.describe("the footer's slide number jumps to a typed slide", () => {
+  const pad = (k: number) => String(k).padStart(2, "0");
+  // The footer's row (its first part), not the navigator's mound, whose
+  // button is also named for a slide.
+  const row = (page: Page) => page.locator("footer > div").first();
+  const number = (page: Page) =>
+    row(page).getByRole("button", { name: /^Go to slide \d+$/ });
+  const field = (page: Page) =>
+    row(page).getByRole("textbox", { name: "Slide number" });
+
+  test("pressed, it takes a number; Enter goes there", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openDeck(page, "s=3");
+    await expect(number(page)).toHaveText(pad(3));
+    // Its name holds the number as shown.
+    await expect(number(page)).toHaveAccessibleName("Go to slide 03");
+    await number(page).click();
+    await expect(field(page)).toBeFocused();
+    await expect(field(page)).toHaveValue("3");
+    const to = TOTAL - 2;
+    await field(page).fill(String(to));
+    await field(page).press("Enter");
+    await expectSlide(page, to);
+    await expect(field(page)).toHaveCount(0);
+    await expect(number(page)).toHaveText(pad(to));
+    await expect(
+      page.locator("footer").getByText(`${pad(to)} / ${pad(TOTAL)}`),
+    ).toBeVisible();
+  });
+
+  test("Escape cancels and gives the focus back; a number out of range is ignored", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openDeck(page, "s=4");
+    await number(page).click();
+    await field(page).fill("2");
+    await field(page).press("Escape");
+    await expect(field(page)).toHaveCount(0);
+    await expect(number(page)).toBeFocused();
+    await expect.poll(() => slideParam(page)).toBe("4");
+    for (const typed of ["0", "99"]) {
+      await number(page).click();
+      await field(page).fill(typed);
+      await field(page).press("Enter");
+      await expect(field(page)).toHaveCount(0);
+      await expect.poll(() => slideParam(page)).toBe("4");
+      await expect(number(page)).toHaveText(pad(4));
+    }
+    // Letters never get in.
+    await number(page).click();
+    await field(page).pressSequentially("a5");
+    await expect(field(page)).toHaveValue("5");
+    await field(page).press("Enter");
+    await expectSlide(page, 5);
+  });
+
+  test("from the keyboard: a stop with a visible focus ring; Enter opens it", async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await openDeck(page, "s=2");
+    await number(page).focus();
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Tab");
+    await expect(number(page)).toBeFocused();
+    const ring = async (selector: "button" | "input") =>
+      page.locator(`footer ${selector}:focus`).evaluate((el) => {
+        const s = getComputedStyle(el);
+        return {
+          visible: el.matches(":focus-visible"),
+          drawn:
+            (s.boxShadow !== "none" && s.boxShadow !== "") ||
+            (s.outlineStyle !== "none" && parseFloat(s.outlineWidth) > 0),
+        };
+      });
+    expect(await ring("button")).toEqual({ visible: true, drawn: true });
+    await page.keyboard.press("Enter");
+    await expect(field(page)).toBeFocused();
+    expect(await ring("input")).toEqual({ visible: true, drawn: true });
+    // Typing in it never steps the deck.
+    await page.keyboard.press("ArrowRight");
+    await expect.poll(() => slideParam(page)).toBe("2");
+    // (The arrow moved the caret off the selected "2", so the field is
+    // cleared first.)
+    await page.keyboard.press("Backspace");
+    await page.keyboard.type("6");
+    await page.keyboard.press("Enter");
+    await expectSlide(page, 6);
+  });
+});
+
+// ------------------------------------------------------------ brand slot ---
 
 test("the brand slot shows the Averlo logo (default brand, FR-005)", async ({
   page,
 }, info) => {
   test.skip(phone({ viewport: info.project.use.viewport ?? null }), onPhones);
   await openDeck(page, "s=1");
-  const brand = page.locator(`${bar.header} .brand`);
+  const brand = page.locator(`${header} .brand`);
   await expect(brand).toHaveCount(1);
   const logo = brand.locator(".brand-logo");
   await expect(logo).toBeVisible();
@@ -385,36 +858,19 @@ test("the brand slot shows the Averlo logo (default brand, FR-005)", async ({
   await expect(brand.locator("img[src*='your-logo']")).toHaveCount(0);
 });
 
-test("the footer wordmark reads Averlo (default brand, FR-005)", async ({
-  page,
-}, info) => {
-  await openDeck(page, "s=1");
-  const footer = page.locator("footer:has([data-progress])");
-  const wordmark = footer.getByText("Averlo", { exact: true });
-  await expect(wordmark).toHaveCount(1);
-  // On a portrait phone the footer hides its wordmark (deck.module.css).
-  if (info.project.name === "desktop") await expect(wordmark).toBeVisible();
-  await expect(footer.getByText("Deck", { exact: true })).toHaveCount(0);
-});
-
 // Brand `owner` without a logo: the slot shows the "your logo" placeholder
-// mark plus the brand's name as text, and the footer wordmark reads the name.
-// Checking it needs the deck built with another src/brand/config.ts; P6/P7
-// add that config fixture (and the build that uses it).
+// mark plus the brand's name as text. Checking it needs the deck built with
+// another src/brand/config.ts; P6/P7 add that config fixture (and the build
+// that uses it).
 test.fixme("brand owner without a logo: placeholder mark plus the name as text (FR-005)", async ({
   page,
 }) => {
   const name = "Placeholder brand";
   await openDeck(page, "s=1");
-  const brand = page.locator(`${bar.header} .brand`);
+  const brand = page.locator(`${header} .brand`);
   await expect(brand.locator("img[src*='your-logo']")).toBeVisible();
   await expect(brand.locator(".brand-logo svg")).toHaveCount(0);
   await expect(brand).toContainText(name);
-  await expect(
-    page.locator("footer:has([data-progress])").getByText(name, {
-      exact: true,
-    }),
-  ).toHaveCount(1);
 });
 
 // ---------------------------------------------------------------- the font ---
@@ -424,11 +880,11 @@ test("the bar's text is set in Inter, through the wrapper's font override", asyn
 }, info) => {
   test.skip(phone({ viewport: info.project.use.viewport ?? null }), onPhones);
   await openDeck(page, "s=1");
-  await expect(page.locator(bar.header)).toHaveCount(1);
-  const font = await page.evaluate(async (selectors) => {
+  await expect(page.locator(header)).toHaveCount(1);
+  const font = await page.evaluate(async (header) => {
     await document.fonts.ready;
-    const header = document.querySelector(selectors.header)!;
-    const wrapper = header.closest<HTMLElement>(".aq")!;
+    const band = document.querySelector(header)!;
+    const wrapper = band.closest<HTMLElement>(".aq")!;
     const first = (family: string) =>
       family
         .split(",")[0]
@@ -437,31 +893,24 @@ test("the bar's text is set in Inter, through the wrapper's font override", asyn
     const inter = getComputedStyle(document.documentElement)
       .getPropertyValue("--font-inter")
       .trim();
-    const texts = [
-      header.querySelector(".brand-sub"),
-      document.querySelector(selectors.label),
-    ].map((el) => (el ? getComputedStyle(el).fontFamily : null));
-    const family = texts[0] ? first(texts[0]) : "";
+    const family = first(
+      getComputedStyle(band.querySelector(".brand-sub")!).fontFamily,
+    );
     return {
       inline: wrapper.getAttribute("style") ?? "",
       sfPro: getComputedStyle(wrapper).getPropertyValue("--font-sf-pro").trim(),
       inter,
-      texts,
       family,
       loaded: [...document.fonts].some(
         (face) => first(face.family) === family && face.status === "loaded",
       ),
       check: family ? document.fonts.check(`16px "${family}"`) : false,
     };
-  }, bar);
+  }, header);
   expect(font.inline).toMatch(/--font-sf-pro:\s*var\(--font-inter\)/);
   expect(font.inter, "--font-inter is set").not.toBe("");
   expect(font.sfPro, "--font-sf-pro resolves to --font-inter").toBe(font.inter);
-  for (const family of font.texts) {
-    expect(family, "bar text").not.toBeNull();
-    expect(family!).not.toMatch(/SF Pro/i);
-    expect(family!.split(",")[0]).toMatch(/Inter/);
-  }
+  expect(font.family).not.toMatch(/SF Pro/i);
   expect(font.family).toMatch(/Inter/);
   expect(font.loaded, `a loaded font face named ${font.family}`).toBe(true);
   expect(font.check).toBe(true);
@@ -514,36 +963,24 @@ function shapeOf({
   return el ? walk(el) : null;
 }
 
+/** The parts compared: the deck's selector and the reference's. */
 const parts = [
-  { selector: bar.header, drop: [], empty: [".header-right"] },
-  {
-    selector: ".aq .topline",
-    drop: ["[data-progress-review-action]", ".progress-caption-review"],
-    empty: [],
-  },
-  { selector: ".aq .inline-progress", drop: [], empty: [] },
+  { deck: header, ref: header, drop: [], empty: [".header-right"] },
+  { deck: deckNav.inline, ref: refNav.inline, drop: [], empty: [] },
 ];
 
-/** Boxes compared between the deck and the reference, and which sides: the
- *  parts whose size follows their text keep only their position. */
+/** The header band's boxes compared between the deck and the reference:
+ *  the brand's parts keep the reference's sizes. Their positions are the
+ *  deck's own: the brand lines up with the slide text, with margins of its
+ *  own (owner, after reviewing the merged build: "align to slide text and
+ *  create padding / margins"), so the band's position and size, and the
+ *  pixel comparison, are no longer the reference's. */
 const boxes: [string, ("x" | "y" | "width" | "height")[]][] = [
-  [bar.header, ["x", "y", "width", "height"]],
-  [`${bar.header} .header-surface`, ["x", "y", "width", "height"]],
-  [`${bar.header} .top-inner`, ["x", "y", "width", "height"]],
-  [`${bar.header} .brand`, ["x", "y", "height"]],
-  [`${bar.header} .brand-logo`, ["x", "y", "width", "height"]],
-  [`${bar.header} .brand-divider`, ["x", "y", "width", "height"]],
-  [`${bar.header} .brand-sub`, ["x", "y", "height"]],
-  [".aq .topline", ["x", "y", "width", "height"]],
-  [".aq .inline-progress", ["x", "y", "width", "height"]],
-  [bar.navigator, ["x", "y", "width", "height"]],
-  [bar.track, ["x", "y", "width", "height"]],
-  [`${bar.track} > div`, ["x", "y", "width", "height"]],
+  [`${header} .brand`, ["height"]],
+  [`${header} .brand-logo`, ["width", "height"]],
+  [`${header} .brand-divider`, ["width", "height"]],
+  [`${header} .brand-sub`, ["height"]],
 ];
-
-/** Hides what carries text or the questionnaire's own controls, in both. */
-const hideText = `.aq .brand-sub, .aq .header-right > *, .aq [data-progress-review-action],
-.aq .progress-caption-review { visibility: hidden !important; }`;
 
 const wrapperVariables = [
   "--aq-accent",
@@ -566,7 +1003,7 @@ async function openReference(browser: Browser, info: TestInfo, url: string) {
   await page
     .getByRole("button", { name: "Start questionnaire", exact: true })
     .click();
-  await page.locator(bar.navigator).waitFor();
+  await page.locator(refNav.navigator).waitFor();
   await page.waitForFunction(
     () =>
       !document.querySelector(".aq[inert]") &&
@@ -574,19 +1011,6 @@ async function openReference(browser: Browser, info: TestInfo, url: string) {
   );
   await page.evaluate(() => document.fonts.ready);
   return page;
-}
-
-/** The deck has no Review (owner: "Remove it, adjust parity"): its button
- *  and caption are removed from the reference's step row before boxes and
- *  pixels are compared, so both sides lay out without them. */
-async function dropReview(ref: Page) {
-  await ref.evaluate(() =>
-    document
-      .querySelectorAll(
-        ".aq .topline [data-progress-review-action], .aq .progress-caption-review",
-      )
-      .forEach((element) => element.remove()),
-  );
 }
 
 async function measure(page: Page) {
@@ -613,42 +1037,7 @@ async function measure(page: Page) {
         ),
       };
     },
-    { boxes, variables: wrapperVariables, header: bar.header },
-  );
-}
-
-/** The share of pixels that differ by more than a small amount between two
- *  PNGs of the same size, compared in the page's canvas. */
-async function pixelDifference(page: Page, a: Buffer, b: Buffer) {
-  return page.evaluate(
-    async ([a, b]) => {
-      const load = async (base64: string) =>
-        createImageBitmap(
-          await (await fetch(`data:image/png;base64,${base64}`)).blob(),
-        );
-      const [one, two] = await Promise.all([load(a), load(b)]);
-      if (one.width !== two.width || one.height !== two.height)
-        return { size: false, share: 1 };
-      const pixels = (image: ImageBitmap) => {
-        const canvas = new OffscreenCanvas(image.width, image.height);
-        const context = canvas.getContext("2d")!;
-        context.drawImage(image, 0, 0);
-        return context.getImageData(0, 0, image.width, image.height).data;
-      };
-      const p = pixels(one);
-      const q = pixels(two);
-      let differing = 0;
-      for (let i = 0; i < p.length; i += 4) {
-        const delta = Math.max(
-          Math.abs(p[i] - q[i]),
-          Math.abs(p[i + 1] - q[i + 1]),
-          Math.abs(p[i + 2] - q[i + 2]),
-        );
-        if (delta > 40) differing++;
-      }
-      return { size: true, share: differing / (p.length / 4) };
-    },
-    [a.toString("base64"), b.toString("base64")] as const,
+    { boxes, variables: wrapperVariables, header },
   );
 }
 
@@ -682,8 +1071,8 @@ test.describe("parity with the questionnaire's own top", () => {
     browser,
   }, info) => {
     const ref = await openReference(browser, info, url);
-    await pressTrack(ref, 5, TOTAL);
-    await expect(ref.locator(bar.label)).toHaveText(`5 / ${TOTAL}`);
+    await pressTrack(ref, refNav, 5, TOTAL, false);
+    await expect(ref.locator(refNav.label)).toHaveText(`5 / ${TOTAL}`);
     await ref.context().close();
 
     const touch = await browser.newContext({
@@ -696,13 +1085,15 @@ test.describe("parity with the questionnaire's own top", () => {
     await page
       .getByRole("button", { name: "Start questionnaire", exact: true })
       .click();
-    await page.locator(bar.navigator).waitFor();
-    await dragTrack(page, 2, TOTAL - 1, TOTAL);
-    await expect(page.locator(bar.label)).toHaveText(`${TOTAL - 1} / ${TOTAL}`);
+    await page.locator(refNav.navigator).waitFor();
+    await dragTrack(page, refNav, 2, TOTAL - 1, TOTAL, false);
+    await expect(page.locator(refNav.label)).toHaveText(
+      `${TOTAL - 1} / ${TOTAL}`,
+    );
     await touch.close();
   });
 
-  test("DOM: the same structure, classes and roles as the reference", async ({
+  test("DOM: the header band and the navigator have the reference's structure, classes and roles", async ({
     page,
     browser,
   }, info) => {
@@ -710,10 +1101,18 @@ test.describe("parity with the questionnaire's own top", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await openDeck(page, "s=1");
     for (const part of parts) {
-      const want = await ref.evaluate(shapeOf, part);
-      expect(want, `the reference has ${part.selector}`).not.toBeNull();
-      const got = await page.evaluate(shapeOf, part);
-      expect(got, part.selector).toEqual(want);
+      const want = await ref.evaluate(shapeOf, {
+        selector: part.ref,
+        drop: part.drop,
+        empty: part.empty,
+      });
+      expect(want, `the reference has ${part.ref}`).not.toBeNull();
+      const got = await page.evaluate(shapeOf, {
+        selector: part.deck,
+        drop: part.drop,
+        empty: part.empty,
+      });
+      expect(got, part.deck).toEqual(want);
     }
     const [deck, theirs] = [await measure(page), await measure(ref)];
     expect(deck.variables, "the wrapper's --aq-* variables").toEqual(
@@ -722,12 +1121,11 @@ test.describe("parity with the questionnaire's own top", () => {
     await ref.context().close();
   });
 
-  test("boxes: every part sits and sizes as in the reference", async ({
+  test("boxes: the brand's parts size as in the reference", async ({
     page,
     browser,
   }, info) => {
     const ref = await openReference(browser, info, url);
-    await dropReview(ref);
     await page.emulateMedia({ reducedMotion: "reduce" });
     await openDeck(page, "s=1");
     const [deck, theirs] = [await measure(page), await measure(ref)];
@@ -742,49 +1140,6 @@ test.describe("parity with the questionnaire's own top", () => {
           `${selector} ${side}: ${got![side]} vs ${want![side]}`,
         ).toBeLessThanOrEqual(1);
     }
-    await ref.context().close();
-  });
-
-  test("pixels: the top looks as the reference, text hidden", async ({
-    page,
-    browser,
-  }, info) => {
-    const ref = await openReference(browser, info, url);
-    await dropReview(ref);
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await openDeck(page, "s=1");
-    await expect(page.locator(bar.track)).toHaveCount(1);
-    const bottom = await ref
-      .locator(bar.track)
-      .evaluate((el) => Math.ceil(el.getBoundingClientRect().bottom));
-    const width = info.project.use.viewport!.width;
-    const clip = { x: 0, y: 0, width, height: bottom };
-    const shots: Buffer[] = [];
-    for (const target of [page, ref]) {
-      await target.addStyleTag({ content: hideText });
-      await target.mouse.move(width - 1, bottom + 300);
-      await target.evaluate(
-        () =>
-          new Promise((done) =>
-            requestAnimationFrame(() => requestAnimationFrame(done)),
-          ),
-      );
-      shots.push(await target.screenshot({ clip, animations: "disabled" }));
-    }
-    await info.attach("deck-top.png", {
-      body: shots[0],
-      contentType: "image/png",
-    });
-    await info.attach("reference-top.png", {
-      body: shots[1],
-      contentType: "image/png",
-    });
-    const diff = await pixelDifference(ref, shots[0], shots[1]);
-    expect(diff.size, "same size").toBe(true);
-    expect(
-      diff.share,
-      `share of differing pixels in the top 0–${bottom} px`,
-    ).toBeLessThanOrEqual(0.005);
     await ref.context().close();
   });
 });

@@ -1,43 +1,91 @@
-/* The top bar's place in the stage (TopBar.tsx). Template-owned: the bar's
-   own look is the ported shell stylesheet's (src/questionnaire/shell.css).
+/* The top bar's place and colours in the stage (TopBar.tsx). Template-owned:
+   the bar's own layout is the ported shell stylesheet's
+   (src/questionnaire/shell.css), unchanged.
 
-   The `.aq` wrapper sits across the top of the stage, over the slides and
-   under the footer and its menu card, and ends at the bottom of the
-   navigator's track (--deck-bar, measured by TopBar and set on the stage),
-   where the slides begin. The shell's own white page stops there. Only the
-   header band and the step label take presses: the rest of the shell's
-   boxes reach over the slides' top and must not catch them. The navigator's
-   mound button and touch zone set their own `pointer-events: auto`. */
-.bar {
+   An overlay (owner, after reviewing the merged build: "keep the top bar as
+   overlay"; "this whole white area is a huge design flaw"): the `.aq`
+   wrapper sits across the top of the stage, over the slides and under the
+   footer and its menu card, and takes no room, so the slides take the whole
+   stage. The shell's white page is see-through here: the wrapper, the
+   header band and its scrolled surface draw nothing, and the brand and the
+   deck's title stand on the deck's own dark background. Only the brand's
+   link takes presses: the header band's other boxes lie over the slides,
+   whose presses step the deck.
+
+   The selectors are doubled or nested, so they outrank the shell's own rules
+   (inside `@scope (.aq)`, where an equal specificity would win by scope
+   proximity). */
+.bar.bar {
   position: absolute;
   inset: 0 0 auto;
   z-index: 5;
-  height: var(--deck-bar, 0px);
+  height: 0;
+  background: transparent;
   pointer-events: none;
+  /* The shell's ink, muted text and line, on the dark page. */
+  --ink: var(--color-foreground);
+  --muted: var(--color-muted);
+  --line: var(--color-border);
 }
-.bar :global(.top),
-.bar :global(.topline) {
+.bar :global(.top) {
+  background: transparent;
+}
+.bar :global(.brand-logo) {
   pointer-events: auto;
+}
+.bar :global(.header-surface) {
+  background: transparent;
+  border-bottom-color: transparent;
+}
+/* Aligned to the slide text, with margins of its own (owner, after reviewing
+   the merged build: "align to slide text and create padding / margins"):
+   the band's inner row drops the shell's centred 1120 px column and its
+   40 px padding, and starts where a slide's text starts, 6 slide units in
+   (deck.module.css's `.slide` padding; --u follows the stage, as the
+   slides' does). Its top margin is the footer's gutter, max(16 px, 3
+   units), so the brand frames the slide as the footer's section label
+   does at the bottom. It is as tall as the brand: the height the header
+   sets inline (100 px, 76 px under 1024 px) was the shell's band, which is
+   gone. */
+.bar :global(.top-inner) {
+  max-width: none;
+  height: auto !important;
+  margin: 0;
+  padding: max(16px, calc(var(--u) * 3)) calc(var(--u) * 6) 0;
+  align-items: flex-start;
+}
+/* A narrow portrait screen sets its slides 24 px in (deck.module.css). */
+@media (orientation: portrait) and (max-width: 699px) {
+  .bar :global(.top-inner) {
+    padding-inline: 24px;
+  }
+}
+
+/* The mark, drawn in currentColor (the ported Logo), light on the dark page.
+   The deck's title beside it is muted: the Averlo muted text colour, which
+   keeps 4.5:1 on the dark background. */
+.bar :global(.brand-logo) {
+  color: var(--color-foreground);
+}
+.bar :global(.brand-sub) {
+  color: var(--color-muted);
 }
 
 /* On phones the bar is hidden, and the slides take the whole stage: under
-   about 480 px wide, or about 500 px tall (a phone on its side). The
-   footer's progress bar stays. Hidden, the track measures 0, so
-   --deck-bar is 0 (owner: "on small screens its not neccesary can be
-   removed"; spec, "During P4"). */
+   about 480 px wide, or about 500 px tall (a phone on its side) (owner: "on
+   small screens its not neccesary can be removed"; spec, "During P4"). */
 @media (max-width: 480px), (max-height: 500px) {
-  .bar {
+  .bar.bar {
     display: none;
   }
 }
 /* While the overview is expanded the bar fades out on `exit` and takes no
-   presses, as the slide layer does (deck.module.css): the overview card is
-   glass, and the bar's white page would show through it. It fades back in
-   on `fade`. */
-.bar {
+   presses, as the slide layer does (deck.module.css), and fades back in on
+   `fade`. */
+.bar.bar {
   transition: opacity var(--deck-motion-fade);
 }
-:global(html[data-menu-expanded]) .bar {
+:global(html[data-menu-expanded]) .bar.bar {
   opacity: 0;
   transition: opacity var(--deck-motion-exit);
 }
@@ -45,31 +93,12 @@
   pointer-events: none;
 }
 
-/* The step label's number has no focus indicator in the shell (its
-   outline is 0); the template needs a visible one (constitution, Principle
-   VIII). It gets the shell's own ring, as its mound button has. */
-.bar :global(.step-jump-button:focus-visible),
-.bar :global(.step-jump-input:focus-visible) {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-/* The deck's Tailwind preflight (imported by the ported library.css) sets
-   `small` to 80%; the questionnaire's page has no preflight, so its step
-   label is set at the browser's own `smaller`. Restored inside the bar. */
-.bar :global(small) {
-  font-size: smaller;
-}
-
 /* A brand's logo, or the "your logo" placeholder, in the brand slot's box
-   (the shell's `.brand-logo`). The placeholder is drawn white, for the dark
-   intro; on the bar's white page it is inverted to read as ink. */
+   (the shell's `.brand-logo`). The placeholder is drawn white, as on the
+   dark intro. */
 .logo {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
-}
-.placeholder {
-  filter: invert(1);
 }

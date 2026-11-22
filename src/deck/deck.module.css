@@ -31,8 +31,7 @@
    hard load make the tokens instant. */
 .slides {
   position: absolute;
-  inset: var(--deck-bar, 0px) 0 0;
-  container-type: size;
+  inset: 0;
   cursor: default;
   user-select: none;
   transition:
@@ -95,11 +94,12 @@
 .slide[data-kind="closing"] .title {
   font-size: calc(var(--u) * 6);
 }
-/* ---------- Footer: one row, the progress bar under it ---------- */
+/* ---------- Footer: one row, the progress navigator under it ---------- */
 
+/* --bar: the navigator's track (navigator.tsx), the shell's 3 px. */
 .footer {
   --gutter: max(var(--deck-space-16), calc(var(--u) * 3));
-  --bar: max(2px, calc(var(--u) * 0.18));
+  --bar: 3px;
   position: absolute;
   inset: auto 0 0;
   z-index: 10;
@@ -110,7 +110,7 @@
 }
 .row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   column-gap: var(--deck-space-24);
   padding: var(--deck-space-12) var(--deck-space-16) var(--deck-space-16)
@@ -120,9 +120,6 @@
 .row:has(+ .progress) {
   padding-right: var(--gutter);
 }
-.wordmark {
-  white-space: nowrap;
-}
 .section {
   min-width: 0;
 }
@@ -131,24 +128,23 @@
   white-space: nowrap;
 }
 /* MenuCard's button and card. It stays when the footer leaves: the card
-   it opens is the overview. */
+   it opens is the overview. Above the navigator, whose touch zone and mound
+   reach up beside it; only its own contents (the button, the card) take
+   presses, so the navigator keeps the slot's padding. */
 .menuSlot {
+  z-index: 1;
   display: flex;
   justify-content: flex-end;
   padding: var(--deck-space-12) var(--gutter) var(--deck-space-16) 0;
+  pointer-events: none;
+}
+.menuSlot > * {
   pointer-events: auto;
 }
+/* The navigator, along the bottom edge (navigator.tsx). Its fill follows
+   the slide on the questionnaire's own timing. */
 .progress {
   grid-column: 1 / -1;
-  height: var(--bar);
-  background: var(--deck-surface-subtle);
-}
-/* Its real width on the component spring. */
-.progressFill {
-  width: calc(100% * var(--progress));
-  height: 100%;
-  background: var(--deck-text-accent);
-  transition: width var(--deck-motion-spring-component);
 }
 
 /* While the overview is expanded the footer leaves downward out of view on
@@ -180,7 +176,7 @@
 /* Taller than wide, the live deck reflows: each title sizes from the width
    (the .stage container's cqw) with a 28 px phone minimum, wraps within
    24 px side margins and breaks a word only if one could overflow. The footer
-   keeps the slide number and the menu, with the bar under them. Thumbnails
+   keeps the slide number and the menu, with the navigator under them. Thumbnails
    and print are not in .stage and stay 16:9; landscape is untouched. */
 @media (orientation: portrait) and (max-width: 699px) {
   .stage .slide {
@@ -213,7 +209,6 @@
   .stage .slide[data-kind="title"] .title {
     font-size: max(28px, 12cqw);
   }
-  .stage .wordmark,
   .stage .section {
     display: none;
   }

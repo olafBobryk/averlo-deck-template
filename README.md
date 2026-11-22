@@ -39,7 +39,7 @@ For a production build, `npm run build` builds the site and renders the PDFs int
 | Overview       | O                                                                     |
 | Close          | Esc                                                                   |
 
-The top bar's step track jumps to a slide when pressed or dragged. On phones (under about 480 px wide or 500 px tall) the bar is hidden, the slides take the whole stage, and the footer keeps its progress bar. In the menu's slide list, a section's row opens and closes its slides; on phones, its Previous, Next and Fullscreen buttons show only their icons.
+The top bar floats over the slides with the brand and the deck title. The progress navigator along the bottom edge jumps to a slide when pressed or dragged: its mound rises under the pointer. The footer's slide number can be pressed to type a slide number; Enter goes there and Esc cancels. On phones (under about 480 px wide or 500 px tall) the top bar is hidden and the navigator stays. In the menu's slide list, a section's row opens and closes its slides; on phones, its Previous, Next and Fullscreen buttons show only their icons.
 
 The PDF downloads from the menu, one per language, named `<slug>-<lang>.pdf` after the deck title (`deck-en.pdf` for the placeholder deck). Links keep their place:
 
@@ -57,14 +57,15 @@ A deck changes only these files ([the contract](specs/001-deck-template/contract
 | Languages             | `langs` in `src/deck/langs.ts`       | The first is the default. Each needs its name in `langNames`. Two or more show the language switcher in the menu.                                                               |
 | Brand                 | `src/brand/config.ts`                | `averlo` (the default) or `owner`, with its `name`, `logo` and `mark`. Assets go in `public/brand/`, each listed in `docs/licences.md`.                                         |
 | Deck title            | `deckTitle` in `src/brand/config.ts` | Shown in the top bar, the browser tab and the home-screen app's name, and used in the PDF file name: lowercased, each run of characters other than a–z and 0–9 replaced by `-`. |
-| Top-bar accent        | `accent` in `src/brand/config.ts`    | Default `#ff3200`. It sets the bar's `--aq-*` accent variables; the bar picks black or white text on it, which must keep 4.5:1 contrast.                                        |
+| Accent                | `accent` in `src/brand/config.ts`    | Default `#ff3200`. It sets the `--aq-*` accent variables of the top bar and the navigator, which pick black or white text on it; that text must keep 4.5:1 contrast.            |
 
 Where the brand shows:
 
-- **The top bar's brand slot:** the Averlo mark, or the owner's `logo`. Without a `logo`, the "your logo" placeholder and the brand's name as text. The deck title follows it.
+- **The top bar's brand slot:** the Averlo mark, or the owner's `logo`, over the deck's dark background. Without a `logo`, the "your logo" placeholder and the brand's name as text. The deck title follows it, muted.
 - **The intro and the hard-load screen:** the Averlo mark, or the owner's `mark`. Without a `mark`, the "your logo" placeholder.
 - **The app icons** (the browser tab and the home screen): the Averlo mark, or the owner's `mark`. Without a `mark`, the "your logo" placeholder.
-- **The footer wordmark:** the brand's name as text.
+
+The footer carries no brand.
 
 The procedures are [Change the brand](process/workflows.md#change-the-brand) and [Add a language](process/workflows.md#add-a-language).
 

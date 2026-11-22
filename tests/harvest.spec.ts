@@ -19,7 +19,8 @@ const holdsGlass = (block: Block) =>
   block.type === "org" ||
   block.type === "fork" ||
   block.type === "week" ||
-  (block.type === "points" && (block.style ?? "cards") !== "numbered");
+  block.type === "plan" ||
+  block.type === "points";
 
 /** The first slide (1-based) whose content matches, or 0. */
 const first = (match: (id: string) => boolean, from = 0) =>
@@ -48,8 +49,7 @@ test("a square window keeps the 16:9 slide; the phone reflow is for narrow scree
   expect(s, "a slide with a headline").toBeGreaterThan(0);
   await page.setViewportSize({ width: 1000, height: 1000 });
   await openDeck(page, `?s=${s}`);
-  // The landscape footer: wordmark (the row's first part) and section label
-  // shown.
+  // The landscape footer: its section label (the row's first part) shown.
   await expect(
     page
       .getByRole("contentinfo")

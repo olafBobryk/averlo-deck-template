@@ -1,0 +1,42 @@
+/* The progress navigator at the bottom edge (navigator.tsx). Template-owned:
+   the navigator's own look is the ported shell stylesheet's
+   (src/questionnaire/shell.css), unchanged.
+
+   The `.aq` wrapper is the questionnaire's scope, on the deck's dark page:
+   it draws nothing itself, and the shell's ink, muted grey and page take the
+   Averlo dark tokens, so the shell's own track colour (the muted grey at 22%
+   over the page) and the step number over it are the deck's. The
+   `.inline-progress` box is the track's 3 px, with none of the shell's room
+   under it: the footer row sits just above it (owner: "Footer row +
+   navigator").
+
+   Turned upside down about the track (owner: "We simply just invert the
+   direction in which the mound goes"): the mound rises from the bottom edge.
+   Its step number is turned back, so it reads upright.
+
+   The selectors are doubled or nested, so they outrank the shell's own rules
+   (inside `@scope (.aq)`, where an equal specificity would win by scope
+   proximity). */
+.navigator.navigator {
+  display: block;
+  background: transparent;
+  --paper: var(--color-background);
+  --bg: var(--color-background);
+  --ink: var(--color-foreground);
+  --muted: var(--color-muted);
+  --line: var(--color-border);
+}
+.navigator :global(.inline-progress) {
+  margin: 0;
+  transform: scaleY(-1);
+}
+.navigator :global(.progress-mound-button) {
+  transform: translateX(-50%) scaleY(-1);
+}
+/* The shell hides its navigator in print; the deck's PDF pages keep it, as
+   they kept the progress line it replaces. */
+@media print {
+  .navigator :global(.inline-progress) {
+    display: block;
+  }
+}
