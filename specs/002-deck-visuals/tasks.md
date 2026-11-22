@@ -63,12 +63,12 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` means it may run in p
 - [x] T141 [US1] `.claude/skills/deck-visuals/SKILL.md` (copied to `.agents/skills/deck-visuals/`), as in contracts/skill.md: the selection rules of research D5, the confirm loop, the trace rule, asking for missing values, units and periods, and the image rule (ask which generator the owner has; generate only on a yes; licence row).
 - [x] T142 [US1] `scripts/presets-doc.mjs` writes `references/presets.md` (name, family, fits, an example) from the registry into both skill copies. Add an `npm run presets:doc` script.
 - [x] T143 [US3] Compose-per-deck: `src/deck/visuals/index.ts` (empty export map) and one example composed visual shown in the gallery, built only from Averlo parts. Also "Promote a visual to a preset" in `process/workflows.md` (move it to `src/presets/`, add a registry entry, an example and a gallery slide, run the tests).
-- [ ] T144 [US1] Dry run: use the skill on `tests/fixtures/sample-source.md`, ask the owner to confirm the proposed visuals through the question tool, and save the result as `tests/fixtures/drafted-visuals.json` and the answers in `tests/fixtures/answers.md`. Done when the trace test passes over it.
+- [x] T144 [US1] Dry run: use the skill on `tests/fixtures/sample-source.md`, ask the owner to confirm the proposed visuals through the question tool, and save the result as `tests/fixtures/drafted-visuals.json` and the answers in `tests/fixtures/answers.md`. Done when the trace test passes over it.
 - **Gate V4:** `npm run gate`.
 
-## Phase V5: Docs (branch `v5-docs`, base `v4-skill`)
+## Phase V5: Docs (folded into `v4-skill` on the owner's answer "Fold docs into V4")
 
-- [ ] T150 README: a "Visuals" section listing the presets by family, the gallery, and the skill. `process/workflows.md`: "Draft a deck from any source" uses the skill to pick visuals, plus "Add an image". `WORKFLOWS.md` updated. `tests/docs/readme.spec.ts` checks the new section.
+- [x] T150 README: a "Visuals" section listing the presets by family, the gallery, and the skill. `process/workflows.md`: "Draft a deck from any source" uses the skill to pick visuals, plus "Add an image". `WORKFLOWS.md` updated. `tests/docs/readme.spec.ts` checks the new section.
 - **Gate V5:** `npm run gate`; a Vercel preview of `/gallery` once the owner says to deploy.
 
 ## Dependencies

@@ -6,6 +6,8 @@ The procedures behind the names in the workflow menu, [`WORKFLOWS.md`](../WORKFL
 
 How an agent turns a deck owner's material into slides (FR-016, User Story 3). The deck's words come from its owner (constitution, Principle III): the agent arranges them, and never writes slide text, figures or claims of its own.
 
+To pick each slide's visual, use the `deck-visuals` skill (`.claude/skills/deck-visuals/SKILL.md`): it proposes a preset per slide from the material's structure, and the owner confirms each one.
+
 ### What you need
 
 - The source material, in any form: notes, documents, transcripts, an old deck, a recording's text. Keep the owner's files in `docs/context/`, which is ignored, so they are never committed.
