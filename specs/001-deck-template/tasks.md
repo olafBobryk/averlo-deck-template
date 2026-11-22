@@ -152,9 +152,10 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 
 ## Phase P6: Slides and languages (branch `p6-slides`, as in plan.md)
 
-- [ ] T034 [US4] Tests first: one language means no language switcher; with two, the switcher appears and `?lang=` holds on the same slide (FR-007).
-- [ ] T035 [US4] The language switcher condition in the menu (compose row).
-- [ ] T036 [US1] The final placeholder deck: about 12 slides covering every kind, layout and generic block. The PDF file name is `<slug>-<lang>.pdf`, where the slug is `deckTitle` lowercased, with every run of non-alphanumerics replaced by `-` and the ends trimmed.
+- [x] T034 [US4] Tests first: one language means no language switcher; with two, the switcher appears and `?lang=` holds on the same slide (FR-007).
+- [x] T035 [US4] The language switcher condition in the menu (compose row).
+- [x] T036 [US1] The final placeholder deck: about 12 slides covering every kind, layout and generic block. The PDF file name is `<slug>-<lang>.pdf`, where the slug is `deckTitle` lowercased, with every run of non-alphanumerics replaced by `-` and the ends trimmed.
+- [x] T036a [US4] Defect (light path): the deck drops `?lang=` for `langs[0]`, not for a hard-coded `en`.
 - **Gate P6:** `npm run gate`.
 
 ## Phase P7: Docs and fresh copy (branch `p7-public`, base `p6-slides`)

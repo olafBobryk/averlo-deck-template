@@ -16,7 +16,7 @@ import { MenuCard } from "./MenuCard";
 import { OverflowReport } from "./OverflowReport";
 import { SlideView } from "./SlideView";
 import { TopBar } from "./TopBar";
-import type { Lang } from "./langs";
+import { langs, type Lang } from "./langs";
 import { slides } from "./slides";
 import { useSwipe } from "./swipe";
 import { DeckContext } from "./version";
@@ -111,7 +111,7 @@ export function Deck({
   useEffect(() => {
     const url = new URL(window.location.href);
     url.searchParams.set("s", String(index + 1));
-    if (lang === "en") url.searchParams.delete("lang");
+    if (lang === langs[0]) url.searchParams.delete("lang");
     else url.searchParams.set("lang", lang);
     window.history.replaceState(window.history.state, "", url);
     document.documentElement.lang = lang;
