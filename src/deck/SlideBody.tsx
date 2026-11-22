@@ -1,6 +1,7 @@
 import { Icon, type IconName } from "@/components/ui/icons/Icon";
 import { Panel } from "@/components/ui/primitives/Panel";
 import { Text as Type } from "./text";
+import { PresetView } from "@/presets";
 import type { HTMLAttributes, ReactNode } from "react";
 import { type Block, type Mark } from "./content";
 import type { Lang } from "./langs";
@@ -130,6 +131,7 @@ function Body({ text, lang }: { text?: Text; lang: Lang }) {
 export function BlockView({
   block,
   lang,
+  still,
 }: {
   block: Block;
   lang: Lang;
@@ -324,6 +326,22 @@ export function BlockView({
       );
     case "plan":
       return <Plan block={block} lang={lang} />;
+    // The preset visuals (feature 002): drawn by src/presets/.
+    case "chart":
+    case "stat":
+    case "flow":
+    case "timeline":
+    case "cycle":
+    case "orgchart":
+    case "table":
+    case "matrix":
+    case "quote":
+    case "agenda":
+    case "compare":
+    case "image":
+    case "imageGrid":
+    case "custom":
+      return <PresetView block={block} lang={lang} still={still} />;
   }
 }
 
