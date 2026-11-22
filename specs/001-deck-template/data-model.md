@@ -15,6 +15,7 @@
   - `fork`, `week`
   - `plan` (a YYYY-MM axis)
 - Validation: every `Text` has every configured language. The template ships placeholder text only (FR-002).
+- Before its closing slide, the placeholder deck shows every preset (feature 002): a divider "Presets" and one slide per registry preset with its example, built by `showcase()` in `src/presets/showcase.ts`. Their section and titles are the preset names; the rest is the registry's placeholder content.
 
 ## Languages (`langs` and `Lang`, in template-owned `src/deck/langs.ts`)
 
