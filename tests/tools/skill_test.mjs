@@ -2,9 +2,14 @@
 // research D5). The skill ships twice, for Claude Code
 // (.claude/skills/deck-visuals/) and for Codex (.agents/skills/deck-visuals/),
 // and the two copies are byte-identical. Its preset reference,
-// references/presets.md, is generated from the registry by
-// scripts/presets-doc.mjs, so it never drifts from the presets. Every preset
+// references/presets.md, is generated from the registry and each preset's
+// example file (src/presets/slides/) by scripts/presets-doc.mjs, so it never
+// drifts from the presets. Every preset
 // in the registry is named in SKILL.md's selection rules.
+//
+// Feature 003 (T340): a preset is an example slide file, so the skill names
+// every preset file by its path, and drafts slide files (src/slides/), with
+// the owner's words in `copy`, never data blocks.
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -97,16 +102,19 @@ describe("the deck-visuals skill", () => {
     }
   });
 
-  test("the generated reference gives every preset's name, family, block, fits and example", async () => {
+  test("the generated reference gives every preset's name, family, block, fits and example file", async () => {
     const { presetsDoc } = await import("../../scripts/presets-doc.mjs");
     const doc = presetsDoc(registry);
     for (const entry of registry) {
       assert.ok(doc.includes(`### ${entry.name}\n`), entry.name);
       assert.ok(doc.includes(entry.fits), `${entry.name}: fits`);
       assert.ok(doc.includes(`\`${entry.block}\``), `${entry.name}: block`);
+      // Its example file, by path and in full (feature 003, T331).
+      const file = `src/presets/slides/${entry.file}.tsx`;
+      assert.ok(doc.includes(`\`${file}\``), `${entry.name}: file`);
       assert.ok(
-        doc.includes(JSON.stringify(entry.example)),
-        `${entry.name}: example`,
+        doc.includes(read(join(root, file)).trim()),
+        `${entry.name}: the example file's source`,
       );
     }
   });
@@ -118,5 +126,45 @@ describe("the deck-visuals skill", () => {
       .map((entry) => entry.name)
       .filter((name) => !rules.includes(name));
     assert.deepEqual(missing, [], "presets missing from the selection rules");
+  });
+
+  test("SKILL.md names every preset file and its path", () => {
+    const skill = read(join(copies.claude, "SKILL.md"));
+    const rules = selectionRules(skill);
+    const missing = registry
+      .map((entry) => `src/presets/slides/${entry.file}.tsx`)
+      .filter((path) => !rules.includes(`\`${path}\``));
+    assert.deepEqual(
+      missing,
+      [],
+      "preset files missing from the selection rules",
+    );
+    const folder = join(root, "src", "presets", "slides");
+    const files = [
+      ...readdirSync(folder)
+        .filter((name) => name.endsWith(".tsx"))
+        .map((name) => `src/presets/slides/${name}`),
+      ...readdirSync(join(folder, "composed")).map(
+        (name) => `src/presets/slides/composed/${name}`,
+      ),
+    ];
+    assert.ok(files.length > registry.length, "the preset folder has files");
+    const unnamed = files.filter((path) => !skill.includes(`\`${path}\``));
+    assert.deepEqual(unnamed, [], "preset files SKILL.md does not name");
+  });
+
+  test("SKILL.md drafts slide files with the owner's words in copy, not data", () => {
+    const skill = read(join(copies.claude, "SKILL.md"));
+    for (const word of ["src/slides/", "`copy`", "@/components/deck", "NN-"])
+      assert.ok(skill.includes(word), `SKILL.md names ${word}`);
+    for (const gone of [
+      "src/deck/slides.ts",
+      "src/deck/content.ts",
+      "src/presets/validate.ts",
+      "src/deck/visuals/index.ts",
+      'type: "custom"',
+      "DeckVisualProps",
+    ])
+      assert.ok(!skill.includes(gone), `SKILL.md still names ${gone}`);
   });
 });

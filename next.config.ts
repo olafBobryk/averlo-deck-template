@@ -28,15 +28,17 @@ function questionnaireSpecifiers() {
   return aliases;
 }
 
-// The deck's slide index is src/slides/index.ts (scripts/slides-index.mjs).
-// SLIDES_DIR names another slide folder, whose generated index the deck
-// reads instead: `SLIDES_DIR=<folder> npm run dev` (feature 003;
-// tests/slides/files.spec.ts).
+// The deck's slide index is src/slides/index.ts, and its slides' data
+// src/slides/data.ts (scripts/slides-index.mjs). SLIDES_DIR names another
+// slide folder, whose generated index and data the deck reads instead:
+// `SLIDES_DIR=<folder> npm run dev` (feature 003; tests/slides/files.spec.ts).
 function slidesIndex(): Record<string, string> {
   const dir = process.env.SLIDES_DIR;
   if (!dir) return {};
+  const folder = `./${dir.replace(/^\.\//, "").replace(/\/$/, "")}`;
   return {
-    "@/slides": `./${dir.replace(/^\.\//, "").replace(/\/$/, "")}/index.ts`,
+    "@/slides": `${folder}/index.ts`,
+    "@/slides/data": `${folder}/data.ts`,
   };
 }
 

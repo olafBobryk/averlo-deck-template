@@ -11,11 +11,13 @@ import { Text } from "@/deck/text";
 import { words } from "../words";
 import { ArrowHead, Card, StepLabel, type Entry } from "./parts";
 import styles from "@/presets/diagrams/diagrams.module.css";
+import { reportLimits } from "../limits";
 
 /** Two to eight events, in date order. */
 export type TimelineProps = { events: (Entry & { when: string })[] };
 
 export function Timeline(props: TimelineProps) {
+  reportLimits("Timeline", props);
   const n = props.events.length;
   return (
     <Card className={styles.timeline} data-diagram="timeline">

@@ -1,5 +1,7 @@
 # Data model: Averlo deck template
 
+> **Feature 003 replaced the slide data below.** Slides are numbered files in `src/slides/` with `meta`, `copy` and free JSX, and the blocks are components in `src/components/deck/`; `src/deck/content.ts` and the content map are gone. See [specs/003-jsx-slides/data-model.md](../003-jsx-slides/data-model.md). The languages and the deck configuration below still hold.
+
 ## Slide (types in carried `src/deck/model.ts`; data in template-owned `src/deck/slides.ts`)
 
 - `id`: string, unique and stable. The URL's `?s=` holds the slide's position, not its id, as in the origin.

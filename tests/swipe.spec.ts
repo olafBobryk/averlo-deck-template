@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
-import { slideContent } from "../src/deck/content";
 import { slides } from "../src/deck/slides";
+import { slideData } from "../src/slides/data";
 
 // Touch navigation: the slide is locked to the finger.
 // Real touch input through Chromium's input pipeline (CDP
@@ -693,7 +693,7 @@ test.describe("swipe", () => {
 // Tall slides scroll inside themselves on a phone (deck.module.css, portrait).
 // The placeholders all fit, so the first slide with a headline is made tall
 // by adding placeholder lines to its body in the page.
-const TALL = slides.findIndex((slide) => slideContent(slide.id).headline) + 1;
+const TALL = slideData.findIndex((slide) => slide.meta.layout) + 1;
 test.describe("swipe and scrolling on a phone", () => {
   test.beforeEach(({}, info) => {
     test.skip(info.project.name !== "mobile", "phones only");

@@ -37,25 +37,29 @@ These are the same as feature 002's rules:
 
 ## Phase J2: The placeholder deck as files (branch `j2-deck`, base `j1-components`)
 
-- [ ] T320 Tests first: the deck's slides come from `src/slides/`; every placeholder slide keeps its look and order; the coverage test reads the files.
-- [ ] T321 Rewrite the placeholder deck as `src/slides/01-…tsx` to `32-…tsx`, with placeholder words in `copy` and the same slides in the same order.
-- [ ] T322 Remove the data model: `slides.ts` data, the `content.ts` block types and `SlideBody`'s block switch. These are detach rows. Keep `langs.ts`.
+- [x] T320 Tests first: the deck's slides come from `src/slides/`; every placeholder slide keeps its look and order; the coverage test reads the files.
+- [x] T321 Rewrite the placeholder deck as `src/slides/01-…tsx` to `32-…tsx`, with placeholder words in `copy` and the same slides in the same order.
+- [x] T322 Remove the data model: `slides.ts` data, the `content.ts` block types and `SlideBody`'s block switch. These are detach rows. Keep `langs.ts`.
+  - J2 removed the deck's data: the `slides.ts` data, the showcase generator and the deck's content map. The preset gallery still draws data blocks until T331 points it at the preset files, so `content.ts`'s block types, `SlideBody`'s switch and the `src/presets` adapters go then.
 - **Gate J2:** `npm run gate`, with the strips within tolerance.
 
 ## Phase J3: Preset examples (branch `j3-presets`, base `j2-deck`)
 
-- [ ] T330 Tests first: every file in `src/presets/slides/` renders when copied into a scratch `src/slides/` with a number, and still renders with its JSX rearranged (a scripted edit). `/gallery` and the showcase render the files.
-- [ ] T331 Write one example slide file per preset in `src/presets/slides/`: headline, body and the visual, with placeholder words. Point `/gallery` and the showcase at them, and remove the registry's data examples.
+- [x] T330 Tests first: every file in `src/presets/slides/` renders when copied into a scratch `src/slides/` with a number, and still renders with its JSX rearranged (a scripted edit). `/gallery` and the showcase render the files.
+- [x] T331 Write one example slide file per preset in `src/presets/slides/`: headline, body and the visual, with placeholder words. Point `/gallery` and the showcase at them, and remove the registry's data examples.
+  - Each preset's second example is a file too (`src/presets/slides/alternates/`), and the composed visual example one in `composed/`, so the gallery draws only files. The data blocks' switch, the preset adapters and the slide view's data path are gone (T322's rest); `content.ts` keeps the block types only as the shapes the preset validator checks, until J4 reworks the skill and the trace check.
 - **Gate J3:** `npm run gate`.
 
 ## Phase J4: Skill, trace, inline-text check, docs (branch `j4-skill`, base `j3-presets`)
 
-- [ ] T340 Tests first:
+- [x] T340 Tests first:
   - the inline-text check fails on visible text outside `copy` and names the file (research R3);
   - the trace check reads every slide's `copy`, labels and figures included;
   - the skill test checks the skill names every preset file.
-- [ ] T341 Update the deck-visuals skill (both copies) and "Draft a deck from any source": copy the fitting preset file into `src/slides/` with its number, and put the owner's words in `copy`. Redo the dry-run fixture as slide files.
-- [ ] T342 Update the README ("Write your deck", "Visuals") and the docs.
+- [x] T341 Update the deck-visuals skill (both copies) and "Draft a deck from any source": copy the fitting preset file into `src/slides/` with its number, and put the owner's words in `copy`. Redo the dry-run fixture as slide files.
+  - `content.ts`'s block types (a detach row) and `src/presets/validate.ts` are removed: the components' typed props hold every word, a chart's kind, an image's fit and the matrix's quadrants, and the limits the types cannot hold (counts, one value per category, a value from 0 to 1, an image path) are each component's own in `src/components/deck/limits.ts`, reported as a console warning in development. A deck's visual is imported from its own file in `src/deck/visuals/`, with no name map.
+  - The dry run's six slides (T144) are `tests/fixtures/drafted-slides/01-…06-*.tsx`, each copied from the preset the owner confirmed; `drafted-deck.json` (T041) and `drafted-visuals.json` are removed, as both were data blocks.
+- [x] T342 Update the README ("Write your deck", "Visuals") and the docs.
 - **Gate J4:** `npm run gate`, then preview.
 
 ## Dependencies

@@ -8,6 +8,7 @@ import { Panel } from "@/components/ui/primitives/Panel";
 import { Text } from "@/deck/text";
 import { words } from "../words";
 import styles from "@/presets/text/text.module.css";
+import { reportLimits } from "../limits";
 
 /** Two sides, each a title and its points. */
 export type CompareProps = {
@@ -16,6 +17,7 @@ export type CompareProps = {
 };
 
 export function Compare(props: CompareProps) {
+  reportLimits("Compare", props);
   return (
     <div className={styles.compare} data-compare="">
       {(["left", "right"] as const).map((side) => (

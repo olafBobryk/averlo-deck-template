@@ -9,6 +9,7 @@ import { Text as AverloText } from "@/components/ui/primitives/Text";
 import { Text } from "@/deck/text";
 import { words } from "../words";
 import styles from "@/presets/charts/charts.module.css";
+import { reportLimits } from "../limits";
 
 /** One headline figure: its value exactly as the source writes it. */
 export type StatItem = {
@@ -22,6 +23,7 @@ export type StatItem = {
 export type StatProps = { items: StatItem[] };
 
 export function Stat(props: StatProps) {
+  reportLimits("Stat", props);
   return (
     <ul
       className={styles.stats}

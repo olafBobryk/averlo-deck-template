@@ -1,32 +1,25 @@
-// The preset gallery's slides (feature 002, FR-004), built from the
-// registry: a title slide, a divider for each family that has presets, then
-// for each preset a slide with its example and a slide with its alternate
-// (SC-005), in the layout its entry names (stack by default) with a short
-// body text (`presetBlocks`; T051), and last a
-// divider and a slide for each composed visual example (research D3), which
-// is not a preset. The /gallery route and the print view's `?deck=gallery`
-// draw them through the deck engine. Slide titles name the gallery, its
-// families and its presets; everything on a slide is placeholder text and
-// the registry's placeholder examples.
-import type { Block, SlideContent } from "@/deck/content";
+// The preset gallery's slides (feature 002, FR-004; feature 003, T331): a
+// title slide, a divider for each family that has presets, then for each
+// preset its example file and its second example
+// (src/presets/slides/<file>.tsx and alternates/<file>.tsx), and last a
+// divider and the composed visual example (src/presets/slides/composed/),
+// which is not a preset. The /gallery route and the print view's
+// `?deck=gallery` draw them through the deck engine (GalleryDeck.tsx gives
+// each slide its file's component). Each file's slide takes its title from
+// the file's words and its section from its family. Plain Node imports
+// this module (the tests do): it reads the files' data, not their
+// components.
 import { langs } from "@/deck/langs";
 import type { Slide, Text } from "@/deck/model";
-import {
-  families,
-  presetBlocks,
-  registry,
-  type Family,
-  type PresetEntry,
-} from "./registry";
+import { presetData } from "./slides/data";
+import { families, registry, type Family, type PresetEntry } from "./registry";
 
 /** The same words in every language. */
 const words = (value: string) =>
   Object.fromEntries(langs.map((lang) => [lang, value])) as Text;
 
-const placeholder = words("Placeholder text");
-
 /** The families' names, as contracts/presets.md gives them. */
-const familyNames: Record<Family, string> = {
+export const familyNames: Record<Family, string> = {
   charts: "Charts and stats",
   diagrams: "Diagrams",
   text: "Text layouts",
@@ -41,29 +34,29 @@ const slug = (name: string) =>
 const exampleId = (name: string) => `preset-${slug(name)}`;
 const alternateId = (name: string) => `preset-${slug(name)}-alternate`;
 
-/** The template's composed visual examples (src/presets/examples/): not
- *  presets, so not in the registry. Each is drawn on its own slide through
- *  a `custom` block; only the gallery knows their names. */
-export const composedExamples: {
-  name: string;
-  block: Extract<Block, { type: "custom" }>;
-}[] = [
-  {
-    name: "Composed visual (example)",
-    block: {
-      type: "custom",
-      visual: "ComposedExample",
-      props: { stages: [placeholder, placeholder, placeholder, placeholder] },
-    },
-  },
+/** The composed visual examples: not presets, so not in the registry; each
+ *  is a file in src/presets/slides/composed/. */
+export const composedExamples: { name: string; file: string }[] = [
+  { name: "Composed visual (example)", file: "composed/composed-visual" },
 ];
 
 export type Gallery = {
   slides: Slide[];
-  content: Record<string, SlideContent>;
+  /** Each slide's file in src/presets/slides/ (without `.tsx`), by slide
+   *  id; the title and the dividers have none. */
+  files: Record<string, string>;
   /** A preset's two slides, by its registry name. */
   presetSlides: (name: string) => { example?: Slide; alternate?: Slide };
 };
+
+/** A file's title, in every language. */
+function titleOf(file: string): Text {
+  const data = presetData.find((entry) => entry.id === file);
+  if (!data) throw new Error(`src/presets/slides/${file}.tsx: no such file`);
+  return Object.fromEntries(
+    langs.map((lang) => [lang, data.copy[lang].title]),
+  ) as Text;
+}
 
 /** The gallery for a list of presets (the registry's, by default). */
 export function buildGallery(
@@ -73,49 +66,39 @@ export function buildGallery(
   const slides: Slide[] = [
     { id: "gallery-title", kind: "title", title: words("Preset gallery") },
   ];
-  const content: Record<string, SlideContent> = {
-    "gallery-title": { blocks: [] },
-  };
+  const files: Record<string, string> = {};
   for (const family of families) {
     const members = entries.filter((entry) => entry.family === family);
     if (!members.length) continue;
     const section = words(familyNames[family]);
-    const divider = `family-${family}`;
-    slides.push({ id: divider, kind: "divider", section, title: section });
-    content[divider] = { blocks: [] };
-    for (const entry of members) {
-      const shown = [
-        { id: exampleId(entry.name), title: entry.name, block: entry.example },
-        {
-          id: alternateId(entry.name),
-          title: `${entry.name}, alternate`,
-          block: entry.alternate,
-        },
-      ];
-      for (const { id, title, block } of shown) {
-        slides.push({ id, kind: "slide", section, title: words(title) });
-        content[id] = {
-          headline: { text: placeholder },
-          layout: entry.layout ?? "stack",
-          blocks: presetBlocks(entry, block),
-        };
+    slides.push({
+      id: `family-${family}`,
+      kind: "divider",
+      section,
+      title: section,
+    });
+    for (const entry of members)
+      for (const [id, file] of [
+        [exampleId(entry.name), entry.file],
+        [alternateId(entry.name), `alternates/${entry.file}`],
+      ]) {
+        slides.push({ id, kind: "slide", section, title: titleOf(file) });
+        files[id] = file;
       }
-    }
   }
   if (composed.length) {
     const section = words("Composed visuals");
     slides.push({ id: "composed", kind: "divider", section, title: section });
-    content.composed = { blocks: [] };
-    for (const { name, block } of composed) {
+    for (const { name, file } of composed) {
       const id = slug(name);
-      slides.push({ id, kind: "slide", section, title: words(name) });
-      content[id] = { headline: { text: placeholder }, blocks: [block] };
+      slides.push({ id, kind: "slide", section, title: titleOf(file) });
+      files[id] = file;
     }
   }
   const byId = (id: string) => slides.find((slide) => slide.id === id);
   return {
     slides,
-    content,
+    files,
     presetSlides: (name) => ({
       example: byId(exampleId(name)),
       alternate: byId(alternateId(name)),

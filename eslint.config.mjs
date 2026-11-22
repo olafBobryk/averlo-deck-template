@@ -15,6 +15,8 @@ export default defineConfig([
     "test-results/**",
     "playwright-report/**",
     "gate-results/**",
+    // Scratch slide folders the slide specs write and remove.
+    "tests/slides/.scratch/**",
     "next-env.d.ts",
     // Carried as is; changes listed in docs/carried.
     "src/motion/**",

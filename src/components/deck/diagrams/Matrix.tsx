@@ -15,6 +15,7 @@ import type { PointItem } from "../parts";
 import { words } from "../words";
 import { ArrowHead, Card } from "./parts";
 import styles from "@/presets/diagrams/diagrams.module.css";
+import { reportLimits } from "../limits";
 
 /** Which side of its dot an item's label sits on, kept inside the plot. */
 const side = (x: number) => (x > 0.5 ? "start" : "end");
@@ -30,6 +31,7 @@ export type MatrixProps = {
 };
 
 export function Matrix(props: MatrixProps) {
+  reportLimits("Matrix", props);
   const items = props.items ?? [];
   return (
     <figure className={styles.matrix} data-diagram="matrix">

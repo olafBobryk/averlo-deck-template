@@ -12,11 +12,13 @@ import { Text } from "@/deck/text";
 import { words } from "../words";
 import { Arrow, ArrowHead, Card, StepLabel, number, type Entry } from "./parts";
 import styles from "@/presets/diagrams/diagrams.module.css";
+import { reportLimits } from "../limits";
 
 /** Three to six stages. */
 export type CycleProps = { stages: Entry[] };
 
 export function Cycle(props: CycleProps) {
+  reportLimits("Cycle", props);
   const n = props.stages.length;
   return (
     <ol

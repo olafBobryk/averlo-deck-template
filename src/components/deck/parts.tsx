@@ -1,6 +1,6 @@
 "use client";
 // The deck components' shared parts (feature 003, T311), moved from the
-// block switch (src/deck/SlideBody.tsx) with their markup unchanged: a
+// data block switch the deck had then, with their markup unchanged: a
 // card (the Averlo Panel) or pill, a glyph from the icon set, the muted
 // step number, and a point's label and body. Words are plain strings; key
 // phrases in body text are marked `**…**` and drawn bold (`rich`), and
@@ -32,9 +32,9 @@ export function rich(text: string): ReactNode {
 }
 
 /** A card is the Averlo Panel; a pill is one rounded fully, as wide as its
- *  content. Each keeps a backdrop blur, so the deck's fades (`holdsGlass`,
- *  route-transition's `fade="glass"`) still find each card on its own
- *  glass. Without a surface, the plain element. */
+ *  content. Each keeps a backdrop blur, so the deck's fades (a glass
+ *  block's `Block`, route-transition's `fade="glass"`) still find each card
+ *  on its own glass. Without a surface, the plain element. */
 export type Surface = "card" | "pill";
 export function Card({
   as,

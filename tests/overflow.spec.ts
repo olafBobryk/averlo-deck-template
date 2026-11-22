@@ -1,7 +1,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { expect, test, type Page } from "@playwright/test";
-import { slideContent } from "../src/deck/content";
 import { slides } from "../src/deck/slides";
+import { slideData } from "../src/slides/data";
 
 // A slide whose content is too long for its stage shows what fits and, in
 // development only, reports the overflow (spec, edge cases). The report is a
@@ -20,7 +20,8 @@ const dev = `http://127.0.0.1:${port}`;
 let server: ChildProcess | undefined;
 
 /** The first slide with a headline and a body: the one made over-long. */
-const S = slides.findIndex((slide) => slideContent(slide.id).headline) + 1;
+// A slide with a layout has a headline (src/deck/slide.ts).
+const S = slideData.findIndex((slide) => slide.meta.layout) + 1;
 const label = `${S} / ${slides.length}`;
 
 async function waitFor(url: string, ms: number) {
