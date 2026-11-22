@@ -115,6 +115,51 @@ describe("scan-public", () => {
     assertFails(scan(f), /public\/brand\/pic\.png.*not (covered|listed)/);
   });
 
+  // Feature 002 (T130, FR-014, SC-004): an image a deck adds under
+  // public/images/ needs its own licence row; a row for another image does
+  // not cover it.
+  test("fails on an image under public/images/ without a licence row", () => {
+    const f = fixture();
+    write(
+      f.repo,
+      "public/images/photo.jpg",
+      Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 1]),
+    );
+    write(
+      f.repo,
+      "public/images/other.webp",
+      Buffer.from([0x52, 0x49, 0x46, 0x46, 0, 1]),
+    );
+    write(
+      f.repo,
+      "docs/licences.md",
+      licences(["| `public/images/other.webp` | own work | MIT | yes |"]),
+    );
+    commitAll(f.repo, "Add two images");
+    const result = scan(f);
+    assertFails(result, /public\/images\/photo\.jpg.*not (covered|listed)/);
+    assert.doesNotMatch(result.out, /other\.webp/);
+  });
+
+  test("passes when every image under public/images/ has its row", () => {
+    const f = fixture();
+    write(
+      f.repo,
+      "public/images/photo.jpg",
+      Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 1]),
+    );
+    write(
+      f.repo,
+      "docs/licences.md",
+      licences([
+        "| `public/images/photo.jpg` | the owner's own photo | owner's permission | yes |",
+      ]),
+    );
+    commitAll(f.repo, "Add an image");
+    const result = scan(f);
+    assert.equal(result.code, 0, result.out);
+  });
+
   test("passes when a glob row covers the image", () => {
     const f = fixture();
     write(

@@ -250,3 +250,229 @@ test("the print view draws every chart with its marks", async ({ page }) => {
     expect(await chart.locator("[data-mark]").count()).toBeGreaterThan(0);
   }
 });
+
+// Phase V3 (T130): the text layouts and the image slides. The quote, agenda
+// and compare presets draw their own components; the statement is the
+// `statement` layout with a `lead` block, and image + text an `image` block
+// in a `split` layout, each through its registry entry's `layout`. The
+// image presets (full-bleed, captioned, grid) carry no `src` in the gallery,
+// so each image shows the template's placeholder, labelled "Image", with the
+// image's alt text as its name. Every image frame prints.
+type Entry = (typeof registry)[number];
+const v3 = {
+  quote: (e: Entry) => e.block === "quote",
+  agenda: (e: Entry) => e.block === "agenda",
+  compare: (e: Entry) => e.block === "compare",
+  statement: (e: Entry) => e.block === "lead" && e.layout === "statement",
+  "image + text": (e: Entry) => e.block === "image" && e.layout === "split",
+  "full-bleed image": (e: Entry) =>
+    e.block === "image" && e.example.type === "image" && !!e.example.bleed,
+  "captioned image": (e: Entry) =>
+    e.block === "image" &&
+    e.example.type === "image" &&
+    !e.example.bleed &&
+    !!e.example.caption &&
+    (e.layout ?? "stack") === "stack",
+  "image grid": (e: Entry) => e.block === "imageGrid",
+} as const;
+const v3Entry = (key: keyof typeof v3) => registry.find(v3[key]);
+/** A gallery slide's two blocks' slides, for a V3 entry. */
+const v3Slides = (key: keyof typeof v3) => {
+  const entry = v3Entry(key);
+  expect(entry, key).toBeTruthy();
+  const { example, alternate } = gallery.presetSlides(entry!.name);
+  return { entry: entry!, slides: [example!, alternate!] };
+};
+
+test("the text and image families have every V3 entry, in their family", () => {
+  for (const key of Object.keys(v3) as (keyof typeof v3)[]) {
+    const entry = v3Entry(key);
+    expect(entry, key).toBeTruthy();
+    const family =
+      key.includes("image") && key !== "image + text" ? "images" : "text";
+    expect(entry!.family, key).toBe(family);
+  }
+});
+
+test("a registry entry's layout is its gallery slides' layout", () => {
+  for (const entry of registry) {
+    const { example, alternate } = gallery.presetSlides(entry.name);
+    for (const slide of [example!, alternate!])
+      expect(gallery.content[slide.id].layout, slide.id).toBe(
+        entry.layout ?? "stack",
+      );
+  }
+});
+
+for (const [key, layout] of [
+  ["statement", "statement"],
+  ["image + text", "split"],
+] as const) {
+  test(`the ${key} slides draw in the ${layout} layout`, async ({ page }) => {
+    const { entry, slides } = v3Slides(key);
+    for (const slide of slides) {
+      await openGallery(page, at(slide.id));
+      const main = page.locator("main:not([aria-hidden])");
+      await expect(main.locator("[data-layout]")).toHaveAttribute(
+        "data-layout",
+        layout,
+      );
+      await expect(
+        main.locator(`[data-block="${entry.block}"]`),
+        slide.id,
+      ).toBeVisible();
+      await expect(main.locator("[data-preset-pending]")).toHaveCount(0);
+    }
+  });
+}
+
+test("the quote shows its text, and who said it when given", async ({
+  page,
+}) => {
+  const { slides } = v3Slides("quote");
+  for (const slide of slides) {
+    const block = gallery.content[slide.id].blocks[0];
+    if (block.type !== "quote") throw new Error(`${slide.id}: not a quote`);
+    await openGallery(page, at(slide.id));
+    const quote = page.locator("main:not([aria-hidden]) [data-quote]");
+    await expect(quote, slide.id).toBeVisible();
+    await expect(quote.locator("blockquote")).toHaveText(block.text[langs[0]]);
+    await expect(quote.locator("[data-quote-by]")).toHaveText(
+      block.by ? [block.by[langs[0]]] : [],
+    );
+    await expect(quote.locator("[data-quote-role]")).toHaveText(
+      block.role ? [block.role[langs[0]]] : [],
+    );
+  }
+});
+
+test("the agenda numbers its items in order", async ({ page }) => {
+  const { slides } = v3Slides("agenda");
+  for (const slide of slides) {
+    const block = gallery.content[slide.id].blocks[0];
+    if (block.type !== "agenda") throw new Error(`${slide.id}: not an agenda`);
+    await openGallery(page, at(slide.id));
+    const agenda = page.locator("main:not([aria-hidden]) [data-agenda]");
+    await expect(agenda, slide.id).toBeVisible();
+    const items = agenda.locator("[data-agenda-item]");
+    await expect(items).toHaveCount(block.items.length);
+    await expect(agenda.locator("[data-agenda-number]")).toHaveText(
+      block.items.map((_, i) => String(i + 1).padStart(2, "0")),
+    );
+    await expect(agenda.locator("[data-agenda-label]")).toHaveText(
+      block.items.map((item) => item.label[langs[0]]),
+    );
+  }
+});
+
+test("the compare shows both sides, each with its title and every point", async ({
+  page,
+}) => {
+  const { slides } = v3Slides("compare");
+  for (const slide of slides) {
+    const block = gallery.content[slide.id].blocks[0];
+    if (block.type !== "compare") throw new Error(`${slide.id}: not a compare`);
+    await openGallery(page, at(slide.id));
+    const compare = page.locator("main:not([aria-hidden]) [data-compare]");
+    await expect(compare, slide.id).toBeVisible();
+    for (const side of ["left", "right"] as const) {
+      const panel = compare.locator(`[data-compare-side="${side}"]`);
+      await expect(panel, `${slide.id} ${side}`).toBeVisible();
+      await expect(panel.locator("[data-compare-title]")).toHaveText(
+        block[side].title[langs[0]],
+      );
+      await expect(panel.locator("[data-compare-point]")).toHaveText(
+        block[side].points.map((p) => p[langs[0]]),
+      );
+    }
+  }
+});
+
+/** The images a gallery image block holds. */
+const imagesOf = (id: string) => {
+  const block = gallery.content[id].blocks[0];
+  if (block.type === "image") return [block];
+  if (block.type === "imageGrid") return block.images;
+  throw new Error(`${id}: not an image block`);
+};
+const imageKeys = [
+  "image + text",
+  "full-bleed image",
+  "captioned image",
+  "image grid",
+] as const;
+
+test("an image without src shows the placeholder, named by its alt text", async ({
+  page,
+}) => {
+  for (const key of imageKeys) {
+    const { slides } = v3Slides(key);
+    for (const slide of slides) {
+      const images = imagesOf(slide.id);
+      expect(
+        images.every((image) => !image.src),
+        `${slide.id}: the gallery's images are placeholders`,
+      ).toBe(true);
+      await openGallery(page, at(slide.id));
+      const main = page.locator("main:not([aria-hidden])");
+      await expect(main.locator("[data-preset-pending]")).toHaveCount(0);
+      await expect(main.locator("img")).toHaveCount(0);
+      const placeholders = main.locator("[data-image-placeholder]");
+      await expect(placeholders, slide.id).toHaveCount(images.length);
+      for (let i = 0; i < images.length; i++) {
+        const placeholder = placeholders.nth(i);
+        await expect(placeholder).toBeVisible();
+        await expect(placeholder).toHaveText("Image");
+        await expect(placeholder).toHaveAttribute("role", "img");
+        await expect(placeholder).toHaveAccessibleName(images[i].alt[langs[0]]);
+      }
+      // Each caption, when given, under its image.
+      await expect(main.locator("[data-image-caption]")).toHaveText(
+        images.flatMap((image) =>
+          image.caption ? [image.caption[langs[0]]] : [],
+        ),
+      );
+    }
+  }
+});
+
+test("the full-bleed image reaches the slide's sides and bottom", async ({
+  page,
+}) => {
+  const { slides } = v3Slides("full-bleed image");
+  for (const slide of slides) {
+    await openGallery(page, at(slide.id));
+    const main = page.locator("main:not([aria-hidden])");
+    const [frame, box] = await main.locator("[data-kind]").evaluate((root) => {
+      const rect = (el: Element) => {
+        const r = el.getBoundingClientRect();
+        return { left: r.left, right: r.right, bottom: r.bottom, top: r.top };
+      };
+      return [
+        rect(root.querySelector("[data-bleed] [data-image-frame]")!),
+        rect(root),
+      ];
+    });
+    expect(frame.left, slide.id).toBeCloseTo(box.left, 0);
+    expect(frame.right, slide.id).toBeCloseTo(box.right, 0);
+    expect(frame.bottom, slide.id).toBeCloseTo(box.bottom, 0);
+    // It holds most of the slide under the heading.
+    expect(frame.bottom - frame.top, slide.id).toBeGreaterThan(
+      (box.bottom - box.top) * 0.4,
+    );
+  }
+});
+
+test("the print view draws every image frame", async ({ page }) => {
+  const frames = imageKeys.flatMap((key) =>
+    v3Slides(key).slides.flatMap((slide) => imagesOf(slide.id)),
+  );
+  await page.goto("/print?deck=gallery");
+  const drawn = page.locator("[data-image-frame]");
+  await expect(drawn).toHaveCount(frames.length);
+  for (let i = 0; i < frames.length; i++) {
+    const box = await drawn.nth(i).boundingBox();
+    expect(box?.width ?? 0, `print image ${i}`).toBeGreaterThan(100);
+    expect(box?.height ?? 0, `print image ${i}`).toBeGreaterThan(60);
+  }
+});

@@ -5,7 +5,7 @@
 // (src/presets/gallery.ts) and the skill's preset reference are generated
 // from it. Examples carry placeholder text and placeholder numbers only.
 // Imported by the registry test under plain Node, so it imports types only.
-import type { Block } from "@/deck/content";
+import type { Block, SlideContent } from "@/deck/content";
 import type { Text } from "@/deck/model";
 
 /** The preset families, in the gallery's order. */
@@ -22,6 +22,10 @@ export type PresetEntry = {
   fits: string;
   example: Block;
   alternate: Block;
+  /** The slide layout its gallery slides use; without one, `stack`. The
+   *  statement is the `statement` layout, and image + text the `split`
+   *  layout. */
+  layout?: SlideContent["layout"];
 };
 
 /** Placeholder words in every language (rule 9). A deck with more

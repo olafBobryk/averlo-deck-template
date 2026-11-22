@@ -1,7 +1,7 @@
 // The preset gallery's slides (feature 002, FR-004), built from the
 // registry: a title slide, a divider for each family that has presets, then
 // for each preset a slide with its example and a slide with its alternate
-// (SC-005). The /gallery route and the print view's `?deck=gallery` draw
+// (SC-005), in the layout its entry names (stack by default). The /gallery route and the print view's `?deck=gallery` draw
 // them through the deck engine. Slide titles name the gallery, its families
 // and its presets; everything on a slide is placeholder text and the
 // registry's placeholder examples.
@@ -67,7 +67,7 @@ export function buildGallery(entries: PresetEntry[] = registry): Gallery {
         slides.push({ id, kind: "slide", section, title: words(title) });
         content[id] = {
           headline: { text: placeholder },
-          layout: "stack",
+          layout: entry.layout ?? "stack",
           blocks: [block],
         };
       }
