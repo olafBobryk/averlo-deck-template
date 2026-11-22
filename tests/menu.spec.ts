@@ -74,7 +74,7 @@ async function startSampling(page: Page) {
     const w = window as unknown as { menuFrames: unknown[]; menuOn: boolean };
     w.menuFrames = [];
     w.menuOn = true;
-    const tick = () => {
+    const tick = (now: number) => {
       const el = document.querySelector<HTMLElement>("[data-menu-card]");
       if (el) {
         const c = el.getBoundingClientRect();
@@ -83,6 +83,7 @@ async function startSampling(page: Page) {
         const gone = el.querySelector("[data-pane][inert]");
         const v = el.querySelector("[data-menu-viewport]");
         w.menuFrames.push({
+          at: now,
           clip: getComputedStyle(el).clipPath,
           view: el.getAttribute("data-view") ?? "",
           left: c.left,
@@ -502,8 +503,16 @@ test("menu: reopened while it closes, the card turns back from where it is", asy
   expect(furthest).toBeGreaterThan(5);
   expect(furthest).toBeLessThan(shutTop);
   // The spring's steps only shrink on the way out, so a restart would show
-  // as the step into the turn being the largest; it is not.
-  const steps = tops.slice(1, turn + 1).map((top, i) => top - tops[i]!);
+  // as the step into the turn being the largest; it is not. Steps are
+  // compared as speed per frame time, so a dropped frame (a double step)
+  // reads as one frame's speed.
+  const times = frames.map((frame) => (frame as { at?: number }).at ?? 0);
+  const steps = tops
+    .slice(1, turn + 1)
+    .map(
+      (top, i) =>
+        ((top - tops[i]!) * 16.7) / Math.max(times[i + 1]! - times[i]!, 16.7),
+    );
   if (steps.length > 1)
     expect(steps.at(-1)!).toBeLessThanOrEqual(
       Math.max(...steps.slice(0, -1)) + 1,

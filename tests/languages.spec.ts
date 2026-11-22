@@ -178,6 +178,9 @@ function writeCopy(second: string) {
     "next.config.ts",
     "postcss.config.mjs",
     "tsconfig.json",
+    // next.config.ts reads the port lock to resolve the ports' `.js`
+    // specifiers (P4).
+    "scripts/ports.lock.json",
   ])
     cpSync(join(root, file), join(copy, file), {
       recursive: true,
