@@ -11,7 +11,7 @@
   - `points` (2 to 5 columns; cards, numbered or chips)
   - `steps` (rail or nodes)
   - `facts`
-  - `org` (tree; the ledger style is dropped, owner 2026-11-21)
+  - `org`
   - `fork`, `week`
   - `plan` (a YYYY-MM axis)
 - Validation: every `Text` has every configured language. The template ships placeholder text only (FR-002).
@@ -22,8 +22,8 @@
 
 ## Deck configuration (`src/brand/config.ts`)
 
-- `brand`: `{ kind: "averlo" }` | `{ kind: "owner", name, logo?, mark? }` (asset paths under `public/brand/`). With `owner` and no `mark`, the "your logo" placeholder shows.
-- `deckTitle`: shown in the top bar and used in the PDF file name.
+- `brand`: `{ kind: "averlo" }` | `{ kind: "owner", name, logo?, mark? }` (asset paths under `public/brand/`). With `owner` and no `mark`, the "your logo" placeholder shows. The mark also draws the app icons.
+- `deckTitle`: shown in the top bar, the browser tab and the home-screen app's name, and used in the PDF file name.
 - `accent`: the top bar's accent colour, default `#ff3200`. Its hover and active shades are derived the way the questionnaire derives them. It must keep 4.5:1 text contrast.
 
 ## Port record (`docs/design-source.md`, written by `scripts/port-averlo.mjs` from `scripts/ports.manifest.json`)

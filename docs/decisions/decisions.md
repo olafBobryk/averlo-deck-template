@@ -15,3 +15,5 @@ Project-wide decisions, one line each, linking to where the owner gave the answe
 - 2026-11-21 — The template is deployed on Vercel (team averloco) and its production link, averlo-deck-template.vercel.app, stays public; later deploys are previews unless the owner says otherwise — owner in session ("Yes, Vercel preview", then "Keep it public")
 - 2026-11-21 — The agent merged the questionnaire rename PR (#79, merge commit `756be64`) with a merge commit, on the owner's explicit permission for that one merge; the port pins to it — owner in session ("You merge it")
 - 2026-11-22 — For this run, the agent may merge into `main` every phase PR whose gate passed, in phase order, with merge commits (owner: "you can merge what green btw or whats ready to merge aswell"); the owner merging stays the rule otherwise — owner in session
+- 2026-11-22 — For the feature 002 run, the agent may merge each phase PR into `main` once its gate passes, in order, with merge commits (owner: "Yes, merge green") — owner in session
+- 2026-11-22 — The final build was promoted to the public production address (owner: "Promote final build") — owner in session

@@ -148,6 +148,7 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
   - brand `owner` without a mark shows the "your logo" placeholder;
   - the hard-load screen keeps its 400 ms minimum and 3 s cap (FR-004a, FR-005).
 - [x] T033 [US3] The intro and the hard-load screen compose the brand mark in the placeholder's box (as an `<img>` on the hard-load screen): the ported Averlo `Logo` variant `mark`, or the owner's mark. Every timing value is kept (R9). Rows go in `docs/carried/{gate,boot}.md`.
+- [x] T033a [US3] Follow-up after the merge (light path, owner-approved): the browser tab's title, the Apple web-app title and the manifest's name follow `config.deckTitle`; the app icons follow the brand (the Averlo mark, the owner's `mark`, or the "your logo" placeholder), drawn by the template-owned `src/app/icon.tsx` and `apple-icon.tsx` through `next/og` in place of the fixed Averlo PNGs (compose rows in `docs/carried/app.md`). Tests in `tests/brand.spec.ts`.
 - **Gate P5:** `npm run gate`, including the intro strips and constants.
 
 ## Phase P6: Slides and languages (branch `p6-slides`, as in plan.md)
@@ -156,6 +157,7 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 - [x] T035 [US4] The language switcher condition in the menu (compose row).
 - [x] T036 [US1] The final placeholder deck: about 12 slides covering every kind, layout and generic block. The PDF file name is `<slug>-<lang>.pdf`, where the slug is `deckTitle` lowercased, with every run of non-alphanumerics replaced by `-` and the ends trimmed.
 - [x] T036a [US4] Defect (light path): the deck drops `?lang=` for `langs[0]`, not for a hard-coded `en`.
+- [x] T036b Follow-up after the merge (light path, owner-approved): detach the org block's unused `style?: "tree"` from `src/deck/content.ts` (a detach row in `docs/carried/deck.md`), remove it from the placeholder deck, and make `data-model.md`'s org line just `org`. `tests/deck.spec.ts` checks, by type and by data, that the org block has no `style`.
 - **Gate P6:** `npm run gate`.
 
 ## Phase P7: Docs and fresh copy (branch `p7-public`, base `p6-slides`)
@@ -179,6 +181,7 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 - [x] T041 [US3] Dry-run the workflow on the sample source twice: once with the Averlo brand, and once with a named other brand, where the agent must ask for the logo and assets. Save the drafted deck and the answers as the T037 fixtures, and check every slide's text (SC-006).
 - [x] T042 Fresh-copy check: `scripts/fresh-copy.mjs` clones the pushed repo into a new folder, copies `.local/` into it (it stays ignored there), runs `npm ci`, and starts and steps through the deck, timed against SC-001.
 - [x] T042a Defect (light path): the gate reports a flaky test's name without Playwright's trailing separator.
+- [x] T042b Follow-up after the merge (light path, owner-approved): `scripts/render-pdf.mjs` checks that `PDF_PORT` is free before it starts `next start`, and exits with an error naming the port when it is busy (the template-owned `scripts/port-free.mjs`; a fix (owner) row in `docs/carried/app.md`). Tested by `tests/tools/port-free_test.mjs`.
 - **Gate P7:** `npm run gate` on the fresh clone; all PRs open; nothing merged by an agent.
 
 ## Phase P8: Review fixes (branch `p8-review`, base `main`)

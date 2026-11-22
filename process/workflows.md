@@ -99,13 +99,14 @@ The brand is set in `src/brand/config.ts` (FR-005; the contract is `specs/001-de
 2. Put the files in `public/brand/`, for example `public/brand/mark.svg`.
 3. Add a row for each file to [`docs/licences.md`](../docs/licences.md), with its source and licence. If it may not be redistributed, it may not be committed to a public repository.
 4. In `src/brand/config.ts`, set `brand: { kind: "owner", name: "<name>", logo: "logo.svg", mark: "mark.svg" }`. `logo` and `mark` are paths under `public/brand/`. Without `mark`, the "your logo" placeholder shows.
-5. Set `deckTitle`, and `accent` if the owner gives a colour. The accent sets the `--aq-*` variables of the top bar and the navigator, which pick black or white text on it; that text must keep 4.5:1 contrast. The logo sits on the deck's dark background, so ask for a version that reads on dark.
+5. Set `deckTitle` (it also names the browser tab and the home-screen app), and `accent` if the owner gives a colour. The accent sets the `--aq-*` variables of the top bar and the navigator, which pick black or white text on it; that text must keep 4.5:1 contrast. The logo sits on the deck's dark background, so ask for a version that reads on dark.
 6. Run `npm run scan:public` and the gate. The brand test (`tests/brand.spec.ts`) checks the mark the config chooses; the top-bar test (`tests/topbar.spec.ts`) checks the brand slot, and that the footer carries no brand.
 
 The brand then shows in these places:
 
 - the top bar's brand slot: `logo`, or without it the "your logo" placeholder and `name` as text, followed by `deckTitle`, muted;
-- the intro and the hard-load screen: `mark`, or without it the placeholder.
+- the intro and the hard-load screen: `mark`, or without it the placeholder;
+- the app icons (the browser tab and the home screen): `mark`, or without it the placeholder.
 
 The footer carries no brand.
 
@@ -129,7 +130,7 @@ To remove a language, remove its code from `langs`, its name and its strings.
 
 - `.local/env`, ignored, with `LD_LIBRARY_PATH`, `PORT_SOURCES_DIR`, `SCAN_TERMS_FILE`, `ORIGIN_URL` and `TARGET_URL`. The gate loads it and names any value that is missing. Values already set in the environment win. `ORIGIN_URL` serves the origin build only while the template has no `src/app`, so once the app exists a missing `ORIGIN_URL` is named but changes no check.
 - Chromium for Playwright (`npx playwright install chromium`).
-- Nothing else answering at `TARGET_URL`, `SMOKE_PORT` (3198 by default) or `PDF_PORT` (3199 by default): the checks start their own servers there. If something already answers at `TARGET_URL`, the `strips` check fails.
+- Nothing else answering at `TARGET_URL`, `SMOKE_PORT` (3198 by default) or `PDF_PORT` (3199 by default): the checks start their own servers there. If something already answers at `TARGET_URL`, the `strips` check fails. If `PDF_PORT` is busy, the PDF render stops with an error naming the port, and the build fails.
 
 ### What it runs
 

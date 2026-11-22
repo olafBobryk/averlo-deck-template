@@ -6,6 +6,7 @@ import { slideContent, type Headline } from "./content";
 import { BlockView, holdsGlass, say } from "./SlideBody";
 import type { Lang } from "./langs";
 import type { Slide } from "./model";
+import { useDeck } from "./version";
 import styles from "./deck.module.css";
 import body from "./content.module.css";
 
@@ -31,7 +32,7 @@ export function SlideView({
   lang: Lang;
   still?: boolean;
 }) {
-  const content = slideContent(slide.id);
+  const content = slideContent(slide.id, useDeck().content);
   const { headline } = content;
   const big = !headline;
   const Section = still ? StillSection : PageSection;

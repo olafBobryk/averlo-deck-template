@@ -16,9 +16,8 @@ import { OverflowReport } from "./OverflowReport";
 import { SlideView } from "./SlideView";
 import { TopBar } from "./TopBar";
 import { langs, type Lang } from "./langs";
-import { slides } from "./slides";
 import { useSwipe } from "./swipe";
-import { DeckContext } from "./version";
+import { DeckContext, useDeck } from "./version";
 import { onIntroFinish } from "@/gate/intro-state";
 import styles from "./deck.module.css";
 import swipeStyles from "./swipe.module.css";
@@ -42,6 +41,10 @@ export function Deck({
   initialIndex: number;
   initialLang: Lang;
 }) {
+  // The template's slides, or another deck's from an outer provider (the
+  // preset gallery).
+  const deck = useDeck();
+  const { slides } = deck;
   const count = slides.length;
   // While the intro plays the slides wait unmounted, so the first slide
   // mounts once, at the hand-off, and enters with the forward page step
@@ -203,7 +206,7 @@ export function Deck({
       ? [index]
       : [Math.min(index, preview), Math.max(index, preview)];
   return (
-    <DeckContext.Provider value={{ slides }}>
+    <DeckContext.Provider value={deck}>
       <OverflowReport />
       <div className={styles.stage} aria-roledescription="slide deck">
         <TopBar lang={lang} onNavigate={(step) => go(step - 1)} />

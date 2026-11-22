@@ -23,3 +23,14 @@ export function markFor(
   const file = brand.mark.replace(/^\/?(public\/)?brand\//, "");
   return { src: `/brand/${file}`, kind: "owner" };
 }
+
+/** The "your logo" placeholder's file, relative to the repository. */
+export const placeholderFile = "src/brand/placeholder/your-logo.svg";
+
+/** The file the app icons draw for `brand`, relative to the repository:
+ *  the same choice as `markFor`, read from disk when Next renders the
+ *  icons (src/brand/app-icon.tsx). */
+export function iconMarkFor(brand: Brand): { file: string; kind: MarkKind } {
+  const { src, kind } = markFor(brand, placeholderFile);
+  return { file: kind === "placeholder" ? src : `public${src}`, kind };
+}

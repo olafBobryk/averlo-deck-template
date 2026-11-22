@@ -1,4 +1,5 @@
 // Renders the deck to one PDF per language (public/pdf/<slug>-<lang>.pdf),
+// and the preset gallery to gallery-<lang>.pdf (/print?deck=gallery),
 // 1920×1080 per page, from the built app's /print view. Runs after
 // `next build` (npm run build), locally and on Vercel.
 import { spawn } from "node:child_process";
@@ -6,11 +7,18 @@ import { mkdirSync } from "node:fs";
 import { setTimeout as sleep } from "node:timers/promises";
 import { config } from "../src/brand/config.ts";
 import { langs } from "../src/deck/langs.ts";
-import { pdfName } from "../src/deck/pdf-name.ts";
+import { galleryPdfName, pdfName } from "../src/deck/pdf-name.ts";
+import { assertPortFree } from "./port-free.mjs";
 
 const root = new URL("..", import.meta.url);
 const port = Number(process.env.PDF_PORT ?? 3199);
 const origin = `http://127.0.0.1:${port}`;
+try {
+  await assertPortFree(port);
+} catch (error) {
+  console.error(`render-pdf: ${error.message}`);
+  process.exit(1);
+}
 const outDir = new URL("public/pdf/", root);
 mkdirSync(outDir, { recursive: true });
 
@@ -68,8 +76,18 @@ try {
     viewport: { width: 1920, height: 1080 },
   });
   const page = await context.newPage();
-  for (const lang of langs) {
-    await page.goto(`${origin}/print?lang=${lang}`, {
+  const targets = [
+    ...langs.map((lang) => ({
+      query: `lang=${lang}`,
+      name: pdfName(config.deckTitle, lang),
+    })),
+    ...langs.map((lang) => ({
+      query: `deck=gallery&lang=${lang}`,
+      name: galleryPdfName(lang),
+    })),
+  ];
+  for (const { query, name } of targets) {
+    await page.goto(`${origin}/print?${query}`, {
       waitUntil: "networkidle",
     });
     await page.evaluate(async () => {
@@ -78,7 +96,6 @@ try {
         [...document.images].map((img) => img.decode().catch(() => {})),
       );
     });
-    const name = pdfName(config.deckTitle, lang);
     const path = new URL(name, outDir);
     await page.pdf({
       path: path.pathname,

@@ -51,18 +51,19 @@ The PDF downloads from the menu, one per language, named `<slug>-<lang>.pdf` aft
 
 A deck changes only these files ([the contract](specs/001-deck-template/contracts/deck-config.md)). Everything else is the engine, the motion or the ports.
 
-| What                  | Where                                | Notes                                                                                                                                                                |
-| --------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Slides and their text | `src/deck/slides.ts`                 | Each `Text` has a string for every language.                                                                                                                         |
-| Languages             | `langs` in `src/deck/langs.ts`       | The first is the default. Each needs its name in `langNames`. Two or more show the language switcher in the menu.                                                    |
-| Brand                 | `src/brand/config.ts`                | `averlo` (the default) or `owner`, with its `name`, `logo` and `mark`. Assets go in `public/brand/`, each listed in `docs/licences.md`.                              |
-| Deck title            | `deckTitle` in `src/brand/config.ts` | Shown in the top bar, and used in the PDF file name: lowercased, each run of characters other than a–z and 0–9 replaced by `-`.                                      |
-| Accent                | `accent` in `src/brand/config.ts`    | Default `#ff3200`. It sets the `--aq-*` accent variables of the top bar and the navigator, which pick black or white text on it; that text must keep 4.5:1 contrast. |
+| What                  | Where                                | Notes                                                                                                                                                                           |
+| --------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Slides and their text | `src/deck/slides.ts`                 | Each `Text` has a string for every language.                                                                                                                                    |
+| Languages             | `langs` in `src/deck/langs.ts`       | The first is the default. Each needs its name in `langNames`. Two or more show the language switcher in the menu.                                                               |
+| Brand                 | `src/brand/config.ts`                | `averlo` (the default) or `owner`, with its `name`, `logo` and `mark`. Assets go in `public/brand/`, each listed in `docs/licences.md`.                                         |
+| Deck title            | `deckTitle` in `src/brand/config.ts` | Shown in the top bar, the browser tab and the home-screen app's name, and used in the PDF file name: lowercased, each run of characters other than a–z and 0–9 replaced by `-`. |
+| Accent                | `accent` in `src/brand/config.ts`    | Default `#ff3200`. It sets the `--aq-*` accent variables of the top bar and the navigator, which pick black or white text on it; that text must keep 4.5:1 contrast.            |
 
 Where the brand shows:
 
 - **The top bar's brand slot:** the Averlo mark, or the owner's `logo`, over the deck's dark background. Without a `logo`, the "your logo" placeholder and the brand's name as text. The deck title follows it, muted.
 - **The intro and the hard-load screen:** the Averlo mark, or the owner's `mark`. Without a `mark`, the "your logo" placeholder.
+- **The app icons** (the browser tab and the home screen): the Averlo mark, or the owner's `mark`. Without a `mark`, the "your logo" placeholder.
 
 The footer carries no brand.
 
