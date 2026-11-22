@@ -1,0 +1,328 @@
+// Unit tests for the preset registry and its validator (feature 002, T100).
+// The registry (src/presets/registry.ts) lists every preset: its name, its
+// family, the block it draws, the source structure it fits, an example and a
+// second, different example (`alternate`, SC-005). Every example validates
+// against its block type with the template-owned validator
+// (src/presets/validate.ts), which enforces data-model.md's limits.
+import assert from "node:assert/strict";
+import { describe, test } from "node:test";
+
+import { langs } from "../../src/deck/langs.ts";
+import { families, registry } from "../../src/presets/registry.ts";
+import { presetTypes, validateBlock } from "../../src/presets/validate.ts";
+
+/** A text in every configured language. */
+const t = (words) => Object.fromEntries(langs.map((lang) => [lang, words]));
+const text = t("Placeholder text");
+const point = { label: t("Placeholder title") };
+const items = (n, make) => Array.from({ length: n }, (_, i) => make(i));
+const ok = (block) => assert.deepEqual(validateBlock(block, langs), []);
+const bad = (block, pattern) => {
+  const problems = validateBlock(block, langs);
+  assert.ok(
+    problems.length > 0,
+    `expected a problem: ${JSON.stringify(block)}`,
+  );
+  if (pattern)
+    assert.ok(
+      problems.some((p) => pattern.test(p)),
+      `no problem matches ${pattern}: ${problems.join("; ")}`,
+    );
+};
+
+describe("the registry", () => {
+  test("has the four families, in order", () => {
+    assert.deepEqual(families, ["charts", "diagrams", "text", "images"]);
+  });
+
+  test("names are unique", () => {
+    const names = registry.map((entry) => entry.name);
+    assert.equal(new Set(names).size, names.length, names.join(", "));
+  });
+
+  test("every entry's family is one of the four", () => {
+    for (const entry of registry)
+      assert.ok(
+        families.includes(entry.family),
+        `${entry.name}: ${entry.family}`,
+      );
+  });
+
+  test("every entry says in one line what it fits", () => {
+    for (const entry of registry) {
+      assert.equal(typeof entry.fits, "string", entry.name);
+      assert.ok(entry.fits.trim().length > 0, entry.name);
+      assert.ok(!entry.fits.includes("\n"), entry.name);
+    }
+  });
+
+  test("every example and alternate is its block type and validates", () => {
+    for (const entry of registry) {
+      for (const which of ["example", "alternate"]) {
+        const block = entry[which];
+        assert.equal(block.type, entry.block, `${entry.name} ${which}`);
+        assert.deepEqual(
+          validateBlock(block, langs),
+          [],
+          `${entry.name} ${which}`,
+        );
+      }
+    }
+  });
+
+  test("every alternate differs from its example", () => {
+    for (const entry of registry)
+      assert.notDeepEqual(entry.alternate, entry.example, entry.name);
+  });
+});
+
+describe("the validator", () => {
+  test("knows the fourteen preset block types", () => {
+    assert.deepEqual([...presetTypes].sort(), [
+      "agenda",
+      "chart",
+      "compare",
+      "custom",
+      "cycle",
+      "flow",
+      "image",
+      "imageGrid",
+      "matrix",
+      "orgchart",
+      "quote",
+      "stat",
+      "table",
+      "timeline",
+    ]);
+  });
+
+  test("a text needs every configured language", () => {
+    bad({ type: "quote", text: {} }, /text/);
+    bad({ type: "quote", text: "Placeholder text" }, /text/);
+    ok({ type: "quote", text, by: text, role: text });
+  });
+
+  describe("chart", () => {
+    const chart = (over) => ({
+      type: "chart",
+      kind: "bar",
+      categories: [text, text],
+      series: [{ name: text, values: [10, 20] }], // placeholder numbers
+      ...over,
+    });
+    test("a bar chart with one value per category validates", () =>
+      ok(chart({ unit: text, source: text })));
+    test("a series with fewer values than categories is rejected", () =>
+      bad(chart({ series: [{ name: text, values: [10] }] }), /value/));
+    test("a series with more values than categories is rejected", () =>
+      bad(chart({ series: [{ name: text, values: [10, 20, 30] }] }), /value/));
+    test("a value must be a finite number", () =>
+      bad(chart({ series: [{ name: text, values: [10, Number.NaN] }] })));
+    test("an unknown kind is rejected", () => bad(chart({ kind: "pie" })));
+    test("a donut has one series", () => {
+      ok(chart({ kind: "donut" }));
+      bad(
+        chart({
+          kind: "donut",
+          series: [
+            { name: text, values: [10, 20] },
+            { name: text, values: [30, 40] },
+          ],
+        }),
+        /series/,
+      );
+    });
+    test("at most 12 categories", () => {
+      const values = items(12, () => 10);
+      ok(
+        chart({
+          categories: items(12, () => text),
+          series: [{ name: text, values }],
+        }),
+      );
+      bad(
+        chart({
+          categories: items(13, () => text),
+          series: [{ name: text, values: [...values, 10] }],
+        }),
+        /12/,
+      );
+    });
+    test("at least one category and one series", () => {
+      bad(chart({ categories: [], series: [{ name: text, values: [] }] }));
+      bad(chart({ series: [] }));
+    });
+  });
+
+  describe("stat", () => {
+    const stat = (n) => ({
+      type: "stat",
+      items: items(n, () => ({
+        value: "10",
+        label: text,
+        unit: text,
+        note: text,
+      })),
+    });
+    test("1 to 4 items", () => {
+      for (const n of [1, 4]) ok(stat(n));
+      bad(stat(0), /1 to 4/);
+      bad(stat(5), /1 to 4/);
+    });
+    test("a value is a string, kept as written", () => {
+      bad({ type: "stat", items: [{ value: 10, label: text }] }, /value/);
+      bad({ type: "stat", items: [{ value: "", label: text }] }, /value/);
+    });
+  });
+
+  describe("the ordered diagrams", () => {
+    const run = (type, key, make, min, max) => {
+      const block = (n) => ({ type, [key]: items(n, make) });
+      for (const n of [min, max]) ok(block(n));
+      bad(block(min - 1), new RegExp(`${min} to ${max}`));
+      bad(block(max + 1), new RegExp(`${min} to ${max}`));
+    };
+    test("flow: 2 to 7 steps", () =>
+      run("flow", "steps", () => ({ label: text, text }), 2, 7));
+    test("timeline: 2 to 8 events", () =>
+      run(
+        "timeline",
+        "events",
+        () => ({ when: text, label: text, text }),
+        2,
+        8,
+      ));
+    test("cycle: 3 to 6 stages", () =>
+      run("cycle", "stages", () => ({ label: text }), 3, 6));
+    test("agenda: 2 to 8 items", () =>
+      run("agenda", "items", () => ({ label: text, text }), 2, 8));
+    test("a timeline event needs its date", () =>
+      bad(
+        { type: "timeline", events: items(2, () => ({ label: text })) },
+        /when/,
+      ));
+  });
+
+  describe("orgchart", () => {
+    test("two levels below the root validates", () =>
+      ok({
+        type: "orgchart",
+        root: point,
+        children: [{ node: point, children: [point, point] }, { node: point }],
+      }));
+    test("a third level below the root is rejected", () =>
+      bad(
+        {
+          type: "orgchart",
+          root: point,
+          children: [
+            { node: point, children: [{ ...point, children: [point] }] },
+          ],
+        },
+        /two levels/,
+      ));
+    test("the root and every node need a label", () => {
+      bad({ type: "orgchart", root: {}, children: [{ node: point }] }, /label/);
+      bad({ type: "orgchart", root: point, children: [{ node: {} }] }, /label/);
+    });
+  });
+
+  describe("table", () => {
+    const table = (columns, rows, cells = columns) => ({
+      type: "table",
+      columns: items(columns, () => text),
+      rows: items(rows, () => ({
+        label: text,
+        cells: items(cells, () => text),
+      })),
+    });
+    test("at most 5 columns and 8 rows", () => {
+      ok(table(5, 8));
+      ok(table(1, 1));
+      bad(table(6, 2), /5 columns/);
+      bad(table(2, 9), /8 rows/);
+      bad(table(0, 1));
+      bad(table(2, 0));
+    });
+    test("each row has one cell per column", () => bad(table(3, 2, 2), /cell/));
+  });
+
+  describe("matrix", () => {
+    const matrix = (over) => ({
+      type: "matrix",
+      x: text,
+      y: text,
+      quadrants: [point, point, point, point],
+      items: [
+        { label: text, x: 0, y: 1 },
+        { label: text, x: 0.5, y: 0.5 },
+      ],
+      ...over,
+    });
+    test("four quadrants and items from 0 to 1 validate", () => ok(matrix()));
+    test("exactly four quadrants", () =>
+      bad(matrix({ quadrants: [point, point, point] }), /four quadrants/));
+    test("x and y run from 0 to 1", () => {
+      bad(matrix({ items: [{ label: text, x: 1.5, y: 0.5 }] }), /0 to 1/);
+      bad(matrix({ items: [{ label: text, x: 0.5, y: -0.1 }] }), /0 to 1/);
+    });
+  });
+
+  describe("compare", () => {
+    const side = { title: text, points: [text, text] };
+    test("two sides with a title and points validate", () =>
+      ok({ type: "compare", left: side, right: side }));
+    test("each side needs a title and at least one point", () => {
+      bad({ type: "compare", left: side, right: { title: text, points: [] } });
+      bad({ type: "compare", left: { points: [text] }, right: side }, /title/);
+    });
+  });
+
+  describe("images", () => {
+    test("an image needs alt text; src, fit and bleed are optional", () => {
+      ok({ type: "image", alt: text });
+      ok({
+        type: "image",
+        src: "/images/placeholder.jpg",
+        alt: text,
+        caption: text,
+        fit: "contain",
+        bleed: true,
+      });
+      bad({ type: "image" }, /alt/);
+    });
+    test("src is a path under public/images/", () =>
+      bad(
+        { type: "image", src: "https://example.com/a.jpg", alt: text },
+        /images/,
+      ));
+    test("fit is cover or contain", () =>
+      bad({ type: "image", alt: text, fit: "fill" }, /fit/));
+    test("an image grid has 2 to 6 images, each with alt text", () => {
+      const grid = (n) => ({
+        type: "imageGrid",
+        images: items(n, () => ({ alt: text })),
+      });
+      ok(grid(2));
+      ok(grid(6));
+      bad(grid(1), /2 to 6/);
+      bad(grid(7), /2 to 6/);
+      bad({ type: "imageGrid", images: [{ alt: text }, {}] }, /alt/);
+    });
+  });
+
+  describe("custom", () => {
+    test("names a visual and passes its props", () =>
+      ok({ type: "custom", visual: "Example", props: {} }));
+    test("needs a visual name and a props object", () => {
+      bad({ type: "custom", visual: "", props: {} }, /visual/);
+      bad({ type: "custom", visual: "Example" }, /props/);
+    });
+  });
+
+  test("feature 001's blocks pass as they are; an unknown type is rejected", () => {
+    // The statement preset is the carried `lead` block (data-model.md).
+    ok({ type: "lead", item: { text }, size: "statement" });
+    bad({ type: "unknown" }, /block type/);
+  });
+});

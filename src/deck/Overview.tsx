@@ -9,7 +9,7 @@ import { DeckIcon } from "./icon";
 import { MenuDropdown } from "./menu-dropdown";
 import { SlideView } from "./SlideView";
 import { langNames, langs, type Lang } from "./langs";
-import { pdfHref, ui } from "./model";
+import { ui } from "./model";
 import { useDeck } from "./version";
 import styles from "./menu.module.css";
 
@@ -72,6 +72,7 @@ export function Downloads({
   lang: Lang;
   align?: "start" | "end";
 }) {
+  const { pdfHref } = useDeck();
   return (
     <div className={styles.downloads}>
       <MenuDropdown
