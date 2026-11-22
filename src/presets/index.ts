@@ -15,6 +15,7 @@ import { ImageGridPreset } from "./images/ImageGrid";
 import { AgendaPreset } from "./text/Agenda";
 import { ComparePreset } from "./text/Compare";
 import { QuotePreset } from "./text/Quote";
+import { CustomPreset } from "./visuals";
 
 type PresetType = PresetBlock["type"];
 
@@ -42,6 +43,9 @@ const presets: { [T in PresetType]?: ComponentType<PresetProps<T>> } = {
   compare: ComparePreset,
   image: ImagePreset,
   imageGrid: ImageGridPreset,
+  // A composed visual: the deck's own (src/deck/visuals/index.ts), or in
+  // the gallery the template's example.
+  custom: CustomPreset,
 };
 
 /** A preset block, drawn by its component, or by the pending stub while it

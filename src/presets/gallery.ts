@@ -1,11 +1,13 @@
 // The preset gallery's slides (feature 002, FR-004), built from the
 // registry: a title slide, a divider for each family that has presets, then
 // for each preset a slide with its example and a slide with its alternate
-// (SC-005), in the layout its entry names (stack by default). The /gallery route and the print view's `?deck=gallery` draw
-// them through the deck engine. Slide titles name the gallery, its families
-// and its presets; everything on a slide is placeholder text and the
-// registry's placeholder examples.
-import type { SlideContent } from "@/deck/content";
+// (SC-005), in the layout its entry names (stack by default), and last a
+// divider and a slide for each composed visual example (research D3), which
+// is not a preset. The /gallery route and the print view's `?deck=gallery`
+// draw them through the deck engine. Slide titles name the gallery, its
+// families and its presets; everything on a slide is placeholder text and
+// the registry's placeholder examples.
+import type { Block, SlideContent } from "@/deck/content";
 import { langs } from "@/deck/langs";
 import type { Slide, Text } from "@/deck/model";
 import { families, registry, type Family, type PresetEntry } from "./registry";
@@ -32,6 +34,23 @@ const slug = (name: string) =>
 const exampleId = (name: string) => `preset-${slug(name)}`;
 const alternateId = (name: string) => `preset-${slug(name)}-alternate`;
 
+/** The template's composed visual examples (src/presets/examples/): not
+ *  presets, so not in the registry. Each is drawn on its own slide through
+ *  a `custom` block; only the gallery knows their names. */
+export const composedExamples: {
+  name: string;
+  block: Extract<Block, { type: "custom" }>;
+}[] = [
+  {
+    name: "Composed visual (example)",
+    block: {
+      type: "custom",
+      visual: "ComposedExample",
+      props: { stages: [placeholder, placeholder, placeholder, placeholder] },
+    },
+  },
+];
+
 export type Gallery = {
   slides: Slide[];
   content: Record<string, SlideContent>;
@@ -40,7 +59,10 @@ export type Gallery = {
 };
 
 /** The gallery for a list of presets (the registry's, by default). */
-export function buildGallery(entries: PresetEntry[] = registry): Gallery {
+export function buildGallery(
+  entries: PresetEntry[] = registry,
+  composed = composedExamples,
+): Gallery {
   const slides: Slide[] = [
     { id: "gallery-title", kind: "title", title: words("Preset gallery") },
   ];
@@ -71,6 +93,16 @@ export function buildGallery(entries: PresetEntry[] = registry): Gallery {
           blocks: [block],
         };
       }
+    }
+  }
+  if (composed.length) {
+    const section = words("Composed visuals");
+    slides.push({ id: "composed", kind: "divider", section, title: section });
+    content.composed = { blocks: [] };
+    for (const { name, block } of composed) {
+      const id = slug(name);
+      slides.push({ id, kind: "slide", section, title: words(name) });
+      content[id] = { headline: { text: placeholder }, blocks: [block] };
     }
   }
   const byId = (id: string) => slides.find((slide) => slide.id === id);
