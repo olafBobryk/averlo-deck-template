@@ -152,6 +152,46 @@ test("the placeholder deck ends with a showcase of every preset, before the clos
   expect(new Set(ids).size).toBe(ids.length);
 });
 
+// T051 (owner on T050: "slides are too tight next to the header, more
+// padding on top"): where the top bar shows, a content slide's first line
+// starts well clear of it: from the logo's box to the first line's box,
+// at least 4.5 slide units (--u), where it was 1.8 (26 px at 1440 × 900;
+// about 40 px to the glyphs). Phones hide the bar.
+test("a content slide's text starts well below the top bar", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  let checked = 0;
+  for (let s = 1; s <= slides.length; s++) {
+    const content = slideContent(slides[s - 1].id);
+    if (!content.headline) continue;
+    await openDeck(page, s);
+    const logo = page.locator(".aq .brand-logo").first();
+    if (!(await logo.isVisible())) continue;
+    const m = await page
+      .locator("main:not([aria-hidden]) [data-kind]")
+      .evaluate((slide) => {
+        const range = document.createRange();
+        let top = Infinity;
+        const walker = document.createTreeWalker(slide, NodeFilter.SHOW_TEXT);
+        for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+          if (!node.textContent?.trim()) continue;
+          range.selectNodeContents(node);
+          for (const r of range.getClientRects())
+            if (r.height >= 1) top = Math.min(top, r.top);
+        }
+        const width = document.documentElement.clientWidth;
+        const height = document.documentElement.clientHeight;
+        return { top, u: Math.min(width / 100, (height * 1.7778) / 100) };
+      });
+    const bottom = (await logo.boundingBox())!;
+    const gap = (m.top - (bottom.y + bottom.height)) / m.u;
+    expect(gap, `slide ${s}`).toBeGreaterThanOrEqual(4.5);
+    checked++;
+  }
+  test.skip(checked === 0, "the top bar is hidden on this screen");
+});
+
 test("the menu's PDF download returns the deck as a file", async ({ page }) => {
   await openDeck(page, 1);
   await page.keyboard.press("m");
