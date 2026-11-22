@@ -39,7 +39,7 @@ For a production build, `npm run build` builds the site and renders the PDFs int
 | Overview       | O                                                                     |
 | Close          | Esc                                                                   |
 
-The top bar floats over the slides with the brand and the deck title. The progress navigator along the bottom edge jumps to a slide when pressed or dragged: its mound rises under the pointer. On phones (under about 480 px wide or 500 px tall) the top bar is hidden and the navigator stays. In the menu's slide list, a section's row opens and closes its slides; on phones, its Previous, Next and Fullscreen buttons show only their icons.
+The top bar floats over the slides with the brand and the deck title. The progress navigator along the bottom edge jumps to a slide when pressed or dragged: its mound rises under the pointer. The footer's slide number can be pressed to type a slide number; Enter goes there and Esc cancels. On phones (under about 480 px wide or 500 px tall) the top bar is hidden and the navigator stays. In the menu's slide list, a section's row opens and closes its slides; on phones, its Previous, Next and Fullscreen buttons show only their icons.
 
 The PDF downloads from the menu, one per language, named `<slug>-<lang>.pdf` after the deck title (`deck-en.pdf` for the placeholder deck). Links keep their place:
 
