@@ -97,7 +97,6 @@ export const content: Record<string, SlideContent> = {
     blocks: [
       {
         type: "org",
-        style: "tree",
         root: { label: title, text },
         items: [
           { label: title, text },
