@@ -59,6 +59,7 @@ Packages are installed from npm and not committed. Each row records the licence 
 | `class-variance-authority` | npm    | Apache-2.0 | yes (installed from npm, not committed) |
 | `clsx`                     | npm    | MIT        | yes (installed from npm, not committed) |
 | `lucide-react`             | npm    | ISC        | yes (installed from npm, not committed) |
+| `recharts`                 | npm    | MIT        | yes (installed from npm, not committed) |
 | `@axe-core/playwright`     | npm    | MPL-2.0    | yes (installed from npm, not committed) |
 | `@playwright/test`         | npm    | Apache-2.0 | yes (installed from npm, not committed) |
 | `@sparticuz/chromium`      | npm    | MIT        | yes (installed from npm, not committed) |
