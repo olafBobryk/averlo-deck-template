@@ -26,80 +26,85 @@ export function untraced(text: string, sources: string[]) {
   );
 }
 
-/**
- * Every slide string in a drafted deck. A deck is `{ langs, slides,
- * content }`, as in src/deck/langs.ts and src/deck/slides.ts; the fixture
- * may hold one deck or an array of them (one per dry run). A text is an
- * object whose keys are all language codes and whose values are strings,
- * so ids, kinds, layouts and dates are not slide text.
- */
-export function slideTexts(fixture: unknown): string[] {
-  const decks = Array.isArray(fixture) ? fixture : [fixture];
-  const texts: string[] = [];
-  type Deck = { langs?: string[]; slides?: unknown; content?: unknown };
-  for (const deck of decks as Deck[]) {
-    const langs = new Set(deck.langs ?? ["en"]);
-    const walk = (value: unknown) => {
-      if (Array.isArray(value)) return value.forEach(walk);
-      if (!value || typeof value !== "object") return;
-      const entries = Object.entries(value);
-      const isText =
-        entries.length > 0 &&
-        entries.every(([k, v]) => langs.has(k) && typeof v === "string");
-      if (isText) {
-        texts.push(...entries.map(([, v]) => v as string));
-        return;
-      }
-      entries.forEach(([, child]) => walk(child));
+// Feature 003 (T340): a slide is a file, and its words and figures sit in
+// its `copy`, keyed by language (src/slides/NN-name.tsx). The trace reads
+// them from the generated src/slides/data.ts, or from a folder of slide
+// files (scanSlides in scripts/slides-index.mjs) for the dry run. Every
+// string in `copy`, in every language and in every list, is slide text:
+// titles, headlines, labels, categories, series names, units, captions,
+// alt text and stat values. Every number is a figure, and so is every
+// number written inside a string ("38%").
+
+/** A slide file's data, as src/slides/data.ts or scanSlides gives it. */
+export type SlideCopy = {
+  number: number;
+  id: string;
+  /** Its file name, when read from a folder. */
+  name?: string;
+  copy: Record<string, unknown>;
+};
+
+/** A word or a figure of a slide's copy, with where it stands:
+ *  `<file>: copy.<lang>.<key>[<i>]`. */
+export type CopyValue = { at: string; value: string | number };
+
+/** A slide's file name: its own, or its number and id. */
+const fileOf = (slide: SlideCopy) =>
+  slide.name ?? `${String(slide.number).padStart(2, "0")}-${slide.id}.tsx`;
+
+/** Every string and number in the slides' copy, in every language, with
+ *  where it stands. */
+export function copyValues(slides: SlideCopy[]): CopyValue[] {
+  const found: CopyValue[] = [];
+  for (const slide of slides) {
+    const walk = (value: unknown, path: string) => {
+      if (typeof value === "string" || typeof value === "number")
+        found.push({ at: `${fileOf(slide)}: ${path}`, value });
+      else if (Array.isArray(value))
+        value.forEach((item, i) => walk(item, `${path}[${i}]`));
+      else if (value && typeof value === "object")
+        for (const [key, child] of Object.entries(value))
+          walk(child, `${path}.${key}`);
     };
-    walk([deck.slides, deck.content]);
-  }
-  return texts;
-}
-
-// Feature 002, FR-016 (SC-003): the figures of a deck's visuals trace too.
-// Their labels are `Text`s, so `slideTexts` already holds them; the figures
-// are chart values (numbers) and stat values (strings, as the source writes
-// them), which are not.
-
-type Figure = { at: string; value: number | string };
-
-/** Every chart value and stat value in a drafted deck (one deck or an
- *  array of them), with where it stands: `<slide>: <block> <path>`. */
-function figuresOf(fixture: unknown): Figure[] {
-  const decks = Array.isArray(fixture) ? fixture : [fixture];
-  const found: Figure[] = [];
-  type Block = { type?: string; series?: unknown; items?: unknown };
-  for (const deck of decks as { content?: Record<string, unknown> }[]) {
-    for (const [id, slide] of Object.entries(deck.content ?? {})) {
-      const blocks = (slide as { blocks?: Block[] })?.blocks ?? [];
-      for (const block of blocks) {
-        if (block?.type === "chart" && Array.isArray(block.series))
-          block.series.forEach((series: { values?: unknown[] }, i) =>
-            (series?.values ?? []).forEach((value, j) =>
-              found.push({
-                at: `${id}: chart series[${i}].values[${j}]`,
-                value: value as number,
-              }),
-            ),
-          );
-        if (block?.type === "stat" && Array.isArray(block.items))
-          block.items.forEach((item: { value?: unknown }, i) =>
-            found.push({
-              at: `${id}: stat items[${i}].value`,
-              value: String(item?.value),
-            }),
-          );
-      }
-    }
+    walk(slide.copy, "copy");
   }
   return found;
 }
 
-/** Every chart value and stat value of a drafted deck, as `<where>:
- *  <value>` lines. */
-export function visualFigures(fixture: unknown): string[] {
-  return figuresOf(fixture).map(({ at, value }) => `${at}: ${value}`);
+/** Every slide text of the slides' copy. */
+export function slideTexts(slides: SlideCopy[]): string[] {
+  return copyValues(slides)
+    .map(({ value }) => value)
+    .filter((value): value is string => typeof value === "string");
+}
+
+/** Every figure of the slides' copy: each number, and each number a
+ *  string writes, as `<where>: <value>` lines. */
+export function slideFigures(slides: SlideCopy[]): string[] {
+  return copyValues(slides).flatMap(({ at, value }) =>
+    typeof value === "number"
+      ? [`${at}: ${value}`]
+      : [...numbersIn(value)].map((n) => `${at}: ${n} in "${value}"`),
+  );
+}
+
+/** The phrases and figures of the slides' copy found in none of
+ *  `sources`, as `<where>: <phrase or figure>` lines: a phrase must stand
+ *  in one of them (`untraced`); a number, or a number a string writes, must
+ *  be one they write, grouped or not, never rounded or converted ("5%" does
+ *  not trace to "4.5%"). */
+export function untracedCopy(slides: SlideCopy[], sources: string[]) {
+  const numbers = new Set(sources.flatMap((s) => [...numbersIn(s)]));
+  return copyValues(slides).flatMap(({ at, value }) => {
+    if (typeof value === "number")
+      return numbers.has(value) ? [] : [`${at}: ${value}`];
+    return [
+      ...untraced(value, sources).map((phrase) => `${at}: ${phrase}`),
+      ...[...numbersIn(value)]
+        .filter((n) => !numbers.has(n))
+        .map((n) => `${at}: ${n} in "${value}"`),
+    ];
+  });
 }
 
 /** The numbers a text writes, as written: "1,200" and "1 200" (with a
@@ -120,42 +125,4 @@ export function numbersIn(text: string): Set<number> {
     found.add(sign ? -value : value);
   }
   return found;
-}
-
-/** Whether a stat value, as written, stands in `source` on its own, not
- *  inside a longer word or number ("5%" is not in "4.5%"). */
-function writtenIn(value: string, source: string) {
-  const want = normalize(value);
-  const haystack = normalize(source);
-  const word = /[\p{L}\d]/u;
-  for (
-    let at = want ? haystack.indexOf(want) : -1;
-    at >= 0;
-    at = haystack.indexOf(want, at + 1)
-  ) {
-    const before = haystack.slice(Math.max(0, at - 2), at);
-    const after = haystack.slice(at + want.length, at + want.length + 2);
-    const startsInside =
-      word.test(want[0]) &&
-      (word.test(before.at(-1) ?? "") || /\d[.,]$/.test(before));
-    const endsInside =
-      word.test(want.at(-1)!) &&
-      (word.test(after[0] ?? "") || /^[.,]\d/.test(after));
-    if (!startsInside && !endsInside) return true;
-  }
-  return false;
-}
-
-/** The figures of `fixture` found in none of `sources`: a chart value must
- *  be a number one of them writes (grouped or not, never rounded or
- *  converted), and a stat value must stand in one of them as written. */
-export function untracedFigures(fixture: unknown, sources: string[]) {
-  const numbers = new Set(sources.flatMap((s) => [...numbersIn(s)]));
-  return figuresOf(fixture)
-    .filter(({ value }) =>
-      typeof value === "number"
-        ? !numbers.has(value)
-        : !sources.some((source) => writtenIn(value, source)),
-    )
-    .map(({ at, value }) => `${at}: ${value}`);
 }
