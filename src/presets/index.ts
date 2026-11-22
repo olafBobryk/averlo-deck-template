@@ -10,8 +10,11 @@ import { BarPreset } from "./charts/Bar";
 import { DonutPreset } from "./charts/Donut";
 import { LinePreset } from "./charts/Line";
 import { StatPreset } from "./charts/Stat";
+import { CompareTablePreset } from "./diagrams/CompareTable";
 import { CyclePreset } from "./diagrams/Cycle";
 import { FlowPreset } from "./diagrams/Flow";
+import { MatrixPreset } from "./diagrams/Matrix";
+import { OrgChartPreset } from "./diagrams/OrgChart";
 import { TimelinePreset } from "./diagrams/Timeline";
 import { ImagePreset } from "./images/Image";
 import { ImageGridPreset } from "./images/ImageGrid";
@@ -43,6 +46,9 @@ const presets: { [T in PresetType]?: ComponentType<PresetProps<T>> } = {
   flow: FlowPreset,
   timeline: TimelinePreset,
   cycle: CyclePreset,
+  orgchart: OrgChartPreset,
+  table: CompareTablePreset,
+  matrix: MatrixPreset,
   quote: QuotePreset,
   agenda: AgendaPreset,
   compare: ComparePreset,

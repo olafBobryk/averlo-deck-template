@@ -172,6 +172,84 @@ export const registry: PresetEntry[] = [
     example: { type: "cycle", stages: times(4, { label: title, text }) },
     alternate: { type: "cycle", stages: times(6, { label: title }) },
   },
+  {
+    name: "Org chart",
+    family: "diagrams",
+    block: "orgchart",
+    fits: "Reporting lines: a root, the nodes under it, and theirs.",
+    example: {
+      type: "orgchart",
+      root: { label: title, text },
+      children: [
+        { node: { label: title }, children: times(2, { label: title }) },
+        { node: { label: title }, children: times(1, { label: title }) },
+        { node: { label: title }, children: times(2, { label: title }) },
+      ],
+    },
+    alternate: {
+      type: "orgchart",
+      root: { label: title },
+      children: times(4, { node: { label: title, text } }),
+    },
+  },
+  {
+    name: "Comparison table",
+    family: "diagrams",
+    block: "table",
+    fits: "Options against criteria: one cell for each option and criterion.",
+    example: {
+      type: "table",
+      columns: times(3, title),
+      rows: times(4, { label: title, cells: times(3, text) }),
+    },
+    alternate: {
+      type: "table",
+      columns: times(5, title),
+      rows: times(3, { label: title, cells: times(5, text) }),
+    },
+  },
+  {
+    name: "2×2 matrix",
+    family: "diagrams",
+    block: "matrix",
+    fits: "Two axes: four quadrants, and items placed by their x and y.",
+    example: {
+      type: "matrix",
+      x: text,
+      y: text,
+      quadrants: [
+        { label: title, text },
+        { label: title, text },
+        { label: title, text },
+        { label: title, text },
+      ],
+      // Placeholder positions, from 0 to 1.
+      items: [
+        { label: text, x: 0.2, y: 0.6 },
+        { label: text, x: 0.8, y: 0.1 },
+        { label: text, x: 0.3, y: 0.1 },
+      ],
+    },
+    alternate: {
+      type: "matrix",
+      x: title,
+      y: title,
+      quadrants: [
+        { label: title },
+        { label: title },
+        { label: title },
+        { label: title },
+      ],
+      // Placeholder positions, from 0 to 1.
+      items: [
+        { label: text, x: 0.15, y: 0.68 },
+        { label: text, x: 0.85, y: 0.56 },
+        { label: text, x: 0.4, y: 0.32 },
+        { label: text, x: 0.85, y: 0.18 },
+        { label: text, x: 0.15, y: 0.06 },
+      ],
+    },
+  },
   // Text layouts (phase V3).
   {
     name: "Quote",
