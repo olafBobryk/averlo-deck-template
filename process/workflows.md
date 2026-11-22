@@ -30,7 +30,7 @@ How an agent turns a deck owner's material into slides (FR-016, User Story 3). T
 3. **Brand.** With no brand named, keep `brand: { kind: "averlo" }`: the intro and the hard-load screen show the Averlo mark. When the owner names another brand:
    - set `brand: { kind: "owner", name: "<the name the owner gives>" }` in `src/brand/config.ts`;
    - ask for the logo and the mark (SVG or PNG), and whether the owner may publish them;
-   - until they arrive, the intro, the hard-load screen and the top bar's brand slot show the "your logo" placeholder, and the footer wordmark shows the name. Say so to the owner;
+   - until they arrive, the intro, the hard-load screen and the top bar's brand slot show the "your logo" placeholder, and the brand slot shows the name beside it. Say so to the owner;
    - when they arrive, follow [Change the brand](#change-the-brand).
 4. **Agree the outline.** Propose sections and slide titles taken from the source's own headings and phrases. The owner confirms, cuts, adds or reorders. Write their answer down.
 5. **Draft each slide.** Pick its kind, layout and blocks from the tables below, and fill each text with the owner's words. Keep speaker prompts in `notes`; they are not drawn.
@@ -99,14 +99,15 @@ The brand is set in `src/brand/config.ts` (FR-005; the contract is `specs/001-de
 2. Put the files in `public/brand/`, for example `public/brand/mark.svg`.
 3. Add a row for each file to [`docs/licences.md`](../docs/licences.md), with its source and licence. If it may not be redistributed, it may not be committed to a public repository.
 4. In `src/brand/config.ts`, set `brand: { kind: "owner", name: "<name>", logo: "logo.svg", mark: "mark.svg" }`. `logo` and `mark` are paths under `public/brand/`. Without `mark`, the "your logo" placeholder shows.
-5. Set `deckTitle`, and `accent` if the owner gives a colour. The accent sets the top bar's `--aq-*` variables, and the bar picks black or white text on it; that text must keep 4.5:1 contrast.
-6. Run `npm run scan:public` and the gate. The brand test (`tests/brand.spec.ts`) checks the mark the config chooses; the top-bar test (`tests/topbar.spec.ts`) checks the brand slot and the footer wordmark.
+5. Set `deckTitle`, and `accent` if the owner gives a colour. The accent sets the `--aq-*` variables of the top bar and the navigator, which pick black or white text on it; that text must keep 4.5:1 contrast. The logo sits on the deck's dark background, so ask for a version that reads on dark.
+6. Run `npm run scan:public` and the gate. The brand test (`tests/brand.spec.ts`) checks the mark the config chooses; the top-bar test (`tests/topbar.spec.ts`) checks the brand slot, and that the footer carries no brand.
 
 The brand then shows in these places:
 
-- the top bar's brand slot: `logo`, or without it the "your logo" placeholder and `name` as text, followed by `deckTitle`;
-- the intro and the hard-load screen: `mark`, or without it the placeholder;
-- the footer wordmark: `name`, as text.
+- the top bar's brand slot: `logo`, or without it the "your logo" placeholder and `name` as text, followed by `deckTitle`, muted;
+- the intro and the hard-load screen: `mark`, or without it the placeholder.
+
+The footer carries no brand.
 
 To go back to Averlo, set `brand: { kind: "averlo" }`.
 
