@@ -190,4 +190,5 @@ Owner directions after reviewing the merged build (spec, "After reviewing the me
 - [x] T045 [US2] The top bar as an overlay: no white band, the slides take the stage, the deck title muted. The footer wordmark removed.
 - [x] T046 [US2] The navigator at the bottom edge in place of the footer's progress line, its mound pointing up; the footer row stays above it.
 - [x] T047 [US1] The steps block's labels in the navigator's muted step style; the facts, numbered points, week and plan blocks recomposed from Averlo components.
+- [ ] T048 [US2] The brand overlay aligned to the slide text, with padding and margins of its own; the footer's slide number can be pressed to type a slide number and jump (owner, "After reviewing the merged build").
 - **Gate P8:** `npm run gate`. Before/after screenshots at 390 and 1440. A layout change that moves a motion strip beyond tolerance is raised with the owner, never re-baselined.

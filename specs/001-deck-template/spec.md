@@ -75,6 +75,9 @@
   - Q: The top. → A: "keep the top bar as overlay": the logo and the deck title float over the slides, with no white band ("this whole white area is a huge design flaw"); the text next to the logo is muted.
   - Q: The footer wordmark. → A: "no branding in the footer, remove the averlo text there".
   - Q: The slide components. → A: the steps block keeps its layout, and every step label uses the navigator's muted step label style ("Muted step label only"); the facts, numbered points, week and plan blocks are redone, composed from the Averlo design system.
+  - Q: The logo keeps the questionnaire's header position, out of line with the slides. → A: "align to slide text and create padding / margins".
+  - Q: The top step label, where a number could be typed to jump, went with the step track. → A: "Yes, in the footer": the footer's slide number can be pressed to type a slide number and jump.
+  - These answers replace FR-005's footer wordmark, FR-012's top navigator and FR-013's footer progress line where they differ.
 
 ## User Scenarios & Testing *(mandatory)*
 
