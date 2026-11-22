@@ -80,6 +80,7 @@
   - Q: Body text weight. → A: "body text always being medium/is to heavy, we have to adjust the design system to read easily": body and supporting text become regular (400) through the deck's own text roles (no port edits), enforced by a test ("Regular 400 + test").
   - Q: Numbers on cards and steps. → A: "all of these are ass the numbersing here": no number circles or badges; a number shows as a small muted step label above its title ("No circles, muted step labels").
   - Q: The steps block's layout. → A: "A and B should be both options but both are ass in teh visual": the steps block offers two styles, a rail (dots down the left, the muted label, title and regular body stacked beside each dot) and across (dots on a line, the muted label above, title and body below), both redesigned to read cleanly.
+  - Q: Looking at T050. → A: "the favicon needs updating too. following the questionaire" (the Averlo favicon); "slides are too tight next to the header, more padding on top"; "for the number cards stat cards the stat is too crammed"; "for the bar chart isnt that trippling titling bad?"; "all these slides dont come with slide body text, they porbably should".
   - These answers replace FR-005's footer wordmark, FR-012's top navigator and FR-013's footer progress line where they differ.
 
 ## User Scenarios & Testing *(mandatory)*
