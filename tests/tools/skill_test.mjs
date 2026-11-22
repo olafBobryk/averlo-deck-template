@@ -2,8 +2,9 @@
 // research D5). The skill ships twice, for Claude Code
 // (.claude/skills/deck-visuals/) and for Codex (.agents/skills/deck-visuals/),
 // and the two copies are byte-identical. Its preset reference,
-// references/presets.md, is generated from the registry by
-// scripts/presets-doc.mjs, so it never drifts from the presets. Every preset
+// references/presets.md, is generated from the registry and each preset's
+// example file (src/presets/slides/) by scripts/presets-doc.mjs, so it never
+// drifts from the presets. Every preset
 // in the registry is named in SKILL.md's selection rules.
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
@@ -97,16 +98,19 @@ describe("the deck-visuals skill", () => {
     }
   });
 
-  test("the generated reference gives every preset's name, family, block, fits and example", async () => {
+  test("the generated reference gives every preset's name, family, block, fits and example file", async () => {
     const { presetsDoc } = await import("../../scripts/presets-doc.mjs");
     const doc = presetsDoc(registry);
     for (const entry of registry) {
       assert.ok(doc.includes(`### ${entry.name}\n`), entry.name);
       assert.ok(doc.includes(entry.fits), `${entry.name}: fits`);
       assert.ok(doc.includes(`\`${entry.block}\``), `${entry.name}: block`);
+      // Its example file, by path and in full (feature 003, T331).
+      const file = `src/presets/slides/${entry.file}.tsx`;
+      assert.ok(doc.includes(`\`${file}\``), `${entry.name}: file`);
       assert.ok(
-        doc.includes(JSON.stringify(entry.example)),
-        `${entry.name}: example`,
+        doc.includes(read(join(root, file)).trim()),
+        `${entry.name}: the example file's source`,
       );
     }
   });

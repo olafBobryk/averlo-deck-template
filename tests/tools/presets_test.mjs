@@ -1,16 +1,34 @@
 // Unit tests for the preset registry and its validator (feature 002, T100).
 // The registry (src/presets/registry.ts) lists every preset: its name, its
-// family, the block it draws, the source structure it fits, an example and a
-// second, different example (`alternate`, SC-005). Every example validates
-// against its block type with the template-owned validator
-// (src/presets/validate.ts), which enforces data-model.md's limits.
+// family, the block it draws, the source structure it fits and its example
+// file in src/presets/slides/, with a second, different example in
+// alternates/ (SC-005; feature 003, T331). The template-owned validator
+// (src/presets/validate.ts) enforces data-model.md's limits on a block.
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { describe, test } from "node:test";
 
+import { scanPresets } from "../../scripts/slides-index.mjs";
 import { langs } from "../../src/deck/langs.ts";
 import { families, registry } from "../../src/presets/registry.ts";
 import { presetTypes, validateBlock } from "../../src/presets/validate.ts";
+
+/** Each preset file's data and source, by its path in src/presets/slides/
+ *  (feature 003): an entry's example is `entry.file`, its second example
+ *  `alternates/<entry.file>`. */
+const presetsDir = new URL("../../src/presets/slides/", import.meta.url);
+const presetFiles = new Map(
+  scanPresets(presetsDir.pathname).map((file) => [
+    file.id,
+    {
+      ...file,
+      words: file.copy[langs[0]],
+      source: readFileSync(new URL(file.name, presetsDir), "utf8"),
+    },
+  ]),
+);
+const example = (entry) => presetFiles.get(entry.file);
+const alternate = (entry) => presetFiles.get(`alternates/${entry.file}`);
 
 /** A text in every configured language. */
 const t = (words) => Object.fromEntries(langs.map((lang) => [lang, words]));
@@ -57,34 +75,45 @@ describe("the registry", () => {
     }
   });
 
-  test("every example and alternate is its block type and validates", () => {
-    for (const entry of registry) {
-      for (const which of ["example", "alternate"]) {
-        const block = entry[which];
-        assert.equal(block.type, entry.block, `${entry.name} ${which}`);
-        assert.deepEqual(
-          validateBlock(block, langs),
-          [],
+  test("every example and its alternate draw the preset's block", () => {
+    for (const entry of registry)
+      for (const [which, file] of [
+        ["example", example(entry)],
+        ["alternate", alternate(entry)],
+      ]) {
+        assert.ok(file, `${entry.name}: no ${which} file`);
+        assert.match(
+          file.source,
+          new RegExp(`<Block type="${entry.block}">`),
           `${entry.name} ${which}`,
         );
+        assert.equal(file.meta.layout, entry.layout, `${entry.name} ${which}`);
       }
-    }
   });
 
-  test("every alternate differs from its example", () => {
+  test("every alternate's words differ from its example's", () => {
     for (const entry of registry)
-      assert.notDeepEqual(entry.alternate, entry.example, entry.name);
+      assert.notDeepEqual(
+        { ...alternate(entry).words, title: "" },
+        { ...example(entry).words, title: "" },
+        entry.name,
+      );
   });
 
   // Phase V1 (T110): the charts and stats family.
   test("has the bar, line and donut charts and the stat cards, in the charts family", () => {
     for (const kind of ["bar", "line", "donut"]) {
       const entries = registry.filter(
-        (entry) => entry.block === "chart" && entry.example.kind === kind,
+        (entry) =>
+          entry.block === "chart" &&
+          example(entry).source.includes(`kind="${kind}"`),
       );
       assert.equal(entries.length, 1, `one ${kind} chart entry`);
       assert.equal(entries[0].family, "charts", kind);
-      assert.equal(entries[0].alternate.kind, kind, `${kind} alternate`);
+      assert.ok(
+        alternate(entries[0]).source.includes(`kind="${kind}"`),
+        `${kind} alternate`,
+      );
     }
     const stats = registry.filter((entry) => entry.block === "stat");
     assert.equal(stats.length, 1, "one stat entry");
@@ -93,15 +122,15 @@ describe("the registry", () => {
 
   test("a chart's example and alternate differ in shape, not only in words", () => {
     for (const entry of registry.filter((e) => e.block === "chart")) {
-      const shape = (block) => [
-        block.categories.length,
-        block.series.length,
-        Boolean(block.unit),
-        Boolean(block.source),
+      const shape = ({ words }) => [
+        words.categories.length,
+        words.series.length,
+        Boolean(words.unit),
+        Boolean(words.source),
       ];
       assert.notDeepEqual(
-        shape(entry.alternate),
-        shape(entry.example),
+        shape(alternate(entry)),
+        shape(example(entry)),
         entry.name,
       );
     }
@@ -132,14 +161,16 @@ describe("the registry", () => {
   test("has the full-bleed, captioned and grid images, in the images family", () => {
     const images = registry.filter((entry) => entry.family === "images");
     const bleed = images.filter(
-      (entry) => entry.block === "image" && entry.example.bleed === true,
+      (entry) =>
+        entry.block === "image" &&
+        /<Image\b[^>]*\bbleed\b/.test(example(entry).source),
     );
     assert.equal(bleed.length, 1, "one full-bleed image entry");
     const captioned = images.filter(
       (entry) =>
         entry.block === "image" &&
-        !entry.example.bleed &&
-        entry.example.caption !== undefined,
+        !bleed.includes(entry) &&
+        example(entry).words.caption !== undefined,
     );
     assert.equal(captioned.length, 1, "one captioned image entry");
     assert.equal(
@@ -149,29 +180,32 @@ describe("the registry", () => {
     );
   });
 
-  test("a layout, when given, is one of the deck's slide layouts", () => {
-    const layouts = ["stack", "split", "split-end", "center", "statement"];
+  test("a layout is one of the deck's slide layouts", () => {
+    const layouts = [
+      "stack",
+      "split",
+      "split-end",
+      "center",
+      "statement",
+      "module",
+    ];
     for (const entry of registry)
-      if (entry.layout !== undefined)
-        assert.ok(
-          layouts.includes(entry.layout),
-          `${entry.name}: ${entry.layout}`,
-        );
+      assert.ok(
+        layouts.includes(entry.layout),
+        `${entry.name}: ${entry.layout}`,
+      );
   });
 
   // Phase V2 (T120): the diagrams. One entry for each diagram block, in the
   // diagrams family, and each example and alternate differs in shape, so the
   // gallery shows the preset with a second, different content (SC-005).
   const diagramShape = {
-    flow: (b) => [b.steps.length, b.steps.some((s) => s.text)],
-    timeline: (b) => [b.events.length, b.events.some((e) => e.text)],
-    cycle: (b) => [b.stages.length, b.stages.some((s) => s.text)],
-    orgchart: (b) => [
-      b.children.length,
-      b.children.map((c) => (c.children ?? []).length),
-    ],
-    table: (b) => [b.columns.length, b.rows.length],
-    matrix: (b) => [(b.items ?? []).length, b.quadrants.some((q) => q.text)],
+    flow: (w) => [w.steps.length, Boolean(w.stepTexts)],
+    timeline: (w) => [w.events.length, Boolean(w.eventTexts)],
+    cycle: (w) => [w.stages.length, Boolean(w.stageTexts)],
+    orgchart: (w) => [w.branches.length, w.leaves.map((l) => l.length)],
+    table: (w) => [w.columns.length, w.rows.length],
+    matrix: (w) => [w.items.length, Boolean(w.quadrantTexts)],
   };
 
   test("has the flow, timeline, cycle, org chart, table and matrix, in the diagrams family", () => {
@@ -188,26 +222,11 @@ describe("the registry", () => {
     for (const entry of registry.filter((e) => e.block in diagramShape)) {
       const shape = diagramShape[entry.block];
       assert.notDeepEqual(
-        shape(entry.alternate),
-        shape(entry.example),
+        shape(alternate(entry).words),
+        shape(example(entry).words),
         entry.name,
       );
     }
-  });
-
-  test("the gallery's images are placeholders: no image has a src", () => {
-    for (const entry of registry)
-      for (const which of ["example", "alternate"]) {
-        const block = entry[which];
-        const images =
-          block.type === "image"
-            ? [block]
-            : block.type === "imageGrid"
-              ? block.images
-              : [];
-        for (const image of images)
-          assert.equal(image.src, undefined, `${entry.name} ${which}`);
-      }
   });
 });
 

@@ -4,8 +4,10 @@ import { langs } from "../../src/deck/langs";
 import { galleryPdfName } from "../../src/deck/pdf-name";
 import { composedExamples, gallery } from "../../src/presets/gallery";
 import { registry } from "../../src/presets/registry";
+import { presetData } from "../../src/presets/slides/data";
 import { slideData } from "../../src/slides/data";
 import { expectSplitAcross, expectSplitDown, measureSplit } from "../branching";
+import { printedBlocks } from "../printed";
 import { expectFits } from "./fit";
 
 // The preset gallery (feature 002, FR-004, SC-002, SC-005): a separate deck
@@ -13,6 +15,10 @@ import { expectFits } from "./fit";
 // slide for its alternate example. Each fits its stage at 390 and 1440 (the
 // two projects), passes axe's colour contrast, and prints: the gallery's PDF
 // has one page per slide. The default deck is not touched.
+//
+// Each slide is a preset file (src/presets/slides/, feature 003): a test
+// reads what a slide should show from the file's words, by the preset
+// files' names for them (`shown`).
 
 async function openGallery(page: Page, s: number) {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -31,14 +37,173 @@ const N = gallery.slides.length;
 /** A gallery slide's position (1-based), by id. */
 const at = (id: string) => gallery.slides.findIndex((s) => s.id === id) + 1;
 
-/** A gallery slide's preset block: the block beside its body text (T051:
- *  each preset slide carries a plain `lead` of placeholder body text). */
-const shown = (id: string) => {
-  const blocks = gallery.content[id].blocks;
-  const body = (b: (typeof blocks)[number]) =>
-    b.type === "lead" && !b.size && blocks.length > 1;
-  return blocks.find((b) => !body(b)) ?? blocks[0];
-};
+/** A word in the first language, as the tests compare it. */
+type T = Record<string, string>;
+const tx = (value: unknown): T => ({ [langs[0]]: value as string });
+const txs = (value: unknown): T[] => ((value ?? []) as string[]).map(tx);
+
+/** A gallery slide's preset visual, as its file's words give it. */
+type Shown =
+  | {
+      type: "chart";
+      kind: "bar" | "line" | "donut";
+      categories: T[];
+      series: { name: T; values: number[] }[];
+      unit?: T;
+      source?: T;
+    }
+  | { type: "stat"; items: { value: string; label: T; unit?: T; note?: T }[] }
+  | { type: "flow"; steps: { label: T; text?: T }[] }
+  | { type: "timeline"; events: { when: T; label: T; text?: T }[] }
+  | { type: "cycle"; stages: { label: T; text?: T }[] }
+  | {
+      type: "orgchart";
+      root: { label: T; text?: T };
+      children: { node: { label: T }; children?: { label: T }[] }[];
+    }
+  | { type: "table"; columns: T[]; rows: { label: T; cells: T[] }[] }
+  | {
+      type: "matrix";
+      x: T;
+      y: T;
+      quadrants: { label: T; text?: T }[];
+      items?: { label: T; x: number; y: number }[];
+    }
+  | { type: "quote"; text: T; by?: T; role?: T }
+  | { type: "lead"; text: T }
+  | { type: "agenda"; items: { label: T; text?: T }[] }
+  | {
+      type: "compare";
+      left: { title: T; points: T[] };
+      right: { title: T; points: T[] };
+    }
+  | { type: "image"; alt: T; caption?: T; src?: string }
+  | { type: "imageGrid"; images: { alt: T; caption?: T; src?: string }[] };
+
+/** The preset a gallery slide draws, and its file's words. */
+function fileOf(id: string) {
+  const path = gallery.files[id];
+  const entry = registry.find(
+    (e) => e.file === path?.replace(/^alternates\//, ""),
+  );
+  const data = presetData.find((d) => d.id === path);
+  if (!entry || !data) throw new Error(`${id}: no preset file`);
+  return { entry, words: data.copy[langs[0]] as Record<string, unknown> };
+}
+
+/** A gallery slide's preset visual (T051: each preset slide carries a body
+ *  text too), read from its file's words. */
+function shown(id: string): Shown {
+  const { entry, words: w } = fileOf(id);
+  const at = <V>(list: unknown, i: number) =>
+    (list as V[] | undefined)?.[i] as V | undefined;
+  const opt = (value: unknown) => (value === undefined ? undefined : tx(value));
+  const labelled = (labels: unknown, texts: unknown) =>
+    (labels as string[]).map((label, i) => ({
+      label: tx(label),
+      ...(at(texts, i) !== undefined ? { text: tx(at(texts, i)) } : {}),
+    }));
+  switch (entry.block) {
+    case "chart":
+      return {
+        type: "chart",
+        kind: entry.file.replace("-chart", "") as "bar" | "line" | "donut",
+        categories: txs(w.categories),
+        series: (w.series as string[]).map((name, i) => ({
+          name: tx(name),
+          values: (w.values as number[][])[i],
+        })),
+        unit: opt(w.unit),
+        source: opt(w.source),
+      };
+    case "stat":
+      return {
+        type: "stat",
+        items: (w.values as string[]).map((value, i) => ({
+          value,
+          label: tx(at(w.labels, i)),
+          unit: opt(at(w.units, i)),
+          note: opt(at(w.notes, i) ?? (i === 3 ? w.note : undefined)),
+        })),
+      };
+    case "flow":
+      return { type: "flow", steps: labelled(w.steps, w.stepTexts) };
+    case "timeline":
+      return {
+        type: "timeline",
+        events: labelled(w.events, w.eventTexts).map((event, i) => ({
+          when: tx(at(w.dates, i)),
+          ...event,
+        })),
+      };
+    case "cycle":
+      return { type: "cycle", stages: labelled(w.stages, w.stageTexts) };
+    case "orgchart":
+      return {
+        type: "orgchart",
+        root: { label: tx(w.root), text: opt(w.rootText) },
+        children: (w.branches as string[]).map((label, i) => {
+          const leaves = (w.leaves as string[][])[i];
+          return {
+            node: { label: tx(label) },
+            ...(leaves.length
+              ? { children: leaves.map((leaf) => ({ label: tx(leaf) })) }
+              : {}),
+          };
+        }),
+      };
+    case "table":
+      return {
+        type: "table",
+        columns: txs(w.columns),
+        rows: (w.rows as string[]).map((label, i) => ({
+          label: tx(label),
+          cells: txs((w.cells as string[][])[i]),
+        })),
+      };
+    case "matrix":
+      return {
+        type: "matrix",
+        x: tx(w.x),
+        y: tx(w.y),
+        quadrants: labelled(w.quadrants, w.quadrantTexts),
+        items: (w.items as string[]).map((label, i) => ({
+          label: tx(label),
+          x: (w.itemX as number[])[i],
+          y: (w.itemY as number[])[i],
+        })),
+      };
+    case "quote":
+      return {
+        type: "quote",
+        text: tx(w.quote),
+        by: opt(w.by),
+        role: opt(w.role),
+      };
+    case "lead":
+      return { type: "lead", text: tx(w.claim) };
+    case "agenda":
+      return { type: "agenda", items: labelled(w.topics, w.topicTexts) };
+    case "compare":
+      return {
+        type: "compare",
+        left: { title: tx(w.left), points: txs(w.leftPoints) },
+        right: { title: tx(w.right), points: txs(w.rightPoints) },
+      };
+    case "image":
+      return { type: "image", alt: tx(w.alt), caption: opt(w.caption) };
+    case "imageGrid":
+      return {
+        type: "imageGrid",
+        images: (w.alts as string[]).map((alt, i) => ({
+          alt: tx(alt),
+          caption: opt(at(w.captions, i)),
+        })),
+      };
+    default:
+      throw new Error(`${id}: no reader for ${entry.block}`);
+  }
+}
 
 test("the gallery has a title slide, a divider per family in use and two slides per preset", () => {
   const families = new Set(registry.map((entry) => entry.family));
@@ -53,36 +218,43 @@ test("the gallery has a title slide, a divider per family in use and two slides 
   expect(new Set(ids).size).toBe(ids.length);
 });
 
-test("every registry entry has a gallery slide for its example and its alternate", () => {
+test("every registry entry has a gallery slide for its example and its alternate", async ({
+  page,
+}) => {
+  const printed = await printedBlocks(page, "/print?deck=gallery");
   for (const entry of registry) {
     const { example, alternate } = gallery.presetSlides(entry.name);
     expect(example, entry.name).toBeTruthy();
     expect(alternate, entry.name).toBeTruthy();
-    expect(gallery.content[example!.id].blocks).toContainEqual(entry.example);
-    expect(gallery.content[alternate!.id].blocks).toContainEqual(
-      entry.alternate,
-    );
     // T051 (owner on T050: "all these slides dont come with slide body
     // text, they porbably should"): each preset slide carries a short body
-    // text, a plain lead of placeholder text, before its visual; after it
-    // on the statement, whose visual is the claim itself.
-    for (const [slide, block] of [
-      [example!, entry.example],
-      [alternate!, entry.alternate],
-    ] as const) {
-      const body = { type: "lead", item: { text: { en: "Placeholder text" } } };
-      const blocks = gallery.content[slide.id].blocks;
-      expect(blocks, slide.id).toEqual(
-        entry.layout === "statement" ? [block, body] : [body, block],
+    // text, a plain lead, before its visual; after it on the statement,
+    // whose visual is the claim itself.
+    for (const slide of [example!, alternate!]) {
+      const drawn = printed[at(slide.id) - 1];
+      expect(
+        drawn.map((block) => [block.type, block.size]),
+        slide.id,
+      ).toEqual(
+        entry.layout === "statement"
+          ? [
+              ["lead", "statement"],
+              ["lead", null],
+            ]
+          : [
+              ["lead", null],
+              [entry.block, null],
+            ],
       );
+      expect(fileOf(slide.id).words.body, slide.id).toBe("Placeholder text");
     }
   }
 });
 
 // Compose-per-deck (feature 002, T143; research D3): the template's one
 // composed visual is shown in the gallery as "Composed visual (example)",
-// drawn from its `custom` block through the gallery's own visuals; it is
-// not a preset, so not in the registry.
+// drawn by its own slide file (src/presets/slides/composed/); it is not a
+// preset, so not in the registry.
 test("the composed visual example has its gallery slide, drawn and fitting", async ({
   page,
 }) => {
@@ -94,15 +266,68 @@ test("the composed visual example has its gallery slide, drawn and fitting", asy
       (slide) => slide.title[langs[0]] === example.name,
     );
     expect(s, example.name).toBeGreaterThan(0);
-    expect(gallery.content[gallery.slides[s].id].blocks).toEqual([
-      example.block,
-    ]);
+    expect(gallery.files[gallery.slides[s].id]).toBe(example.file);
     await openGallery(page, s + 1);
     const main = page.locator("main:not([aria-hidden])");
     await expect(main.locator('[data-block="custom"]')).toBeVisible();
     await expect(main.locator("[data-composed-example]")).toBeVisible();
-    await expect(main.locator("[data-visual-missing]")).toHaveCount(0);
     await expectFits(page, example.name);
+  }
+});
+
+// Feature 003 (T330): the gallery draws the preset files: each preset's
+// example (src/presets/slides/<file>.tsx) and its second example
+// (alternates/<file>.tsx), the same files the deck's showcase draws.
+test("the gallery draws each preset's example file and its second example", () => {
+  for (const entry of registry) {
+    const { example, alternate } = gallery.presetSlides(entry.name);
+    expect(gallery.files[example!.id], entry.name).toBe(entry.file);
+    expect(gallery.files[alternate!.id], entry.name).toBe(
+      `alternates/${entry.file}`,
+    );
+  }
+});
+
+test("the gallery and the deck's showcase draw each preset's example alike", async ({
+  page,
+}) => {
+  const frames = async (path: string) => {
+    await page.goto(path);
+    // Charts draw once their box is measured: every chart has its marks,
+    // and every animation has ended.
+    await page.waitForFunction(() =>
+      [...document.querySelectorAll("[data-chart]")].every((chart) =>
+        chart.querySelector("[data-mark]"),
+      ),
+    );
+    await page.evaluate(() => document.fonts.ready);
+    await page.waitForFunction(() =>
+      document
+        .getAnimations()
+        .every((a) => a.playState === "finished" || a.playState === "idle"),
+    );
+    return page.locator("[data-print-page] [data-kind]").evaluateAll((slides) =>
+      // Generated ids and the references to them left out.
+      slides.map((slide) =>
+        slide.outerHTML
+          .replace(
+            /\s(id|for|aria-labelledby|aria-describedby|aria-controls)="[^"]*"/g,
+            "",
+          )
+          .replace(/url\(#[^)]*\)/g, "url(#)")
+          .replace(/recharts\d+/g, "recharts")
+          .replace(/_r_[0-9a-z]+_/g, "_r_"),
+      ),
+    );
+  };
+  const inGallery = await frames("/print?deck=gallery");
+  const inDeck = await frames("/print");
+  const showcase = slideData.findIndex((slide) => slide.id === "showcase");
+  for (const [i, entry] of registry.entries()) {
+    const { example } = gallery.presetSlides(entry.name);
+    expect(inGallery[at(example!.id) - 1], entry.name).toBe(
+      inDeck[showcase + 1 + i],
+    );
   }
 });
 
@@ -206,10 +431,7 @@ test("the gallery's menu downloads the gallery's PDF", async ({ page }) => {
 const chartKinds = ["bar", "line", "donut"] as const;
 const chartEntry = (kind: (typeof chartKinds)[number]) =>
   registry.find(
-    (entry) =>
-      entry.block === "chart" &&
-      entry.example.type === "chart" &&
-      entry.example.kind === kind,
+    (entry) => entry.block === "chart" && entry.file === `${kind}-chart`,
   );
 const statEntry = () => registry.find((entry) => entry.block === "stat");
 /** Words alone: SVG text wraps into tspans, which drop the spaces. */
@@ -387,13 +609,9 @@ const v3 = {
   statement: (e: Entry) => e.block === "lead" && e.layout === "statement",
   "image + text": (e: Entry) => e.block === "image" && e.layout === "split",
   "full-bleed image": (e: Entry) =>
-    e.block === "image" && e.example.type === "image" && !!e.example.bleed,
+    e.block === "image" && e.file === "full-bleed-image",
   "captioned image": (e: Entry) =>
-    e.block === "image" &&
-    e.example.type === "image" &&
-    !e.example.bleed &&
-    !!e.example.caption &&
-    (e.layout ?? "stack") === "stack",
+    e.block === "image" && e.file === "captioned-image",
   "image grid": (e: Entry) => e.block === "imageGrid",
 } as const;
 const v3Entry = (key: keyof typeof v3) => registry.find(v3[key]);
@@ -419,9 +637,10 @@ test("a registry entry's layout is its gallery slides' layout", () => {
   for (const entry of registry) {
     const { example, alternate } = gallery.presetSlides(entry.name);
     for (const slide of [example!, alternate!])
-      expect(gallery.content[slide.id].layout, slide.id).toBe(
-        entry.layout ?? "stack",
-      );
+      expect(
+        presetData.find((d) => d.id === gallery.files[slide.id])?.meta.layout,
+        slide.id,
+      ).toBe(entry.layout);
   }
 });
 

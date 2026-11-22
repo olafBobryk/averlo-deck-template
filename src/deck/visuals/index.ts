@@ -1,12 +1,14 @@
 // The deck's own composed visuals (feature 002, research D3; FR-010),
 // template-owned: a visual no preset fits, built for this deck only from
 // Averlo parts (the ported `Panel`, `Text` through `@/deck/text`, `Icon`
-// and the deck's tokens). A slide draws one with a block
-// `{ type: "custom", visual: "<its name here>", props: { … } }`; every
-// `Text` in `props` has a string for each language, like any slide text.
-// The template ships none. To add one, put its component in this folder and
-// export it below under the name the block uses; to make it a shared
-// preset, follow "Promote a visual to a preset" in process/workflows.md.
+// and the deck's tokens). A slide file (src/slides/, feature 003) imports
+// one from this folder and draws it like any component, in a
+// `<Block type="custom">`, its words from the slide's `copy`; the composed
+// visual example (src/presets/slides/composed/) shows how. The template
+// ships none. Export each below too, under its name: the preset validator
+// (src/presets/validate.ts) checks a `custom` block's name against this
+// map. To make one a shared preset, follow "Promote a visual to a preset"
+// in process/workflows.md.
 import type { ComponentType } from "react";
 import type { Lang } from "@/deck/langs";
 

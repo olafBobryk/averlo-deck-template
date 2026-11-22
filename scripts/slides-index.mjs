@@ -16,6 +16,16 @@
 // components and styles. A `meta` or `copy` that is not a literal (a call, a
 // name, a spread) fails, naming the file and the value.
 //
+// A slide file may instead re-export another file's slide (`export { copy,
+// default, meta } from "@/presets/slides/bar-chart"`): the deck's showcase
+// draws the preset files that way. Its data is read from that file.
+//
+// It writes the same index and data for the preset files
+// (src/presets/slides/, feature 003, T331): each preset's example, its
+// second example in alternates/ and the composed visual example in
+// composed/, named without a number; the gallery draws them, and a deck
+// copies one into src/slides/ with a number.
+//
 // SLIDES_DIR (relative to the repository, or absolute) points it at another
 // slide folder, whose own `index.ts` and `data.ts` it writes; next.config.ts
 // reads the same variable, so `SLIDES_DIR=<folder> npm run dev` runs a deck
@@ -23,8 +33,14 @@
 //
 // The module exports its pieces for tests/tools/slides_test.mjs; main() runs
 // only when the file is invoked directly.
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import ts from "typescript";
 
@@ -32,6 +48,9 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 /** A slide file's name: its number, a dash, its id in kebab case. */
 const NAME = /^(\d+)-([a-z0-9]+(?:-[a-z0-9]+)*)\.tsx$/;
+
+/** A re-export of another file's slide: its names and where from. */
+const REEXPORT = /^export\s*\{([^}]*)\}\s*from\s*["']([^"']+)["']/m;
 
 const EXPORTS = [
   [/^export\s+const\s+meta\b/m, "meta"],
@@ -132,6 +151,38 @@ export function readSlide(source, name = "slide.tsx") {
   return { meta, copy };
 }
 
+/** The file a re-export names, from the folder `dir`: `@/` is src/, and a
+ *  path without an extension is a `.tsx` or `.ts` file. */
+function resolveFrom(dir, specifier) {
+  const base = specifier.startsWith("@/")
+    ? join(repoRoot, "src", specifier.slice(2))
+    : resolve(dir, specifier);
+  for (const path of [base, `${base}.tsx`, `${base}.ts`])
+    if (existsSync(path) && statSync(path).isFile()) return path;
+  throw new Error(`re-exports ${specifier}, which is no file`);
+}
+
+/** A slide file's `meta` and `copy` (readSlide), following a re-export of
+ *  another file's slide. Throws naming what it misses. */
+export function readSlideFile(path) {
+  const source = readFileSync(path, "utf8");
+  const reexport = REEXPORT.exec(source);
+  if (reexport) {
+    const names = reexport[1].split(",").map((name) => name.trim());
+    const missing = ["meta", "copy", "default"].filter(
+      (name) => !names.includes(name),
+    );
+    if (missing.length)
+      throw new Error(`re-exports no ${missing.join(", no ")}`);
+    return readSlideFile(resolveFrom(dirname(path), reexport[2]));
+  }
+  const missing = EXPORTS.filter(([pattern]) => !pattern.test(source)).map(
+    ([, what]) => what,
+  );
+  if (missing.length) throw new Error(`exports no ${missing.join(", no ")}`);
+  return readSlide(source, path);
+}
+
 /** The slide files in `dir`, in number order: { name, number, id, meta,
  *  copy }. Throws one error naming every file the deck cannot place. */
 export function scanSlides(dir) {
@@ -148,17 +199,9 @@ export function scanSlides(dir) {
       );
       continue;
     }
-    const source = readFileSync(join(dir, name), "utf8");
-    const missing = EXPORTS.filter(([pattern]) => !pattern.test(source)).map(
-      ([, what]) => what,
-    );
-    if (missing.length) {
-      problems.push(`${name}: exports no ${missing.join(", no ")}`);
-      continue;
-    }
     let read;
     try {
-      read = readSlide(source, name);
+      read = readSlideFile(join(dir, name));
     } catch (error) {
       problems.push(`${name}: ${error.message}`);
       continue;
@@ -247,6 +290,109 @@ async function format(text, name) {
   return prettier.format(text, { ...options, parser: "typescript" });
 }
 
+/** The preset folder: each preset's example file, and the files in its
+ *  subfolders (alternates/, composed/). */
+export const presetsDir = join(repoRoot, "src", "presets", "slides");
+
+/** The preset files under `dir`, by path without `.tsx` (`bar-chart`,
+ *  `alternates/bar-chart`), in that order: { name, id, number: 0, meta,
+ *  copy }. Throws one error naming every file it cannot read. */
+export function scanPresets(dir = presetsDir) {
+  const problems = [];
+  const files = [];
+  const walk = (folder) => {
+    for (const name of readdirSync(folder).sort()) {
+      const path = join(folder, name);
+      if (statSync(path).isDirectory()) {
+        walk(path);
+        continue;
+      }
+      if (!name.endsWith(".tsx")) continue;
+      const id = relative(dir, path).replace(/\.tsx$/, "");
+      if (!/^([a-z0-9]+(?:-[a-z0-9]+)*\/)*[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) {
+        problems.push(`${id}.tsx: a preset file is named in kebab case`);
+        continue;
+      }
+      try {
+        files.push({
+          name: `${id}.tsx`,
+          id,
+          number: 0,
+          ...readSlideFile(path),
+        });
+      } catch (error) {
+        problems.push(`${id}.tsx: ${error.message}`);
+      }
+    }
+  };
+  walk(dir);
+  if (problems.length)
+    throw new Error(
+      `slides-index: ${dir}:\n${problems.map((p) => `  - ${p}`).join("\n")}`,
+    );
+  // Top-level examples first, then each subfolder's.
+  return files.sort(
+    (a, b) =>
+      a.id.split("/").length - b.id.split("/").length ||
+      a.id.localeCompare(b.id),
+  );
+}
+
+const PRESET_HEADER = `// Generated by scripts/slides-index.mjs from the preset files in this folder
+// and its subfolders. Do not edit: add, rename or remove a preset file and
+// run \`npm run slides\` (dev, build and check run it too).
+`;
+
+/** The preset folder's index: each file's component, meta and copy, by its
+ *  path (scanPresets' list). */
+export async function renderPresetIndex(files) {
+  const lines = [PRESET_HEADER];
+  lines.push('import { slideFile, type SlideFile } from "@/deck/slide";');
+  files.forEach((file, i) => {
+    const n = i + 1;
+    lines.push(
+      `import Preset${n}, { copy as copy${n}, meta as meta${n} } from "./${file.id}";`,
+    );
+  });
+  lines.push("");
+  lines.push("/** The preset files, as the gallery draws them. */");
+  lines.push("export const presetFiles: SlideFile[] = [");
+  files.forEach((file, i) => {
+    const n = i + 1;
+    lines.push(
+      `slideFile(0, ${JSON.stringify(file.id)}, meta${n}, copy${n}, Preset${n}),`,
+    );
+  });
+  lines.push("];");
+  return format(lines.join("\n"), "index.ts");
+}
+
+/** The preset folder's data: each file's id, meta and copy. */
+export async function renderPresetData(files) {
+  const entries = files.map(({ id, meta, copy }) =>
+    JSON.stringify({ number: 0, id, meta, copy }),
+  );
+  const lines = [
+    PRESET_HEADER.replace(
+      "and its subfolders.",
+      "and its subfolders: each\n// file's id, `meta` and `copy`, as literal values, for plain Node.",
+    ),
+    'import type { SlideData } from "@/deck/slide";',
+    "",
+    `export const presetData: SlideData[] = [${entries.join(",\n")}];`,
+  ];
+  return format(lines.join("\n"), "data.ts");
+}
+
+/** Writes `text` to `file` when it differs. */
+function write(file, text) {
+  let before = null;
+  try {
+    before = readFileSync(file, "utf8");
+  } catch {}
+  if (before !== text) writeFileSync(file, text);
+}
+
 /** The slide folder SLIDES_DIR names, or src/slides. */
 export function slidesDir(env = process.env) {
   return resolve(repoRoot, env.SLIDES_DIR || join("src", "slides"));
@@ -261,17 +407,18 @@ async function main() {
     console.error(error.message);
     process.exit(1);
   }
-  for (const [name, text] of [
-    ["index.ts", await renderIndex(files)],
-    ["data.ts", await renderData(files)],
-  ]) {
-    const file = join(dir, name);
-    let before = null;
-    try {
-      before = readFileSync(file, "utf8");
-    } catch {}
-    if (before !== text) writeFileSync(file, text);
+  write(join(dir, "index.ts"), await renderIndex(files));
+  write(join(dir, "data.ts"), await renderData(files));
+  if (process.env.SLIDES_DIR || !existsSync(presetsDir)) return;
+  let presets;
+  try {
+    presets = scanPresets();
+  } catch (error) {
+    console.error(error.message);
+    process.exit(1);
   }
+  write(join(presetsDir, "index.ts"), await renderPresetIndex(presets));
+  write(join(presetsDir, "data.ts"), await renderPresetData(presets));
 }
 
 if (

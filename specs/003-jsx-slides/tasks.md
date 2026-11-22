@@ -45,8 +45,9 @@ These are the same as feature 002's rules:
 
 ## Phase J3: Preset examples (branch `j3-presets`, base `j2-deck`)
 
-- [ ] T330 Tests first: every file in `src/presets/slides/` renders when copied into a scratch `src/slides/` with a number, and still renders with its JSX rearranged (a scripted edit). `/gallery` and the showcase render the files.
-- [ ] T331 Write one example slide file per preset in `src/presets/slides/`: headline, body and the visual, with placeholder words. Point `/gallery` and the showcase at them, and remove the registry's data examples.
+- [x] T330 Tests first: every file in `src/presets/slides/` renders when copied into a scratch `src/slides/` with a number, and still renders with its JSX rearranged (a scripted edit). `/gallery` and the showcase render the files.
+- [x] T331 Write one example slide file per preset in `src/presets/slides/`: headline, body and the visual, with placeholder words. Point `/gallery` and the showcase at them, and remove the registry's data examples.
+  - Each preset's second example is a file too (`src/presets/slides/alternates/`), and the composed visual example one in `composed/`, so the gallery draws only files. The data blocks' switch, the preset adapters and the slide view's data path are gone (T322's rest); `content.ts` keeps the block types only as the shapes the preset validator checks, until J4 reworks the skill and the trace check.
 - **Gate J3:** `npm run gate`.
 
 ## Phase J4: Skill, trace, inline-text check, docs (branch `j4-skill`, base `j3-presets`)

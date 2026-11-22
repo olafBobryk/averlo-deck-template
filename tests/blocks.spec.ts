@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { stepsStyle } from "../src/deck/content";
 import { langs } from "../src/deck/langs";
 import { slides } from "../src/deck/slides";
 import { gallery } from "../src/presets/gallery";
@@ -300,13 +299,6 @@ for (const style of ["rail", "across"] as const) {
     }
   });
 }
-
-test("the steps block's styles: rail by default, and the old nodes name draws across", () => {
-  expect(stepsStyle(undefined)).toBe("rail");
-  expect(stepsStyle("rail")).toBe("rail");
-  expect(stepsStyle("across")).toBe("across");
-  expect(stepsStyle("nodes")).toBe("across");
-});
 
 test("numbered points: each number a muted step label above its title, no badge", async ({
   page,
