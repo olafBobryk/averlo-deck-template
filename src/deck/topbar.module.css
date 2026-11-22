@@ -70,6 +70,16 @@
 .bar :global(.brand-sub) {
   color: var(--color-muted);
 }
+/* The divider between the logo and the deck's title, as in the
+   questionnaire's header, in the deck's solid border colour (the shell's
+   own line colour is its light theme's and doesn't show on dark). */
+.bar :global(.brand-divider) {
+  display: block;
+  flex: none;
+  width: 1px;
+  height: 23px;
+  background: var(--deck-divider);
+}
 
 /* On phones the bar is hidden, and the slides take the whole stage: under
    about 480 px wide, or about 500 px tall (a phone on its side) (owner: "on

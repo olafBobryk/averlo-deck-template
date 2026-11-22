@@ -194,4 +194,5 @@ Owner directions after reviewing the merged build (spec, "After reviewing the me
 - [x] T046 [US2] The navigator at the bottom edge in place of the footer's progress line, its mound pointing up; the footer row stays above it.
 - [x] T047 [US1] The steps block's labels in the navigator's muted step style; the facts, numbered points, week and plan blocks recomposed from Averlo components.
 - [x] T048 [US2] The brand overlay aligned to the slide text, with padding and margins of its own; the footer's slide number can be pressed to type a slide number and jump (owner, "After reviewing the merged build").
+- [x] T049 Defect (light path, owner after the final build): branching lines in solid colour mixes so overlapping pieces never add up; the divider between the logo and the deck title shown on dark; the footer slide number in the header step label's muted style (12px, regular, muted).
 - **Gate P8:** `npm run gate`. Before/after screenshots at 390 and 1440. A layout change that moves a motion strip beyond tolerance is raised with the owner, never re-baselined.
