@@ -185,9 +185,9 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` = may run in parallel
 
 Owner directions after reviewing the merged build (spec, "After reviewing the merged build"), approved in the session.
 
-- [ ] T043 Tests first: the menu's chevron has no hover background and a row's hover covers its whole width; the top bar floats over the slides with no opaque band and a muted deck title; the footer has no wordmark; the navigator sits at the bottom edge, full width, its mound pointing up, and pressing or dragging it jumps slides; step labels use the navigator's muted step style; the facts, numbered points, week and plan blocks are drawn from Averlo components.
-- [ ] T044 [US2] The menu's accordion rows: a bare ghost chevron, the row's hover over its whole width.
-- [ ] T045 [US2] The top bar as an overlay: no white band, the slides take the stage, the deck title muted. The footer wordmark removed.
-- [ ] T046 [US2] The navigator at the bottom edge in place of the footer's progress line, its mound pointing up; the footer row stays above it.
-- [ ] T047 [US1] The steps block's labels in the navigator's muted step style; the facts, numbered points, week and plan blocks recomposed from Averlo components.
+- [x] T043 Tests first: the menu's chevron has no hover background and a row's hover covers its whole width; the top bar floats over the slides with no opaque band and a muted deck title; the footer has no wordmark; the navigator sits at the bottom edge, full width, its mound pointing up, and pressing or dragging it jumps slides; step labels use the navigator's muted step style; the facts, numbered points, week and plan blocks are drawn from Averlo components.
+- [x] T044 [US2] The menu's accordion rows: a bare ghost chevron, the row's hover over its whole width.
+- [x] T045 [US2] The top bar as an overlay: no white band, the slides take the stage, the deck title muted. The footer wordmark removed.
+- [x] T046 [US2] The navigator at the bottom edge in place of the footer's progress line, its mound pointing up; the footer row stays above it.
+- [x] T047 [US1] The steps block's labels in the navigator's muted step style; the facts, numbered points, week and plan blocks recomposed from Averlo components.
 - **Gate P8:** `npm run gate`. Before/after screenshots at 390 and 1440. A layout change that moves a motion strip beyond tolerance is raised with the owner, never re-baselined.
