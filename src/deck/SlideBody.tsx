@@ -18,24 +18,6 @@ import type { Text } from "./model";
 /** A text in one language. */
 const typeset = (text: Text, lang: Lang) => text[lang];
 
-/** Key phrases in body text are marked `**…**`. */
-const KEY = "**";
-
-/** A text in one language, as plain words: key-phrase markup dropped, so
- *  labels, tips, alt text, keys and every comparison read the words alone. */
-export const say = (text: Text, lang: Lang) =>
-  typeset(text, lang).replaceAll(KEY, "");
-
-/** A block that holds glass cards fades each card on its own glass, never
- *  through a fading wrapper. */
-export const holdsGlass = (block: Block) =>
-  block.type === "facts" ||
-  block.type === "org" ||
-  block.type === "fork" ||
-  block.type === "week" ||
-  block.type === "plan" ||
-  block.type === "points";
-
 /** A block, drawn by its component (src/components/deck/, feature 003),
  *  its words in this language as written (`plain`): the component draws
  *  key phrases bold in body text and drops their marks from labels. */

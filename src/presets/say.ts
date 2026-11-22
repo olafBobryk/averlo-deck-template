@@ -1,9 +1,7 @@
 import { langs, type Lang } from "@/deck/langs";
 import type { Text } from "@/deck/model";
 
-/** A text in one language, as plain words: the deck's `say`
- *  (src/deck/SlideBody.tsx), here so a preset does not import the block
- *  switch that imports the presets. */
+/** A text in one language, as plain words: key-phrase marks dropped. */
 export const say = (text: Text, lang: Lang) => text[lang].replaceAll("**", "");
 
 /** A block's value with every `Text` in it as its string in one language
