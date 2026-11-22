@@ -10,6 +10,8 @@ import { BarPreset } from "./charts/Bar";
 import { DonutPreset } from "./charts/Donut";
 import { LinePreset } from "./charts/Line";
 import { StatPreset } from "./charts/Stat";
+import { ImagePreset } from "./images/Image";
+import { ImageGridPreset } from "./images/ImageGrid";
 import { AgendaPreset } from "./text/Agenda";
 import { ComparePreset } from "./text/Compare";
 import { QuotePreset } from "./text/Quote";
@@ -38,6 +40,8 @@ const presets: { [T in PresetType]?: ComponentType<PresetProps<T>> } = {
   quote: QuotePreset,
   agenda: AgendaPreset,
   compare: ComparePreset,
+  image: ImagePreset,
+  imageGrid: ImageGridPreset,
 };
 
 /** A preset block, drawn by its component, or by the pending stub while it

@@ -187,4 +187,48 @@ export const registry: PresetEntry[] = [
       right: { title, points: times(5, text) },
     },
   },
+  {
+    name: "Image and text",
+    family: "text",
+    block: "image",
+    fits: "A picture with its point beside it.",
+    layout: "split",
+    example: { type: "image", alt: text, caption: text },
+    alternate: { type: "image", alt: text, fit: "contain" },
+  },
+  // Image slides (phase V3). No image has a `src`: the gallery shows the
+  // template's placeholder only.
+  {
+    name: "Full-bleed image",
+    family: "images",
+    block: "image",
+    fits: "One picture that carries the slide, edge to edge.",
+    example: { type: "image", alt: text, bleed: true },
+    alternate: {
+      type: "image",
+      alt: text,
+      caption: text,
+      fit: "contain",
+      bleed: true,
+    },
+  },
+  {
+    name: "Captioned image",
+    family: "images",
+    block: "image",
+    fits: "One picture with a line that says what it shows.",
+    example: { type: "image", alt: text, caption: text },
+    alternate: { type: "image", alt: text, caption: longText, fit: "contain" },
+  },
+  {
+    name: "Image grid",
+    family: "images",
+    block: "imageGrid",
+    fits: "Two to six pictures shown together.",
+    example: {
+      type: "imageGrid",
+      images: times(3, { alt: text, caption: text }),
+    },
+    alternate: { type: "imageGrid", images: times(6, { alt: text }) },
+  },
 ];

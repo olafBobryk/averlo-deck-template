@@ -1,0 +1,186 @@
+/* The image presets (feature 002, T132): one image, full-bleed or framed
+   with its caption, and the image grid, on the Averlo tokens only, sized in
+   --u like the deck's blocks (src/deck/content.module.css), so each is the
+   same full-bleed, in a thumbnail and on a PDF page. On a portrait phone
+   the live deck reflows, and these follow its sizes. */
+
+/* ---------- The slide around an image ---------- */
+
+/* In the stack layout an image block takes the stage under the heading:
+   the slide's second row fills the rest of its height, the block fills
+   that row, and its image (or its grid's cells) fill the block. The deck's
+   own slides, which hold no image, are untouched. */
+:global([data-kind="slide"][data-layout="stack"]):has([data-image-frame]) {
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: stretch;
+}
+:global([data-layout="stack"] [data-block]):has(
+  > [data-image],
+  > [data-image-grid]
+) {
+  display: grid;
+  flex: 1 1 0;
+  grid-template-rows: minmax(0, 1fr);
+  min-height: 0;
+}
+
+/* ---------- One image ---------- */
+
+.image {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: calc(var(--u) * 1);
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+}
+
+/* The frame: the Averlo Panel the picture covers, or the placeholder. Its
+   size comes from where it stands: filling its row in the stack layout,
+   4:3 beside the heading in a split, 16:9 elsewhere. */
+.frame {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+  max-height: calc(100cqh - var(--u) * 30);
+  overflow: hidden;
+}
+:global([data-layout="stack"]) .frame {
+  aspect-ratio: auto;
+  max-height: none;
+  height: 100%;
+}
+:global([data-layout="split"]) .frame,
+:global([data-layout="split-end"]) .frame {
+  aspect-ratio: 4 / 3;
+  max-height: calc(100cqh - var(--u) * 22);
+}
+.picture {
+  display: block;
+}
+
+.caption.caption {
+  margin: 0;
+  font-size: calc(var(--u) * 1.4);
+  font-weight: 450;
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+/* ---------- Full-bleed ---------- */
+
+/* The image runs past the slide's padding to its sides and bottom edge,
+   under the footer, which keeps a soft canvas scrim to read on. A caption
+   sits on a canvas chip at the content's bottom left. */
+.image[data-bleed] {
+  grid-template-rows: minmax(0, 1fr);
+  margin: 0 calc(var(--u) * -6) calc(var(--u) * -9);
+}
+.image[data-bleed] .frame {
+  aspect-ratio: auto;
+  max-height: none;
+  height: 100%;
+  border-radius: 0;
+}
+.image[data-bleed]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: calc(var(--u) * 14);
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--color-background) 80%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+.image[data-bleed] .caption {
+  position: absolute;
+  z-index: 1;
+  left: calc(var(--u) * 6);
+  bottom: calc(var(--u) * 9);
+  max-width: min(60ch, calc(100% - var(--u) * 12));
+  padding: calc(var(--u) * 0.6) calc(var(--u) * 1.2);
+  border-radius: var(--deck-radius-md);
+  background: color-mix(in srgb, var(--color-background) 85%, transparent);
+  backdrop-filter: blur(var(--blur-lg));
+}
+
+/* ---------- The placeholder ---------- */
+
+.placeholder {
+  place-content: center;
+  justify-items: center;
+  gap: calc(var(--u) * 0.8);
+  color: var(--color-muted);
+}
+.glyph {
+  width: calc(var(--u) * 4);
+  height: calc(var(--u) * 4);
+}
+.placeholderLabel.placeholderLabel {
+  font-size: calc(var(--u) * 1.5);
+  font-weight: 450;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+/* ---------- The grid ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+  gap: calc(var(--u) * 1.4);
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cell {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ---------- Phones: portrait and narrow (the live deck's reflow) ---------- */
+
+@media (orientation: portrait) and (max-width: 699px) {
+  :global(:where([data-deck-title])) .image {
+    gap: 8px;
+  }
+  :global(:where([data-deck-title])) .caption.caption {
+    font-size: max(13px, 3.4cqw);
+  }
+  /* The live slide's phone padding: 24 px at the sides, 12 px under. */
+  :global(:where([data-deck-title])) .image[data-bleed] {
+    margin: 0 -24px -12px;
+  }
+  :global(:where([data-deck-title])) .image[data-bleed] .caption {
+    left: 24px;
+    bottom: 20px;
+    max-width: calc(100% - 48px);
+    padding: 6px 10px;
+  }
+  :global(:where([data-deck-title])) .glyph {
+    width: 32px;
+    height: 32px;
+  }
+  :global(:where([data-deck-title])) .placeholderLabel.placeholderLabel {
+    font-size: max(13px, 3.4cqw);
+  }
+  :global(:where([data-deck-title])) .grid {
+    --cols: 2 !important;
+    --rows: 2 !important;
+    gap: 10px;
+  }
+  :global(:where([data-deck-title])) .grid[data-count="2"] {
+    --cols: 1 !important;
+  }
+  :global(:where([data-deck-title]))
+    .grid:is([data-count="5"], [data-count="6"]) {
+    --rows: 3 !important;
+  }
+}
