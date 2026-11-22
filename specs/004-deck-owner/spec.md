@@ -21,6 +21,11 @@
 - Q: How does a deck get online? → A: "Vercel, agent-guided": the agent walks the owner through a free Vercel sign-in once, then deploys a shareable link when asked.
 - Q: Which agents? → A: "Codex and Claude Code".
 
+### Session 2026-11-22 (clarify)
+
+- Q: Should the agent save the owner's work in git and push it by itself? → A: "Yes, commit and push": after each change the owner keeps, a plain commit and a push to the owner's repository; no branches or PRs for the owner.
+- Q: How does the constitution fit with the deck's light rules? → A: "Amend: decks follow AGENTS.md": a constitution amendment (1.1.0) says its rules bind work on the template, and a deck made from it follows AGENTS.md's deck section.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Start with one paste (Priority: P1)
@@ -91,6 +96,8 @@ When the owner says the deck is ready, the agent walks them through a free Verce
 - **FR-007**: The deck section MUST describe publishing to Vercel: a one-time sign-in guided by the agent, deploying, and redeploying to the same link.
 - **FR-008**: The deck section MUST say how to turn on the public scan with the owner's own list, for a public deck repo.
 - **FR-009**: Everything MUST work the same in Codex and Claude Code: the skills exist in both `.agents/skills/` and `.claude/skills/`.
+- **FR-010**: In a deck, the agent MUST commit each change the owner keeps, with a plain message, and push it to the owner's repository, with no branches or PRs for the owner.
+- **FR-011**: The constitution MUST be amended (1.1.0) so its rules bind work on the template, and a deck made from the template follows AGENTS.md's deck section.
 
 ### Key Entities
 
