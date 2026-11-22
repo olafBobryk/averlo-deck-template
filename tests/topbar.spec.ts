@@ -751,10 +751,13 @@ test("the footer keeps its section, number and menu, with no wordmark and no div
 // questionnaire's step label could.
 test.describe("the footer's slide number jumps to a typed slide", () => {
   const pad = (k: number) => String(k).padStart(2, "0");
+  // The footer's row (its first part), not the navigator's mound, whose
+  // button is also named for a slide.
+  const row = (page: Page) => page.locator("footer > div").first();
   const number = (page: Page) =>
-    page.locator("footer").getByRole("button", { name: /^Go to slide \d+$/ });
+    row(page).getByRole("button", { name: /^Go to slide \d+$/ });
   const field = (page: Page) =>
-    page.locator("footer").getByRole("textbox", { name: "Slide number" });
+    row(page).getByRole("textbox", { name: "Slide number" });
 
   test("pressed, it takes a number; Enter goes there", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
@@ -828,6 +831,9 @@ test.describe("the footer's slide number jumps to a typed slide", () => {
     // Typing in it never steps the deck.
     await page.keyboard.press("ArrowRight");
     await expect.poll(() => slideParam(page)).toBe("2");
+    // (The arrow moved the caret off the selected "2", so the field is
+    // cleared first.)
+    await page.keyboard.press("Backspace");
     await page.keyboard.type("6");
     await page.keyboard.press("Enter");
     await expectSlide(page, 6);
