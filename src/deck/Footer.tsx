@@ -1,34 +1,34 @@
 "use client";
-import type { CSSProperties, ReactNode } from "react";
-import { config } from "@/brand/config";
-import { brandName } from "@/brand/name";
+import type { ReactNode } from "react";
 import { HeadingText } from "@/motion/page-header/heading-text";
 import { Text } from "./text";
 import type { Lang } from "./langs";
 import { sectionLabel } from "./model";
+import { Navigator } from "./navigator";
 import { useDeck } from "./version";
 import styles from "./deck.module.css";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** The footer row: wordmark · section label · "07 / 21" ·
- *  menu slot, with the progress bar under it. The bar's real width follows
- *  the slide on the component spring (deck.module.css). The section label
- *  goes through `HeadingText`, so it retypes when it changes; `still` (print)
- *  draws it as plain text. `menu` is MenuCard's slot.
+/** The footer row: section label · "07 / 21" · menu slot, with the
+ *  progress navigator under it at the bottom edge (navigator.tsx), its mound
+ *  pointing up; `onNavigate(step)` goes to slide `step` (1-based). The section
+ *  label goes through `HeadingText`, so it retypes when it changes; `still`
+ *  (print) draws it as plain text. `menu` is MenuCard's slot.
  *
- *  On a portrait screen deck.module.css hides the
- *  wordmark and the section label, leaving the number, the menu and the bar;
- *  print keeps all of it. */
+ *  On a portrait screen deck.module.css hides the section label, leaving the
+ *  number, the menu and the navigator; print keeps all of it. */
 export function Footer({
   index,
   lang,
   menu,
+  onNavigate,
   still = false,
 }: {
   index: number;
   lang: Lang;
   menu?: ReactNode;
+  onNavigate?: (step: number) => void;
   still?: boolean;
 }) {
   const { slides } = useDeck();
@@ -36,10 +36,6 @@ export function Footer({
   return (
     <footer className={styles.footer}>
       <div className={styles.row}>
-        {/* The wordmark. */}
-        <Text variant="title-l" tone="primary" className={styles.wordmark}>
-          {brandName(config.brand)}
-        </Text>
         {still ? (
           <Text
             as="p"
@@ -67,17 +63,13 @@ export function Footer({
           {menu}
         </div>
       )}
-      <div
-        className={styles.progress}
-        data-progress=""
-        role="progressbar"
-        aria-label={`${pad(index + 1)} / ${pad(slides.length)}`}
-        aria-valuemin={1}
-        aria-valuemax={slides.length}
-        aria-valuenow={index + 1}
-        style={{ "--progress": (index + 1) / slides.length } as CSSProperties}
-      >
-        <div className={styles.progressFill} data-progress-fill="" />
+      <div className={styles.progress} data-progress="">
+        <Navigator
+          index={index}
+          total={slides.length}
+          lang={lang}
+          onNavigate={onNavigate}
+        />
       </div>
     </footer>
   );
