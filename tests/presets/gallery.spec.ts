@@ -392,6 +392,29 @@ test("the agenda numbers its items in order", async ({ page }) => {
     await expect(agenda.locator("[data-agenda-label]")).toHaveText(
       block.items.map((item) => item.label[langs[0]]),
     );
+    // Each number is the muted step label, above its label (spec 001, after
+    // the final build: "No circles, muted step labels").
+    const muted = await tokenColour(agenda, "--color-muted");
+    const numbers = await items.evaluateAll((items) =>
+      items.map((item) => {
+        const number = item.querySelector("[data-agenda-number]")!;
+        const label = item.querySelector("[data-agenda-label]")!;
+        const s = getComputedStyle(number);
+        return {
+          step: number.hasAttribute("data-step-label"),
+          look: [s.color, s.fontWeight, s.fontVariantNumeric],
+          above:
+            number.getBoundingClientRect().bottom <=
+            label.getBoundingClientRect().top + 1,
+        };
+      }),
+    );
+    for (const number of numbers)
+      expect(number, slide.id).toEqual({
+        step: true,
+        look: [muted, "400", "tabular-nums"],
+        above: true,
+      });
   }
 });
 

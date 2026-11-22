@@ -129,7 +129,7 @@ export const content: Record<string, SlideContent> = {
       },
       {
         type: "steps",
-        style: "nodes",
+        style: "across",
         items: [
           { label: title, text, status: "done" },
           { label: text, text, status: "current" },

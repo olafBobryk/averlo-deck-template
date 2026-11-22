@@ -40,7 +40,13 @@ export type Block =
       /** cards (default), numbered rows, or chips for a short checklist. */
       style?: "cards" | "numbered" | "chips";
     }
-  | { type: "steps"; items: Step[]; style?: "rail" | "nodes" }
+  | {
+      type: "steps";
+      items: Step[];
+      /** rail (default): down a line at the left; across: along a line,
+       *  in columns. `nodes`, the old name, draws across. */
+      style?: "rail" | "across" | "nodes";
+    }
   | { type: "facts"; items: Fact[] }
   | { type: "note"; item: Item }
   /** One node over the roles that report to it. */
@@ -117,6 +123,13 @@ export type PresetBlock =
   | { type: "imageGrid"; images: { src?: string; alt: Text; caption?: Text }[] }
   /** A deck's own visual: `visual` names an export of src/deck/visuals/. */
   | { type: "custom"; visual: string; props: Record<string, unknown> };
+
+/** The style a steps block draws in: rail by default, and the old `nodes`
+ *  across. */
+export const stepsStyle = (
+  style?: Extract<Block, { type: "steps" }>["style"],
+): "rail" | "across" =>
+  style === "across" || style === "nodes" ? "across" : "rail";
 
 /** A big line. `muted`: its obvious lead-in (or any one part of it), per
  *  language, word for word as it stands in `text`, set in the secondary tone

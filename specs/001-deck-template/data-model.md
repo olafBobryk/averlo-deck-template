@@ -9,7 +9,7 @@
 - `Block`, the generic types kept from the origin:
   - `lead`, `note`
   - `points` (2 to 5 columns; cards, numbered or chips)
-  - `steps` (rail or nodes)
+  - `steps` (rail or across; `nodes`, the old name, draws across)
   - `facts`
   - `org`
   - `fork`, `week`

@@ -3,7 +3,7 @@ import { Panel } from "@/components/ui/primitives/Panel";
 import { Text as Type } from "./text";
 import { PresetView } from "@/presets";
 import type { HTMLAttributes, ReactNode } from "react";
-import { type Block, type Mark } from "./content";
+import { stepsStyle, type Block, type Mark } from "./content";
 import { phoneSplit, splitItem, splitList } from "./split";
 import type { Lang } from "./langs";
 import type { Text } from "./model";
@@ -114,21 +114,22 @@ function Glyph({ name }: { name?: IconName }) {
   );
 }
 
-/** A number in a small round badge, in the step label's muted style: a
- *  node of the steps block (with its status) or a numbered point. Hidden
- *  from assistive technology: the ordered list numbers its items. */
-function Badge({ n, status }: { n: number; status?: string }) {
+/** A number as the muted step label (the navigator's, `.when`): 01, 02, …
+ *  It leads a numbered point or a step without a `when`. Hidden from
+ *  assistive technology: the ordered list numbers its items. */
+const number = (i: number) => String(i + 1).padStart(2, "0");
+function StepNumber({ i }: { i: number }) {
   return (
-    <span
-      className={styles.badge}
-      data-node=""
-      data-status={status}
+    <Type
+      as="p"
+      variant="label-m"
+      tone="secondary"
+      className={styles.when}
+      data-step-label=""
       aria-hidden="true"
     >
-      <span className={styles.when} data-step-label="">
-        {n}
-      </span>
-    </span>
+      {number(i)}
+    </Type>
   );
 }
 
@@ -192,7 +193,7 @@ export function BlockView({
               surface={surface}
               className={styles.point}
             >
-              {style === "numbered" && <Badge n={i + 1} />}
+              {style === "numbered" && <StepNumber i={i} />}
               {style !== "numbered" && <Glyph name={p.icon} />}
               <Label text={p.label} lang={lang} />
               <Body text={p.text} lang={lang} />
@@ -201,58 +202,63 @@ export function BlockView({
         </ol>
       );
     }
-    case "steps":
+    case "steps": {
+      // Each step: its dot on the line, then, in one column, its label (its
+      // `when`, or its number), its title and its body.
+      const style = stepsStyle(block.style);
       return (
         <ol
           className={styles.steps}
           data-count={block.items.length}
-          data-style={block.style ?? "rail"}
+          data-style={style}
+          style={{ ["--n" as string]: block.items.length }}
         >
-          {block.items.map((s, i) => (
-            <li key={s.label.en} className={styles.step}>
-              {block.style === "nodes" ? (
-                <span className={styles.nodeRow} aria-hidden="true">
-                  <Badge n={i + 1} status={s.status ?? "upcoming"} />
-                  {i < block.items.length - 1 && (
-                    <span className={styles.link} />
-                  )}
-                </span>
-              ) : (
-                <>
-                  {s.when && (
-                    <Type
-                      as="p"
-                      variant="label-m"
-                      tone="secondary"
-                      className={styles.when}
-                      data-step-label=""
-                    >
-                      {say(s.when, lang)}
-                    </Type>
-                  )}
+          {block.items.map((s, i) => {
+            const status = s.status ?? "upcoming";
+            return (
+              <li key={s.label.en} className={styles.step} data-status={status}>
+                <span className={styles.track} aria-hidden="true">
+                  {i < block.items.length - 1 || style === "across" ? (
+                    <span className={styles.line} data-step-line="" />
+                  ) : null}
                   <span
-                    className={styles.rail}
-                    data-status={s.status ?? "upcoming"}
+                    className={styles.stepDot}
+                    data-step-dot=""
+                    data-status={status}
                   />
-                </>
-              )}
-              <Type as="p" variant="title-l" className={styles.stepLabel}>
-                {say(s.label, lang)}
-              </Type>
-              {s.text && (
-                <Type
-                  as="p"
-                  variant="body-m"
-                  tone="secondary"
-                  className={styles.stepText}
-                >
-                  {rich(s.text, lang)}
+                </span>
+                {s.when ? (
+                  <Type
+                    as="p"
+                    variant="label-m"
+                    tone="secondary"
+                    className={styles.when}
+                    data-step-label=""
+                  >
+                    {say(s.when, lang)}
+                  </Type>
+                ) : (
+                  <StepNumber i={i} />
+                )}
+                <Type as="p" variant="title-l" className={styles.stepLabel}>
+                  {say(s.label, lang)}
                 </Type>
-              )}
-            </li>
-          ))}
+                {s.text && (
+                  <Type
+                    as="p"
+                    variant="body-m"
+                    tone="secondary"
+                    className={styles.stepText}
+                  >
+                    {rich(s.text, lang)}
+                  </Type>
+                )}
+              </li>
+            );
+          })}
         </ol>
       );
+    }
     case "facts":
       return (
         <dl

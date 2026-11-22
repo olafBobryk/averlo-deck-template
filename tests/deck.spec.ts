@@ -4,7 +4,7 @@ import { config } from "../src/brand/config";
 import { langs } from "../src/deck/langs";
 import { pdfHref } from "../src/deck/model";
 import { pdfName } from "../src/deck/pdf-name";
-import { slideContent, type Block } from "../src/deck/content";
+import { slideContent, stepsStyle, type Block } from "../src/deck/content";
 import { slides } from "../src/deck/slides";
 
 // The template's own checks of the placeholder deck (User Story 1): it holds
@@ -75,7 +75,12 @@ test("the placeholder deck holds every kind, layout and block (FR-002)", () => {
         : [],
     );
   has(styles("points", "cards"), ["cards", "numbered", "chips"]);
-  has(styles("steps", "rail"), ["rail", "nodes"]);
+  has(
+    blocks.flatMap((block) =>
+      block.type === "steps" ? [stepsStyle(block.style)] : [],
+    ),
+    ["rail", "across"],
+  );
   // The org block draws one way and has no style: the ledger was dropped,
   // and nothing reads a "tree" style.
   const orgs = blocks.filter((block) => block.type === "org");
