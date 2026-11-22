@@ -34,6 +34,8 @@ export type PresetEntry = {
 // `Text` (tests/languages.spec.ts adds it to each `en: "…"` it finds).
 const title: Text = { en: "Placeholder title" };
 const text: Text = { en: "Placeholder text" };
+/** A placeholder date, for a timeline's events. */
+const when: Text = { en: "Placeholder date" };
 /** A longer placeholder, for an alternate that wraps over more lines. */
 const longText: Text = {
   en: "Placeholder text, placeholder text, placeholder text, placeholder text.",
@@ -141,6 +143,34 @@ export const registry: PresetEntry[] = [
         { value: "70", label: title, note: text },
       ],
     },
+  },
+  // Diagrams (phase V2).
+  {
+    name: "Process flow",
+    family: "diagrams",
+    block: "flow",
+    fits: "Ordered steps, each leading to the next.",
+    example: { type: "flow", steps: times(4, { label: title, text }) },
+    alternate: { type: "flow", steps: times(7, { label: title }) },
+  },
+  {
+    name: "Timeline",
+    family: "diagrams",
+    block: "timeline",
+    fits: "Dated events, in date order.",
+    example: {
+      type: "timeline",
+      events: times(4, { when, label: title, text }),
+    },
+    alternate: { type: "timeline", events: times(8, { when, label: title }) },
+  },
+  {
+    name: "Cycle",
+    family: "diagrams",
+    block: "cycle",
+    fits: "A loop: stages that repeat, the last leading back to the first.",
+    example: { type: "cycle", stages: times(4, { label: title, text }) },
+    alternate: { type: "cycle", stages: times(6, { label: title }) },
   },
   // Text layouts (phase V3).
   {

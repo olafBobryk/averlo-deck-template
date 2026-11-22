@@ -10,6 +10,9 @@ import { BarPreset } from "./charts/Bar";
 import { DonutPreset } from "./charts/Donut";
 import { LinePreset } from "./charts/Line";
 import { StatPreset } from "./charts/Stat";
+import { CyclePreset } from "./diagrams/Cycle";
+import { FlowPreset } from "./diagrams/Flow";
+import { TimelinePreset } from "./diagrams/Timeline";
 import { ImagePreset } from "./images/Image";
 import { ImageGridPreset } from "./images/ImageGrid";
 import { AgendaPreset } from "./text/Agenda";
@@ -37,6 +40,9 @@ const charts = { bar: BarPreset, line: LinePreset, donut: DonutPreset };
 const presets: { [T in PresetType]?: ComponentType<PresetProps<T>> } = {
   chart: ChartPreset,
   stat: StatPreset,
+  flow: FlowPreset,
+  timeline: TimelinePreset,
+  cycle: CyclePreset,
   quote: QuotePreset,
   agenda: AgendaPreset,
   compare: ComparePreset,
