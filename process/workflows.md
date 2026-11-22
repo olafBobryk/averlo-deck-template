@@ -2,6 +2,31 @@
 
 The procedures behind the names in the workflow menu, [`WORKFLOWS.md`](../WORKFLOWS.md).
 
+## Set up a deck
+
+How an agent gets a deck owner's computer ready and the deck running, on macOS, Linux or Windows (feature 004, FR-006; research R2). It applies to a deck made from the template ([AGENTS.md, Making a deck](../AGENTS.md#making-a-deck)). The agent runs every command. The owner only clicks what the agent names, such as an installer or a sign-in page, and is asked one plain question at a time.
+
+### What you need
+
+- The owner's repository, made with **Use this template** on GitHub, open in Codex or Claude Code on their computer.
+- A browser the owner can open links in.
+
+### Steps
+
+1. **Node 24.** Run `node --version`. The deck needs version 24 (`.nvmrc`, and `engines` in `package.json`). If Node is missing or another version:
+   - **macOS:** with nvm installed, run `nvm install` and `nvm use` in the repository (they read `.nvmrc`). Without it, ask the owner to download the Node 24 installer for macOS from nodejs.org and click through it.
+   - **Linux:** install nvm with the install command in its README (github.com/nvm-sh/nvm), then run `nvm install` and `nvm use`. No password is needed.
+   - **Windows:** ask the owner to download the Node 24 installer for Windows (`.msi`) from nodejs.org and click through it, keeping the default options.
+
+   After an installer, the agent's terminal may not see Node until the app is restarted. If `node --version` still fails, tell the owner to close and reopen Codex or Claude Code, then continue.
+
+2. **The packages.** Run `npm ci`.
+3. **The check browser.** The checks and the PDFs use Chromium. Run `npx playwright install chromium`.
+   - **Linux** may also need Chromium's system libraries. Run `npx playwright install-deps chromium`; it asks for the computer's administrator password. If you cannot run it, tell the owner in plain words that the computer is missing a few parts the test browser needs, and that whoever looks after the computer can add them with that command. Until then, the checks that use the browser fail.
+4. **Prove it.** Run `npm run check:deck`. On a fresh copy every check passes; if one fails, fix the cause before you go on (the report names it, in `gate-results/deck-report.md`).
+5. **Start the deck.** Run `npm run dev` in the background and keep it running. When it prints its address, give the owner the link, http://127.0.0.1:3000, to open in their browser. When you stop it, stop it by its process id.
+6. **Check that you can save.** Run `git remote -v` and `git push --dry-run`. If the push asks for a sign-in to GitHub, tell the owner what to click in the window that opens. Then go on with [Draft a deck from any source](#draft-a-deck-from-any-source).
+
 ## Draft a deck from any source
 
 How an agent turns a deck owner's material into slides (FR-016, User Story 3). The deck's words come from its owner (constitution, Principle III): the agent arranges them, and never writes slide text, figures or claims of its own.
@@ -95,8 +120,42 @@ Each component sits in a `Block` (`<Block type="points">`) inside `Body`, which 
 2. **No inline text.** `node scripts/check-inline-text.mjs` passes: no word or figure is typed into a slide's JSX (it runs in `npm run test:tools` too).
 3. **Brand.** With Averlo, the intro, the hard-load screen and the top bar's brand slot show the Averlo mark; with another brand and no assets yet, the "your logo" placeholder.
 4. **Fit.** Every slide's visible text and components fit inside its stage at 390 px and 1440 px (`tests/deck.spec.ts` checks it). In development, an overflowing slide, and a component over its limits (`src/components/deck/limits.ts`), are named in the browser console.
-5. **Public.** If the repository is public, `npm run scan:public` passes.
-6. **Gate.** [Run the gate](#run-the-gate) before offering the deck to land.
+5. **Public.** If the public scan is turned on ([Turn on the public scan](#turn-on-the-public-scan)), `npm run scan:public` passes.
+6. **Checks.** In a deck, `npm run check:deck` passes before you show the owner anything; it runs 2 and 4, the trace check and the build. On the template itself, [run the gate](#run-the-gate) before offering the change to land.
+
+## Save and share
+
+How an agent keeps a deck owner's work saved and puts the deck online (feature 004, FR-007, FR-010; research R3). The agent runs every command and tells the owner only what to click.
+
+### Save each change
+
+After each change the owner keeps (they said yes to it):
+
+1. `npm run check:deck` passes. With the public scan turned on, `npm run scan:public` passes too ([Turn on the public scan](#turn-on-the-public-scan)).
+2. `git add -A`, then `git commit -m "<what changed, in a plain sentence>"`, such as "Add the timeline slide".
+3. `git push`, to the branch the repository is on (`main`). No branches and no pull requests for the owner.
+
+The owner's material and answers stay in `docs/context/`, and machine files in `.local/`: both are ignored, so they are never committed.
+
+### Share it online
+
+The deck goes on Vercel's free plan. The first time, the owner signs in once:
+
+1. **Sign in.** Run `npx vercel login`. It shows a link and a code, or opens the browser. Tell the owner to open the link, sign up or sign in (a free Hobby account; they can sign in with GitHub), and approve the code.
+2. **Deploy.** Run `npx vercel deploy --prod --yes`. The first run links the folder to a new Vercel project, named after the folder, and remembers it in `.vercel/` (ignored). Vercel's build runs `npm run build`, which renders the PDFs too (with `@sparticuz/chromium`).
+3. **Share the link.** When it finishes, give the owner the project's production address, the one the output lists as `Aliased` (usually `https://<project>.vercel.app`), not the one-off deployment address, which Vercel may keep behind its sign-in. Open it, and download a PDF from the menu, before saying it works.
+
+**Later changes:** when the owner asks to update the online deck, save the change, then run `npx vercel deploy --prod --yes` again from the same folder. It goes to the same project, so the same link shows the new deck. On another computer, run `npx vercel link` first and pick the same project.
+
+## Turn on the public scan
+
+How a deck owner's repository that is public stops private names from being published (feature 004, FR-008). In a deck the scan is off: `npm run check:deck` never runs it. Offer to turn it on when the repository is public and the material names people, clients or products the owner may not want online.
+
+1. **Ask for the list.** Ask the owner, in one plain question, which names must never appear online. Write them one per line in `.local/public-scan-terms.txt`. `.local/` is ignored, so the list is never committed; never copy a name from it into a slide, a commit or a message.
+2. **Run it before every push.** From now on, [Save and share](#save-and-share) runs `npm run scan:public` after `npm run check:deck`. It fails when a name on the list appears in the repository's files, history, commit messages or branch names, or when a font, image or package has no row in `docs/licences.md`. It never prints the name: it names the file.
+3. **Fix what it finds** before the push: take the name out of the file it names, or add the missing licence row (ask the owner where each of their images came from). If a name is already in the pushed history, stop and tell the owner in plain words; whether to rewrite published history is their call.
+
+The list lives on this computer only. On another computer, ask for it again, or set `SCAN_TERMS_FILE` to where the owner keeps it.
 
 ## Change the brand
 
