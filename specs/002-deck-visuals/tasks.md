@@ -2,7 +2,7 @@
 
 **Input**: [spec.md](spec.md), [plan.md](plan.md), [research.md](research.md), [data-model.md](data-model.md), [contracts/presets.md](contracts/presets.md), [contracts/skill.md](contracts/skill.md), [quickstart.md](quickstart.md). Local only (ignored, on the gate machine): `.local/env`, `.local/public-scan-terms.txt`, `.local/origin.md`. If any of them is missing, stop.
 
-**Status**: Draft, waiting for the owner's approval.
+**Status**: Approved by the owner on 2026-11-22 ("Approve, start run"). V0 branches from `feat/002-deck-visuals`, so the approved spec, plan and tasks land with it.
 
 Format: `- [ ] T### [P] [Story] What — done when`. `[P]` means it may run in parallel with the other `[P]` task in the same phase, never more than 2 at once.
 

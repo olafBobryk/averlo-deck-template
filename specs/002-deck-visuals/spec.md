@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-22
 
-**Status**: Draft
+**Status**: Approved by the owner on 2026-11-22 ("Approve, start run").
 
 **Input**: User description: "Automatic, versatile slide visuals with a preset library. A deck owner hands the agent any source material; a template-shipped skill reads it, picks a preset visual per slide from the content's structure, drafts it, and the owner confirms each. Preset families: charts and stats, diagrams, text layouts, image slides. When no preset fits, the skill composes a new visual from Averlo parts for that deck only. Images owner-supplied by default, generated on offer. The skill ships for Claude Code and Codex. Builds on feature 001."
 
