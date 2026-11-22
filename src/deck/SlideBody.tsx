@@ -4,6 +4,7 @@ import { Text as Type } from "./text";
 import { PresetView } from "@/presets";
 import type { HTMLAttributes, ReactNode } from "react";
 import { type Block, type Mark } from "./content";
+import { phoneSplit, splitItem, splitList } from "./split";
 import type { Lang } from "./langs";
 import type { Text } from "./model";
 import styles from "./content.module.css";
@@ -294,11 +295,22 @@ export function BlockView({
             <Label text={block.root.label} lang={lang} />
             <Body text={block.root.text} lang={lang} />
           </Card>
-          <ul className={styles.branches}>
-            {/* The item holds the connector; the glass card sits inside it,
-                so neither's pseudo-elements meet. */}
-            {block.items.map((p) => (
-              <li key={p.label.en} className={styles.branch}>
+          <ul
+            className={`${styles.branches} ${styles.split}`}
+            {...splitList(
+              block.items.length,
+              "across",
+              phoneSplit(block.items.length),
+            )}
+          >
+            {/* The item draws its share of the branching line; the glass
+                card sits inside it, so neither's pseudo-elements meet. */}
+            {block.items.map((p, i) => (
+              <li
+                key={p.label.en}
+                className={`${styles.branch} ${styles.splitItem}`}
+                {...splitItem(i, block.items.length)}
+              >
                 <Card as="div" surface="card" className={styles.branchCard}>
                   <Glyph name={p.icon} />
                   <Label text={p.label} lang={lang} />

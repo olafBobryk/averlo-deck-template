@@ -159,6 +159,42 @@ describe("the registry", () => {
         );
   });
 
+  // Phase V2 (T120): the diagrams. One entry for each diagram block, in the
+  // diagrams family, and each example and alternate differs in shape, so the
+  // gallery shows the preset with a second, different content (SC-005).
+  const diagramShape = {
+    flow: (b) => [b.steps.length, b.steps.some((s) => s.text)],
+    timeline: (b) => [b.events.length, b.events.some((e) => e.text)],
+    cycle: (b) => [b.stages.length, b.stages.some((s) => s.text)],
+    orgchart: (b) => [
+      b.children.length,
+      b.children.map((c) => (c.children ?? []).length),
+    ],
+    table: (b) => [b.columns.length, b.rows.length],
+    matrix: (b) => [(b.items ?? []).length, b.quadrants.some((q) => q.text)],
+  };
+
+  test("has the flow, timeline, cycle, org chart, table and matrix, in the diagrams family", () => {
+    for (const block of Object.keys(diagramShape)) {
+      const entries = registry.filter((entry) => entry.block === block);
+      assert.equal(entries.length, 1, `one ${block} entry`);
+      assert.equal(entries[0].family, "diagrams", block);
+    }
+    for (const entry of registry.filter((e) => e.family === "diagrams"))
+      assert.ok(entry.block in diagramShape, `${entry.name}: ${entry.block}`);
+  });
+
+  test("a diagram's example and alternate differ in shape, not only in words", () => {
+    for (const entry of registry.filter((e) => e.block in diagramShape)) {
+      const shape = diagramShape[entry.block];
+      assert.notDeepEqual(
+        shape(entry.alternate),
+        shape(entry.example),
+        entry.name,
+      );
+    }
+  });
+
   test("the gallery's images are placeholders: no image has a src", () => {
     for (const entry of registry)
       for (const which of ["example", "alternate"]) {
@@ -190,6 +226,38 @@ describe("the chart presets' colours", () => {
   test("no colour literal appears in src/presets/charts/", () => {
     const files = existsSync(dir) ? readdirSync(dir) : [];
     assert.ok(files.length > 0, "src/presets/charts/ has files");
+    for (const name of files) {
+      const lines = readFileSync(new URL(name, dir), "utf8").split("\n");
+      lines.forEach((line, i) =>
+        assert.ok(!literal.test(line), `${name}:${i + 1}: ${line.trim()}`),
+      );
+    }
+  });
+});
+
+describe("the diagram presets' files", () => {
+  // Phase V2 (T120): the components T121 and T122 build, on the Averlo
+  // tokens only, like the charts: no colour literal in their folder.
+  const dir = new URL("../../src/presets/diagrams/", import.meta.url);
+  const literal = /#[0-9a-f]{3,8}\b|\brgba?\(|\bhsla?\(/i;
+  const names = [
+    "Flow.tsx",
+    "Timeline.tsx",
+    "Cycle.tsx",
+    "OrgChart.tsx",
+    "CompareTable.tsx",
+    "Matrix.tsx",
+  ];
+
+  test(`src/presets/diagrams/ holds ${names.join(", ")}`, () => {
+    const files = existsSync(dir) ? readdirSync(dir) : [];
+    for (const name of names)
+      assert.ok(files.includes(name), `src/presets/diagrams/${name}`);
+  });
+
+  test("no colour literal appears in src/presets/diagrams/", () => {
+    const files = existsSync(dir) ? readdirSync(dir) : [];
+    assert.ok(files.length > 0, "src/presets/diagrams/ has files");
     for (const name of files) {
       const lines = readFileSync(new URL(name, dir), "utf8").split("\n");
       lines.forEach((line, i) =>
@@ -347,6 +415,20 @@ describe("the validator", () => {
       run("cycle", "stages", () => ({ label: text }), 3, 6));
     test("agenda: 2 to 8 items", () =>
       run("agenda", "items", () => ({ label: text, text }), 2, 8));
+    test("every step, event and stage needs its label", () => {
+      bad({ type: "flow", steps: [{ label: text }, { text }] }, /label/);
+      bad(
+        {
+          type: "timeline",
+          events: [{ when: text, label: text }, { when: text }],
+        },
+        /label/,
+      );
+      bad(
+        { type: "cycle", stages: [{ label: text }, { label: text }, {}] },
+        /label/,
+      );
+    });
     test("a timeline event needs its date", () =>
       bad(
         { type: "timeline", events: items(2, () => ({ label: text })) },
@@ -372,6 +454,28 @@ describe("the validator", () => {
         },
         /two levels/,
       ));
+    test("a root or a node that carries its own children is rejected", () => {
+      // Below the root, levels are only `children` and their `children`:
+      // a Point holding children would be a hidden or a third level.
+      bad(
+        {
+          type: "orgchart",
+          root: { ...point, children: [point] },
+          children: [{ node: point }],
+        },
+        /two levels/,
+      );
+      bad(
+        {
+          type: "orgchart",
+          root: point,
+          children: [{ node: { ...point, children: [point] } }],
+        },
+        /two levels/,
+      );
+    });
+    test("at least one node below the root", () =>
+      bad({ type: "orgchart", root: point, children: [] }));
     test("the root and every node need a label", () => {
       bad({ type: "orgchart", root: {}, children: [{ node: point }] }, /label/);
       bad({ type: "orgchart", root: point, children: [{ node: {} }] }, /label/);
@@ -395,7 +499,15 @@ describe("the validator", () => {
       bad(table(0, 1));
       bad(table(2, 0));
     });
-    test("each row has one cell per column", () => bad(table(3, 2, 2), /cell/));
+    test("each row has one cell per column", () => {
+      bad(table(3, 2, 2), /cell/);
+      bad(table(3, 2, 4), /cell/);
+    });
+    test("each row needs its label", () =>
+      bad(
+        { type: "table", columns: [text], rows: [{ cells: [text] }] },
+        /label/,
+      ));
   });
 
   describe("matrix", () => {
@@ -413,6 +525,16 @@ describe("the validator", () => {
     test("four quadrants and items from 0 to 1 validate", () => ok(matrix()));
     test("exactly four quadrants", () =>
       bad(matrix({ quadrants: [point, point, point] }), /four quadrants/));
+    test("items are optional; each needs a label", () => {
+      ok(matrix({ items: undefined }));
+      bad(matrix({ items: [{ x: 0.5, y: 0.5 }] }), /label/);
+    });
+    test("x and y are numbers, not strings", () =>
+      bad(matrix({ items: [{ label: text, x: "0.5", y: 0.5 }] }), /0 to 1/));
+    test("the axes need their labels", () => {
+      bad(matrix({ x: undefined }), /^x:/);
+      bad(matrix({ y: undefined }), /^y:/);
+    });
     test("x and y run from 0 to 1", () => {
       bad(matrix({ items: [{ label: text, x: 1.5, y: 0.5 }] }), /0 to 1/);
       bad(matrix({ items: [{ label: text, x: 0.5, y: -0.1 }] }), /0 to 1/);
