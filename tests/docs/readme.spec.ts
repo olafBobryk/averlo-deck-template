@@ -61,7 +61,7 @@ test.describe("README", () => {
     for (const path of [
       "src/brand/config.ts",
       "src/deck/langs.ts",
-      "src/deck/slides.ts",
+      "src/slides/",
       "public/brand/",
       "docs/licences.md",
     ]) {
@@ -70,6 +70,28 @@ test.describe("README", () => {
     for (const word of ["averlo", "owner", "deckTitle", "accent"]) {
       expect(body, word).toContain(word);
     }
+  });
+
+  // Feature 003 (T342): a slide is a numbered file with meta, copy and free
+  // JSX, and a preset is an example file to copy.
+  test("write your deck: a slide is a numbered file with meta, copy and free JSX", () => {
+    const { body } = section(/write your deck/i);
+    for (const word of [
+      "src/slides/",
+      "NN-name.tsx",
+      "`meta`",
+      "`copy`",
+      "JSX",
+    ])
+      expect(body, word).toContain(word);
+    expect(body).toContain("scripts/check-inline-text.mjs");
+  });
+
+  test("visuals: the presets are example files to copy", () => {
+    const { body } = section(/^visuals/i);
+    expect(body).toContain("src/presets/slides/");
+    expect(body).toMatch(/copy it into `src\/slides\/`/);
+    expect(body).toContain("/gallery");
   });
 
   test("the drift test: re-pin, re-target, turn off", () => {

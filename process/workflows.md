@@ -124,23 +124,23 @@ To go back to Averlo, set `brand: { kind: "averlo" }`.
 One language is the default (FR-007). A deck adds one by configuration and strings.
 
 1. Add its code to `langs` in `src/deck/langs.ts`, and its name, written in that language, to `langNames` there. The first code is the default. The menu's language switcher and its PDF downloads show the name.
-2. Add a string in that language to every `Text`: each slide and its content in `src/deck/slides.ts`, and the interface strings (`ui`) in `src/deck/model.ts`. Add one to the intro's `loading` in `src/gate/Intro.tsx` too. Ask the owner for every translation (Principle III). `npm run check` fails on a string that misses a language.
+2. Add the language to every `copy`: in each slide file in `src/slides/`, an entry for the new code with every key the first language has, its title among them, and in each preset file under `src/presets/slides/` (the gallery draws them). Numbers stay as they are; words come from the owner. Add a string in that language to the interface strings (`ui`) in `src/deck/model.ts` and to the intro's `loading` in `src/gate/Intro.tsx` too. Ask the owner for every translation (Principle III). `npm run check` fails on a `copy` that misses the language or a key its slide reads, and on an interface string that misses the language.
 3. Run the gate. With two or more languages the menu shows the language switcher, and links carry `?lang=` for every language but the first. The build renders one PDF per language, `<slug>-<lang>.pdf` (`src/deck/pdf-name.ts`).
 
-To remove a language, remove its code from `langs`, its name and its strings.
+To remove a language, remove its code from `langs`, its name, its strings and its entry in every `copy`.
 
-The preset registry's placeholder texts (`src/presets/registry.ts`) get a string in the new language too. Then run `npm run presets:doc`, which regenerates the deck-visuals skill's preset reference from them.
+After changing the preset files, run `npm run presets:doc`, which regenerates the deck-visuals skill's preset reference from them.
 
 ## Promote a visual to a preset
 
-A deck's composed visual lives in `src/deck/visuals/` and is drawn through a `custom` block (feature 002, research D3). When the owner asks for it to become a shared preset (FR-011), make it one. Promotion is a feature change to the template, so it takes the spec path unless the owner has already approved it (constitution, Principle IV).
+A deck's composed visual is JSX in one of its slide files, with any component of its own in `src/deck/visuals/` (feature 002, research D3; feature 003). When the owner asks for it to become a shared preset (FR-011), make it one. Promotion is a feature change to the template, so it takes the spec path unless the owner has already approved it (constitution, Principle IV).
 
-1. **Move the file.** Move the component from `src/deck/visuals/` to `src/presets/<family>/`, where `<family>` is `charts`, `diagrams`, `text` or `images`, with its styles. It stays composed from Averlo parts only, with no colour literal; ports are never edited.
-2. **Give it a block.** Add its block type and fields to `PresetBlock` in `src/deck/content.ts` (a compose row in `docs/carried/deck.md`), its limits to `validateBlock` and its name to `presetTypes` in `src/presets/validate.ts`, and its component to the `presets` map in `src/presets/index.ts`. Remove its export from `src/deck/visuals/index.ts`, and change each `custom` block that drew it to the new block.
-3. **Add a registry entry** in `src/presets/registry.ts`: its `name`, `family`, `block`, one line of what it `fits`, an `example` and a different `alternate`, with placeholder words and placeholder numbers only. The gallery draws both from the entry.
-4. **Name it in the skill's selection rules**: a row in the table of `.claude/skills/deck-visuals/SKILL.md`, copied to `.agents/skills/deck-visuals/SKILL.md` so the two stay identical.
-5. **Regenerate the reference:** `npm run presets:doc`.
-6. **Run the tests.** `npm run test:tools` checks the registry, the validator and the skill; the gallery spec (`tests/presets/gallery.spec.ts`) checks that the new slides render and fit at 390 and 1440 and pass contrast. Add the preset's own tests to `tests/tools/presets_test.mjs` (its limits) and to the gallery spec, then [run the gate](#run-the-gate).
+1. **Make it a component.** Move its component from `src/deck/visuals/` to `src/components/deck/<family>/`, where `<family>` is `charts`, `diagrams`, `text` or `images`, with its styles in `src/presets/<family>/`, and export it from `src/components/deck/index.ts`. It takes its words and figures as typed props, plain strings and numbers, and stays composed from Averlo parts only, with no colour literal; ports are never edited. Give its block type to `BlockType` in `src/components/deck/Slide.tsx`. A limit its props' types cannot say (how many items it takes) goes in `src/components/deck/limits.ts`, with a `reportLimits` call in the component.
+2. **Write its example files.** `src/presets/slides/<file>.tsx` is a complete slide file with placeholder words and placeholder numbers only, all in `copy`; `src/presets/slides/alternates/<file>.tsx` is a second, different one. Change the deck's slide file that drew the visual to import the component from `@/components/deck`.
+3. **Add a registry entry** in `src/presets/registry.ts`: its `name`, its `file`, `family`, `block`, one line of what it `fits` and its `layout`. The gallery draws both example files from the entry. Add a showcase slide to the placeholder deck that re-exports the file (`export { copy, default, meta } from "@/presets/slides/<file>";`), numbered in the registry's order before the closing slide, and renumber the files after it.
+4. **Name it in the skill's selection rules**: a row in the table of `.claude/skills/deck-visuals/SKILL.md` with its file's path, copied to `.agents/skills/deck-visuals/SKILL.md` so the two stay identical.
+5. **Regenerate** the index and the reference: `npm run slides`, then `npm run presets:doc`.
+6. **Run the tests.** `npm run test:tools` checks the registry, the components' limits, the inline-text rule and the skill; the gallery spec (`tests/presets/gallery.spec.ts`) checks that the new slides render and fit at 390 and 1440 and pass contrast. Add the component's own tests to `tests/tools/presets_test.mjs` (its limits) and to the gallery spec, then [run the gate](#run-the-gate).
 
 ## Run the gate
 

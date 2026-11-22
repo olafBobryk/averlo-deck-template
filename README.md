@@ -53,7 +53,7 @@ A deck changes only these files ([the contract](specs/001-deck-template/contract
 
 | What                  | Where                                | Notes                                                                                                                                                                           |
 | --------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Slides and their text | `src/deck/slides.ts`                 | Each `Text` has a string for every language.                                                                                                                                    |
+| Slides and their text | `src/slides/`                        | One numbered file per slide (`NN-name.tsx`), with its words for every language in its `copy`.                                                                                   |
 | Languages             | `langs` in `src/deck/langs.ts`       | The first is the default. Each needs its name in `langNames`. Two or more show the language switcher in the menu.                                                               |
 | Brand                 | `src/brand/config.ts`                | `averlo` (the default) or `owner`, with its `name`, `logo` and `mark`. Assets go in `public/brand/`, each listed in `docs/licences.md`.                                         |
 | Deck title            | `deckTitle` in `src/brand/config.ts` | Shown in the top bar, the browser tab and the home-screen app's name, and used in the PDF file name: lowercased, each run of characters other than a–z and 0–9 replaced by `-`. |
@@ -73,16 +73,24 @@ The procedures are [Change the brand](process/workflows.md#change-the-brand) and
 
 Hand your material (notes, documents, transcripts) to an agent and follow [Draft a deck from any source](process/workflows.md#draft-a-deck-from-any-source). The agent talks it through with you and uses only your words. Every procedure is listed in [`WORKFLOWS.md`](WORKFLOWS.md).
 
+Each slide is a numbered file in `src/slides/`, `NN-name.tsx`: `05-results.tsx` is slide 5. The number sets the order, so adding a slide is adding a file. A slide file has three parts ([the contract](specs/003-jsx-slides/contracts/slide-file.md)):
+
+- `meta`: its kind (`title`, `divider`, `slide` or `closing`), its section and its layout;
+- `copy`: every word and figure it shows, its title among them, for each language in `src/deck/langs.ts`. `npm run check` fails on a missing word;
+- its JSX, free to arrange, composed from the deck's components in `@/components/deck` and reading every word from `copy`.
+
+No word or figure is typed into the JSX: the gate's inline-text check (`scripts/check-inline-text.mjs`) fails on one and names the file and line, because a second language and the trace check cannot see it. The placeholder deck's files show every kind, layout and component.
+
 ## Visuals
 
-The deck ships 18 preset visuals, each filled with content only. Open `/gallery` to see them all, with its own PDF:
+The deck ships 18 preset visuals. Each is an example slide file in `src/presets/slides/`, with placeholder words: copy it into `src/slides/` with a number, put your words and figures in its `copy`, and change its JSX as you like. Open `/gallery` to see them all, with its own PDF:
 
 - **Charts and stats:** bar, line and donut charts; stat cards.
 - **Diagrams:** process flow, timeline, cycle, org chart, comparison table, 2×2 matrix.
 - **Text layouts:** quote, statement, agenda, compare, image and text.
 - **Image slides:** full-bleed image, captioned image, image grid. Your own images go in `public/images/`, each with a row in `docs/licences.md`; without one, a placeholder shows.
 
-The `deck-visuals` skill (`.claude/skills/deck-visuals/`, with the same skill for Codex in `.agents/skills/deck-visuals/`) reads your material, proposes a preset for each slide and keeps only what you confirm. When no preset fits, it composes one for your deck in `src/deck/visuals/`. When you have no image, it offers to generate one with whatever generator you have, and only on your yes.
+The `deck-visuals` skill (`.claude/skills/deck-visuals/`, with the same skill for Codex in `.agents/skills/deck-visuals/`) reads your material, proposes a preset for each slide, copies its file and keeps only what you confirm. When no preset fits, it composes a visual for your deck in the slide file itself, from the deck's components, with any component of its own in `src/deck/visuals/`. When you have no image, it offers to generate one with whatever generator you have, and only on your yes.
 
 ## The drift test
 
