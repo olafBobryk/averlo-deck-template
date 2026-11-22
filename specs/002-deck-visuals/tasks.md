@@ -48,9 +48,9 @@ Format: `- [ ] T### [P] [Story] What — done when`. `[P]` means it may run in p
 
 ## Phase V3: Text and image slides (branch `v3-text-images`, base `v0-model`)
 
-- [ ] T130 [US2] [US4] Tests first: gallery entries for `quote`, `agenda`, `compare`, statement (the layout), image + text (`image` in `split`), `image` full-bleed, `image` with caption and `imageGrid` render and fit. An `image` without `src` shows the placeholder. An image file under `public/images/` without a licence row fails the public scan (fixture test).
-- [ ] T131 [US2] `src/presets/text/{Quote,Agenda,Compare}.tsx`, plus registry entries for statement and image + text using existing layouts.
-- [ ] T132 [P] [US4] `src/presets/images/{Image,ImageGrid,ImagePlaceholder}.tsx`. The placeholder is template-owned, neutral and labelled "Image". `fit` is `"cover" | "contain"`, `bleed` gives full-bleed, and alt text is required. Placeholder images only in the gallery; no real photos.
+- [x] T130 [US2] [US4] Tests first: gallery entries for `quote`, `agenda`, `compare`, statement (the layout), image + text (`image` in `split`), `image` full-bleed, `image` with caption and `imageGrid` render and fit. An `image` without `src` shows the placeholder. An image file under `public/images/` without a licence row fails the public scan (fixture test).
+- [x] T131 [US2] `src/presets/text/{Quote,Agenda,Compare}.tsx`, plus registry entries for statement and image + text using existing layouts.
+- [x] T132 [P] [US4] `src/presets/images/{Image,ImageGrid,ImagePlaceholder}.tsx`. The placeholder is template-owned, neutral and labelled "Image". `fit` is `"cover" | "contain"`, `bleed` gives full-bleed, and alt text is required. Placeholder images only in the gallery; no real photos.
 - **Gate V3:** `npm run gate`, plus gallery screenshots.
 
 ## Phase V4: The skill (branch `v4-skill`, from `v1-charts` with V2 and V3 merged in)
