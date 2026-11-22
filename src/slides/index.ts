@@ -2,6 +2,113 @@
 // in number order. Do not edit: add, rename or remove a slide file and run
 // `npm run slides` (dev, build and check run it too).
 
-import type { SlideFile } from "@/deck/slide";
+import { slideFile, type SlideFile } from "@/deck/slide";
+import Slide1, { copy as copy1, meta as meta1 } from "./01-title";
+import Slide2, { copy as copy2, meta as meta2 } from "./02-divider";
+import Slide3, { copy as copy3, meta as meta3 } from "./03-stack";
+import Slide4, { copy as copy4, meta as meta4 } from "./04-split";
+import Slide5, { copy as copy5, meta as meta5 } from "./05-split-end";
+import Slide6, { copy as copy6, meta as meta6 } from "./06-center";
+import Slide7, { copy as copy7, meta as meta7 } from "./07-statement";
+import Slide8, { copy as copy8, meta as meta8 } from "./08-module";
+import Slide9, { copy as copy9, meta as meta9 } from "./09-fork";
+import Slide10, { copy as copy10, meta as meta10 } from "./10-divider-2";
+import Slide11, { copy as copy11, meta as meta11 } from "./11-week";
+import Slide12, { copy as copy12, meta as meta12 } from "./12-plan";
+import Slide13, { copy as copy13, meta as meta13 } from "./13-showcase";
+import Slide14, {
+  copy as copy14,
+  meta as meta14,
+} from "./14-showcase-bar-chart";
+import Slide15, {
+  copy as copy15,
+  meta as meta15,
+} from "./15-showcase-line-chart";
+import Slide16, {
+  copy as copy16,
+  meta as meta16,
+} from "./16-showcase-donut-chart";
+import Slide17, {
+  copy as copy17,
+  meta as meta17,
+} from "./17-showcase-stat-cards";
+import Slide18, {
+  copy as copy18,
+  meta as meta18,
+} from "./18-showcase-process-flow";
+import Slide19, {
+  copy as copy19,
+  meta as meta19,
+} from "./19-showcase-timeline";
+import Slide20, { copy as copy20, meta as meta20 } from "./20-showcase-cycle";
+import Slide21, {
+  copy as copy21,
+  meta as meta21,
+} from "./21-showcase-org-chart";
+import Slide22, {
+  copy as copy22,
+  meta as meta22,
+} from "./22-showcase-comparison-table";
+import Slide23, {
+  copy as copy23,
+  meta as meta23,
+} from "./23-showcase-2-2-matrix";
+import Slide24, { copy as copy24, meta as meta24 } from "./24-showcase-quote";
+import Slide25, {
+  copy as copy25,
+  meta as meta25,
+} from "./25-showcase-statement";
+import Slide26, { copy as copy26, meta as meta26 } from "./26-showcase-agenda";
+import Slide27, { copy as copy27, meta as meta27 } from "./27-showcase-compare";
+import Slide28, {
+  copy as copy28,
+  meta as meta28,
+} from "./28-showcase-image-and-text";
+import Slide29, {
+  copy as copy29,
+  meta as meta29,
+} from "./29-showcase-full-bleed-image";
+import Slide30, {
+  copy as copy30,
+  meta as meta30,
+} from "./30-showcase-captioned-image";
+import Slide31, {
+  copy as copy31,
+  meta as meta31,
+} from "./31-showcase-image-grid";
+import Slide32, { copy as copy32, meta as meta32 } from "./32-closing";
 
-export const slideFiles: SlideFile[] = [];
+export const slideFiles: SlideFile[] = [
+  slideFile(1, "title", meta1, copy1, Slide1),
+  slideFile(2, "divider", meta2, copy2, Slide2),
+  slideFile(3, "stack", meta3, copy3, Slide3),
+  slideFile(4, "split", meta4, copy4, Slide4),
+  slideFile(5, "split-end", meta5, copy5, Slide5),
+  slideFile(6, "center", meta6, copy6, Slide6),
+  slideFile(7, "statement", meta7, copy7, Slide7),
+  slideFile(8, "module", meta8, copy8, Slide8),
+  slideFile(9, "fork", meta9, copy9, Slide9),
+  slideFile(10, "divider-2", meta10, copy10, Slide10),
+  slideFile(11, "week", meta11, copy11, Slide11),
+  slideFile(12, "plan", meta12, copy12, Slide12),
+  slideFile(13, "showcase", meta13, copy13, Slide13),
+  slideFile(14, "showcase-bar-chart", meta14, copy14, Slide14),
+  slideFile(15, "showcase-line-chart", meta15, copy15, Slide15),
+  slideFile(16, "showcase-donut-chart", meta16, copy16, Slide16),
+  slideFile(17, "showcase-stat-cards", meta17, copy17, Slide17),
+  slideFile(18, "showcase-process-flow", meta18, copy18, Slide18),
+  slideFile(19, "showcase-timeline", meta19, copy19, Slide19),
+  slideFile(20, "showcase-cycle", meta20, copy20, Slide20),
+  slideFile(21, "showcase-org-chart", meta21, copy21, Slide21),
+  slideFile(22, "showcase-comparison-table", meta22, copy22, Slide22),
+  slideFile(23, "showcase-2-2-matrix", meta23, copy23, Slide23),
+  slideFile(24, "showcase-quote", meta24, copy24, Slide24),
+  slideFile(25, "showcase-statement", meta25, copy25, Slide25),
+  slideFile(26, "showcase-agenda", meta26, copy26, Slide26),
+  slideFile(27, "showcase-compare", meta27, copy27, Slide27),
+  slideFile(28, "showcase-image-and-text", meta28, copy28, Slide28),
+  slideFile(29, "showcase-full-bleed-image", meta29, copy29, Slide29),
+  slideFile(30, "showcase-captioned-image", meta30, copy30, Slide30),
+  slideFile(31, "showcase-image-grid", meta31, copy31, Slide31),
+  slideFile(32, "closing", meta32, copy32, Slide32),
+];

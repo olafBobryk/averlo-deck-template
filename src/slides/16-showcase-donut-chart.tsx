@@ -1,0 +1,52 @@
+// The showcase's donut chart preset: a body text, then the chart. Every number is a
+// round placeholder value, not data.
+import { Block, Body, Chart, Heading, Lead } from "@/components/deck";
+import type { Copy, SlideMeta, SlideProps } from "@/deck/slide";
+
+export const meta: SlideMeta = {
+  kind: "slide",
+  section: "section",
+  layout: "stack",
+};
+
+export const copy = {
+  en: {
+    title: "Donut chart",
+    section: "Presets",
+    headline: "Placeholder text",
+    body: "Placeholder text",
+    categories: [
+      "Placeholder text",
+      "Placeholder text",
+      "Placeholder text",
+      "Placeholder text",
+    ],
+    series: "Placeholder title",
+    values: [40, 30, 20, 10],
+    unit: "Placeholder text",
+    source: "Placeholder text",
+  },
+} satisfies Copy;
+
+export default function DonutChartSlide({ t, lang }: SlideProps<typeof copy>) {
+  return (
+    <>
+      <Heading title={t.title} headline={t.headline} />
+      <Body>
+        <Block type="lead">
+          <Lead>{t.body}</Lead>
+        </Block>
+        <Block type="chart">
+          <Chart
+            kind="donut"
+            categories={t.categories}
+            series={[{ name: t.series, values: t.values }]}
+            unit={t.unit}
+            source={t.source}
+            lang={lang}
+          />
+        </Block>
+      </Body>
+    </>
+  );
+}
