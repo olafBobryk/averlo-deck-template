@@ -2,10 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { RouteDirectionTracker } from "@/motion/route-transition";
 import { MotionProvider } from "@/components/ui/foundations/MotionProvider";
 import { inter } from "@/font";
+import { config } from "@/brand/config";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Deck",
+  title: config.deckTitle,
   description: "Deck",
   robots: { index: false, follow: false },
   // The home-screen app. Next writes the standard
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Deck",
+    title: config.deckTitle,
   },
   other: { "apple-mobile-web-app-capable": "yes" },
 };

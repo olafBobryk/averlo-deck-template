@@ -245,3 +245,112 @@ test.describe("the hard-load screen's timing", () => {
     expect(done).toBeLessThan(3000 + 800);
   });
 });
+
+// The browser tab's title, the home-screen app's name and the app icons
+// follow the deck's config: the title is `deckTitle`, and the icons draw the
+// brand's mark (the Averlo mark, the owner's `mark`, or the "your logo"
+// placeholder) on the deck's dark background.
+test.describe("the app's title and icons", () => {
+  /** A PNG's width and height, from its IHDR chunk. */
+  const pngSize = (bytes: Buffer) => {
+    expect(bytes.subarray(1, 4).toString("ascii")).toBe("PNG");
+    return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
+  };
+
+  test("the icon's mark follows the brand config", async () => {
+    // The choice src/brand/app-icon.tsx applies to the deck's config: the
+    // file each app icon draws, relative to the repository.
+    const { iconMarkFor } = await import("../src/brand/marks");
+    const placeholder = "src/brand/placeholder/your-logo.svg";
+    expect(iconMarkFor({ kind: "averlo" })).toEqual({
+      file: "public/brand/averlo-mark.svg",
+      kind: "averlo",
+    });
+    expect(iconMarkFor({ kind: "owner", name: "Example" })).toEqual({
+      file: placeholder,
+      kind: "placeholder",
+    });
+    expect(
+      iconMarkFor({ kind: "owner", name: "Example", logo: "example-logo.svg" }),
+    ).toEqual({ file: placeholder, kind: "placeholder" });
+    for (const mark of [
+      "example-mark.png",
+      "/brand/example-mark.png",
+      "public/brand/example-mark.png",
+    ]) {
+      expect(iconMarkFor({ kind: "owner", name: "Example", mark })).toEqual({
+        file: "public/brand/example-mark.png",
+        kind: "owner",
+      });
+    }
+  });
+
+  test("the root layout and the manifest take the title from the config", async () => {
+    // A second build per title would double the gate: the manifest is
+    // called with another title, and the layout's metadata is read as
+    // source (it imports the stylesheet and the font, which only Next loads).
+    const { default: manifest } = await import("../src/app/manifest");
+    const title = config.deckTitle;
+    try {
+      config.deckTitle = "Another title";
+      expect(manifest().name).toBe("Another title");
+      expect(manifest().short_name).toBe("Another title");
+    } finally {
+      config.deckTitle = title;
+    }
+    const layout = readFileSync(
+      new URL("../src/app/layout.tsx", import.meta.url),
+      "utf8",
+    );
+    const metadata = /export const metadata[\s\S]*?\n};/.exec(layout)?.[0];
+    expect(metadata).toBeDefined();
+    expect(metadata).not.toMatch(/title:\s*["'`]/);
+    expect(metadata!.match(/title: config\.deckTitle/g)).toHaveLength(2);
+  });
+
+  test("the tab title is the deck title", async ({ page }) => {
+    await page.goto("/?intro=off");
+    await expect(page).toHaveTitle(config.deckTitle);
+    await expect(
+      page.locator('head meta[name="apple-mobile-web-app-title"]'),
+    ).toHaveAttribute("content", config.deckTitle);
+  });
+
+  test("the manifest names the app by the deck title", async ({ request }) => {
+    const response = await request.get("/manifest.webmanifest");
+    expect(response.status()).toBe(200);
+    const manifest = await response.json();
+    expect(manifest.name).toBe(config.deckTitle);
+    expect(manifest.short_name).toBe(config.deckTitle);
+  });
+
+  test("the icon routes return PNG images at their sizes", async ({
+    page,
+    request,
+  }) => {
+    const expected = [
+      { path: "/icon", rel: "icon", size: 256 },
+      { path: "/apple-icon", rel: "apple-touch-icon", size: 180 },
+    ];
+    await page.goto("/?intro=off");
+    const manifest = await (await request.get("/manifest.webmanifest")).json();
+    for (const { path, rel, size } of expected) {
+      const link = page.locator(`head link[rel="${rel}"]`);
+      await expect(link).toHaveCount(1);
+      const href = (await link.getAttribute("href")) ?? "";
+      expect(pathOf(new URL(href, page.url()).href)).toBe(path);
+      expect(manifest.icons).toContainEqual({
+        src: path,
+        sizes: `${size}x${size}`,
+        type: "image/png",
+      });
+      const response = await request.get(href);
+      expect(response.status(), path).toBe(200);
+      expect(response.headers()["content-type"]).toContain("image/png");
+      expect(pngSize(await response.body())).toEqual({
+        width: size,
+        height: size,
+      });
+    }
+  });
+});
