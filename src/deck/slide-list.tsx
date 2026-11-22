@@ -50,7 +50,9 @@ const holding = (entries: Entry[], index: number) =>
 /** The menu popup's slide list. Every slide is the same Averlo ghost
  *  `Button`, the current one highlighted. A section's slides sit indented
  *  under its row, in a `Collapse` (sequenced) that its chevron opens and
- *  closes; the row itself goes to the section's slide. Only the current
+ *  closes; the row itself goes to the section's slide. The chevron is a bare
+ *  ghost button: the section's line draws one hover fill across its whole
+ *  width, chevron included (owner: "purely visual"). Only the current
  *  slide's section is open as the list mounts (each time the menu opens), and
  *  opening one closes the other. When the current slide moves into another
  *  section while the list is up (Previous, Next), that section opens. */
@@ -76,7 +78,9 @@ export function SlideList({
   const id = useId();
   const pad = (i: number) => String(i + 1).padStart(2, "0");
 
-  const row = (i: number) => {
+  // A section's row draws its fill on its whole line (`head`), chevron
+  // included: its own button stays bare, current or not.
+  const row = (i: number, head = false) => {
     const slide = slides[i];
     const current = i === index;
     return (
@@ -86,7 +90,7 @@ export function SlideList({
         size="sm"
         hitArea="none"
         className={
-          current
+          current && !head
             ? `${menu.slideItem} ${styles.row} !bg-background-hover`
             : `${menu.slideItem} ${styles.row}`
         }
@@ -110,8 +114,11 @@ export function SlideList({
         const region = `${id}-section-${k}`;
         return (
           <li key={slide.id} data-menu-section="">
-            <div className={styles.head}>
-              {row(entry.index)}
+            <div
+              className={styles.head}
+              data-current={entry.index === index || undefined}
+            >
+              {row(entry.index, true)}
               <Button
                 variant="ghost"
                 size="icon-sm"
