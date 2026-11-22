@@ -49,8 +49,15 @@ const isObject = (value: unknown): value is Value =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
 /** The problems of one block, as `path: what` lines; none when it is
- *  valid. Every `Text` needs a string in each of `langs`. */
-export function validateBlock(block: unknown, langs: readonly string[]) {
+ *  valid. Every `Text` needs a string in each of `langs`. A `custom` block
+ *  names one of `visuals`: the deck's own visuals, the names
+ *  src/deck/visuals/index.ts exports (none in the template). The caller
+ *  passes them, so this file stays loadable under plain Node. */
+export function validateBlock(
+  block: unknown,
+  langs: readonly string[],
+  visuals: readonly string[] = [],
+) {
   const problems: string[] = [];
   const report = (path: string, what: string) =>
     problems.push(`${path}: ${what}`);
@@ -262,6 +269,11 @@ export function validateBlock(block: unknown, langs: readonly string[]) {
     case "custom":
       if (typeof b.visual !== "string" || !b.visual.trim())
         report("visual", "the name of a visual in src/deck/visuals/");
+      else if (!visuals.includes(b.visual))
+        report(
+          "visual",
+          `${b.visual} is not exported by src/deck/visuals/index.ts`,
+        );
       if (!isObject(b.props)) report("props", "a props object");
       break;
     default:
