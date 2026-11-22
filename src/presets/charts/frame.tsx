@@ -97,25 +97,31 @@ export const formatNumber = (value: number, lang: Lang) =>
 export type Ticks = {
   lines: (label: string) => string[];
   angled: boolean;
+  /** The labels' font size (smaller than the ticks' when a word is wide). */
+  font: number;
   height: number;
   /** How far the first label reaches left of its band's centre. */
   reach: number;
 };
 
-export function categoryTicks(labels: string[], band: number, box: Box): Ticks {
+export function categoryTicks(
+  labels: string[],
+  band: number,
+  base: Box,
+): Ticks {
   const room = band * 0.92;
+  // Labels always sit centred under their bar (owner: "center the x axis
+  // always"): when a word is wider than its band, the labels get smaller
+  // until it fits, never turned.
+  const widestWord = Math.max(
+    ...labels
+      .flatMap((label) => label.split(/\s+/))
+      .map((w) => textWidth(w, base)),
+  );
+  const scale = widestWord > room ? Math.max(0.6, room / widestWord) : 1;
+  const box = { ...base, font: base.font * scale };
   const lineHeight = box.font * 1.25;
   const pad = box.font * 0.8;
-  const words = labels.flatMap((label) => label.split(/\s+/));
-  if (words.some((word) => textWidth(word, box) > room)) {
-    const widest = Math.max(...labels.map((label) => textWidth(label, box)));
-    return {
-      lines: (label) => [label],
-      angled: true,
-      height: Math.ceil(widest * Math.SQRT1_2 + box.font + pad),
-      reach: textWidth(labels[0], box) * Math.SQRT1_2,
-    };
-  }
   const wrap = (label: string) => {
     const lines: string[] = [];
     for (const word of label.split(/\s+/)) {
@@ -130,6 +136,7 @@ export function categoryTicks(labels: string[], band: number, box: Box): Ticks {
   return {
     lines: wrap,
     angled: false,
+    font: box.font,
     height: Math.ceil(most * lineHeight + pad),
     reach: Math.max(...wrap(labels[0]).map((line) => textWidth(line, box))) / 2,
   };
@@ -177,7 +184,7 @@ export function CategoryTick({
       y={top}
       textAnchor="middle"
       className={styles.tick}
-      fontSize={box.font}
+      fontSize={ticks.font}
     >
       {ticks.lines(label).map((line, i) => (
         <tspan key={i} x={x} dy={i === 0 ? "0.71em" : "1.25em"}>

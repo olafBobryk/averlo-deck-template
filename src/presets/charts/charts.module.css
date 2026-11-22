@@ -113,14 +113,13 @@
   padding: 0;
   list-style: none;
 }
-/* Roomy cards (owner on T050: "the stat is too crammed"; T051): generous
-   padding, the value at a calmer size with clear space under it, then the
-   label and the note. */
+/* A stat card: the value with clear space under it, then the label and the
+   note. Its padding stays as before (owner: "Just revert the padding"). */
 .stat {
   display: flex;
   flex-direction: column;
   gap: calc(var(--u) * 0.9);
-  padding: calc(var(--u) * 3.2) calc(var(--u) * 3.2) calc(var(--u) * 3.4);
+  padding: calc(var(--u) * 2.2);
 }
 .figure {
   display: flex;
@@ -198,7 +197,7 @@
   }
   :global(:where([data-deck-title])) .stat {
     gap: 6px;
-    padding: 20px 20px 22px;
+    padding: 14px 16px;
   }
   :global(:where([data-deck-title])) .figure {
     column-gap: 8px;

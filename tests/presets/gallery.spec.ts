@@ -337,15 +337,13 @@ test("the stat cards show each value as written", async ({ page }) => {
     const phone = (page.viewportSize()?.width ?? 0) < 700;
     for (const card of cards) {
       if (phone) {
-        expect(card.pad, `${slide.id}: padding`).toBeGreaterThanOrEqual(20);
+        // The card's padding stays as before (owner: "Just revert the padding").
+        expect(card.pad, `${slide.id}: padding`).toBeLessThanOrEqual(16);
         expect(card.gap, `${slide.id}: value to label`).toBeGreaterThanOrEqual(
           8,
         );
       } else {
-        expect(
-          card.pad / card.u,
-          `${slide.id}: padding`,
-        ).toBeGreaterThanOrEqual(3);
+        expect(card.pad / card.u, `${slide.id}: padding`).toBeCloseTo(2.2, 1);
         expect(
           card.gap / card.u,
           `${slide.id}: value to label`,
@@ -1000,5 +998,26 @@ test("the print view draws every diagram", async ({ page }) => {
     const box = await diagrams.nth(i).boundingBox();
     expect(box?.width ?? 0, `print diagram ${i}`).toBeGreaterThan(200);
     expect(box?.height ?? 0, `print diagram ${i}`).toBeGreaterThan(60);
+  }
+});
+
+test("chart category labels sit centred under their bars, never turned", async ({
+  page,
+}) => {
+  // Owner: "center the x axis always".
+  for (const slide of gallery.slides.filter((s) => /bar/i.test(s.id))) {
+    await page.goto(`/gallery?s=${at(slide.id)}&intro=off`);
+    await page
+      .locator("main:not([aria-hidden]) [data-category]")
+      .first()
+      .waitFor();
+    const turned = await page
+      .locator("main:not([aria-hidden]) [data-category]")
+      .evaluateAll(
+        (labels) =>
+          labels.filter((l) => /rotate/.test(l.getAttribute("transform") ?? ""))
+            .length,
+      );
+    expect(turned, slide.id).toBe(0);
   }
 });
