@@ -2,7 +2,10 @@ import { defineConfig, devices } from "@playwright/test";
 
 // Smoke runs against a local production build: `npm run build`
 // (site + PDFs) then `next start`. The deck has no access key.
+// SMOKE_SERVER=external leaves the server to the caller: `npm run
+// check:deck` builds once and starts the server its specs need itself.
 const port = Number(process.env.SMOKE_PORT ?? 3198);
+const external = process.env.SMOKE_SERVER === "external";
 
 export default defineConfig({
   testDir: "tests",
@@ -23,10 +26,12 @@ export default defineConfig({
       },
     },
   ],
-  webServer: {
-    command: `npm run build && npx next start --hostname 127.0.0.1 --port ${port}`,
-    url: `http://127.0.0.1:${port}/print`,
-    timeout: 300_000,
-    reuseExistingServer: false,
-  },
+  webServer: external
+    ? undefined
+    : {
+        command: `npm run build && npx next start --hostname 127.0.0.1 --port ${port}`,
+        url: `http://127.0.0.1:${port}/print`,
+        timeout: 300_000,
+        reuseExistingServer: false,
+      },
 });

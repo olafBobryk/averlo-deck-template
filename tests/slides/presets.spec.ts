@@ -65,7 +65,7 @@ test("src/presets/slides/ holds slide files", () => {
   expect(files.length).toBeGreaterThan(0);
 });
 
-test.describe("every preset file, copied into a deck", () => {
+test.describe("every preset file, copied into a deck", { tag: "@deck" }, () => {
   let deck: { origin: string; stop: () => void } | undefined;
   let dir = "";
   test.beforeAll(async ({}, info) => {
