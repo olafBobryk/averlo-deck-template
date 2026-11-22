@@ -46,6 +46,68 @@ Each preset is a block in a slide's `blocks`, in `src/deck/slides.ts`. Every `Te
 {"type":"stat","items":[{"value":"10","label":{"en":"Placeholder title"},"note":{"en":"Placeholder text"}},{"value":"20","label":{"en":"Placeholder title"},"note":{"en":"Placeholder text"}},{"value":"30","label":{"en":"Placeholder title"},"note":{"en":"Placeholder text"}}]}
 ```
 
+## Diagrams
+
+### Process flow
+
+- Family: `diagrams`
+- Block: `flow`
+- Fits: Ordered steps, each leading to the next.
+
+```json
+{"type":"flow","steps":[{"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}},{"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}},{"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}},{"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}}]}
+```
+
+### Timeline
+
+- Family: `diagrams`
+- Block: `timeline`
+- Fits: Dated events, in date order.
+
+```json
+{"type":"timeline","events":[{"when":{"en":"Placeholder date"},"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}},{"when":{"en":"Placeholder date"},"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}},{"when":{"en":"Placeholder date"},"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}},{"when":{"en":"Placeholder date"},"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}}]}
+```
+
+### Cycle
+
+- Family: `diagrams`
+- Block: `cycle`
+- Fits: A loop: stages that repeat, the last leading back to the first.
+
+```json
+{"type":"cycle","stages":[{"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}},{"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}},{"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}},{"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}}]}
+```
+
+### Org chart
+
+- Family: `diagrams`
+- Block: `orgchart`
+- Fits: Reporting lines: a root, the nodes under it, and theirs.
+
+```json
+{"type":"orgchart","root":{"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}},"children":[{"node":{"label":{"en":"Placeholder title"}},"children":[{"label":{"en":"Placeholder title"}},{"label":{"en":"Placeholder title"}}]},{"node":{"label":{"en":"Placeholder title"}}},{"node":{"label":{"en":"Placeholder title"}},"children":[{"label":{"en":"Placeholder title"}}]}]}
+```
+
+### Comparison table
+
+- Family: `diagrams`
+- Block: `table`
+- Fits: Options against criteria: one cell for each option and criterion.
+
+```json
+{"type":"table","columns":[{"en":"Placeholder title"},{"en":"Placeholder title"},{"en":"Placeholder title"}],"rows":[{"label":{"en":"Placeholder title"},"cells":[{"en":"Placeholder text"},{"en":"Placeholder text"},{"en":"Placeholder text"}]},{"label":{"en":"Placeholder title"},"cells":[{"en":"Placeholder text"},{"en":"Placeholder text"},{"en":"Placeholder text"}]},{"label":{"en":"Placeholder title"},"cells":[{"en":"Placeholder text"},{"en":"Placeholder text"},{"en":"Placeholder text"}]},{"label":{"en":"Placeholder title"},"cells":[{"en":"Placeholder text"},{"en":"Placeholder text"},{"en":"Placeholder text"}]}]}
+```
+
+### 2×2 matrix
+
+- Family: `diagrams`
+- Block: `matrix`
+- Fits: Two axes: four quadrants, and items placed by their x and y.
+
+```json
+{"type":"matrix","x":{"en":"Placeholder text"},"y":{"en":"Placeholder text"},"quadrants":[{"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}},{"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}},{"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}},{"label":{"en":"Placeholder title"},"text":{"en":"Placeholder text"}}],"items":[{"label":{"en":"Placeholder text"},"x":0.2,"y":0.6},{"label":{"en":"Placeholder text"},"x":0.8,"y":0.1},{"label":{"en":"Placeholder text"},"x":0.3,"y":0.1}]}
+```
+
 ## Text layouts
 
 ### Quote
