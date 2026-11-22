@@ -21,8 +21,10 @@ import {
 } from "react";
 import { HeadingText } from "@/motion/page-header/heading-text";
 import { PageSection } from "@/motion/route-transition";
-import body from "@/deck/content.module.css";
+// The frame's styles before the blocks': the deck's stylesheet comes first
+// in the page, as it did when the slide view drew these parts.
 import styles from "@/deck/deck.module.css";
+import body from "@/deck/content.module.css";
 import { Text } from "@/deck/text";
 import { words } from "./words";
 

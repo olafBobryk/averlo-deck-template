@@ -7,7 +7,7 @@ import { expect, test, type Page } from "@playwright/test";
 // was, at 390 and 1440 (the two projects). Each slide's markup (its frame,
 // generated ids left out) and the whole page's screenshot are compared with
 // the J1 build's, recorded once with --update-snapshots. The screenshot
-// allows a small pixel tolerance for anti-aliasing.
+// allows a colour tolerance for anti-aliasing and at most 50 pixels over it.
 //
 // The slides are counted from /print, not read from the deck's data, so the
 // same spec records on the data deck and compares on the file deck.
@@ -86,8 +86,10 @@ test("every placeholder slide keeps its look and its place", async ({
     expect
       .soft(dom(await slide.evaluate((el) => el.outerHTML)))
       .toMatchSnapshot(`slide-${pad(n)}.html`);
+    // A per-pixel colour tolerance for anti-aliasing, and almost no pixel
+    // over it: a whole page hides a shifted line in a ratio.
     await expect.soft(page).toHaveScreenshot(`slide-${pad(n)}.png`, {
-      maxDiffPixelRatio: 0.01,
+      maxDiffPixels: 50,
       threshold: 0.2,
       animations: "disabled",
     });
