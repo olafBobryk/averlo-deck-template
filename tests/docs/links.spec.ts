@@ -10,6 +10,7 @@ const DOCS = [
   "README.md",
   "WORKFLOWS.md",
   "AGENTS.md",
+  "START.md",
   "process/workflows.md",
   "docs/orchestration.md",
   "docs/licences.md",
