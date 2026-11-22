@@ -23,6 +23,7 @@ export function StatPreset({ block, lang }: PresetProps<"stat">) {
           padding="none"
           gap="none"
           className={styles.stat}
+          data-stat=""
         >
           <p className={styles.figure}>
             <AverloText
@@ -44,7 +45,12 @@ export function StatPreset({ block, lang }: PresetProps<"stat">) {
               </Text>
             )}
           </p>
-          <Text as="p" variant="title-l" className={styles.statLabel}>
+          <Text
+            as="p"
+            variant="title-l"
+            className={styles.statLabel}
+            data-stat-label=""
+          >
             {say(item.label, lang)}
           </Text>
           {item.note && (

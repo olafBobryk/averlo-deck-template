@@ -1,8 +1,10 @@
 "use client";
 // The chart presets' shared frame (feature 002, T111), template-owned: the
-// figure around a recharts chart, with the unit over it, a static legend
-// when there are two or more series, the plot box the chart is drawn in, and
-// the source muted under it. Colours are the Averlo tokens through CSS
+// figure around a recharts chart, with a static legend over it when there
+// are two or more series, the plot box the chart is drawn in, and the
+// source muted under it. The unit is not a caption line (owner on T050:
+// "isnt that trippling titling bad?"; T051): a bar or line chart sets it
+// along its value axis (`unitLabel`), a donut with each value in its key. Colours are the Averlo tokens through CSS
 // variables only: the accent for the first series, then a muted scale mixed
 // from the foreground into the background, from the muted token's 75% down
 // to 50%, each step at least 4.5:1 on the canvas and the surface. Grid and
@@ -186,6 +188,38 @@ export function CategoryTick({
   );
 }
 
+/** The room the value axis's unit takes at the chart's left edge. */
+export const unitRoom = (unit: string | undefined, box: Box) =>
+  unit ? Math.ceil(box.font * 1.9) : 0;
+
+/** The value axis's unit (a recharts YAxis `label`): set along the axis,
+ *  turned a quarter, muted like the ticks, in the room `unitRoom` leaves at
+ *  the chart's left edge; none without a unit. */
+export function unitLabel(unit: string | undefined, box: Box) {
+  if (!unit) return undefined;
+  return {
+    content: (props: { viewBox?: unknown }) => {
+      const view = props.viewBox as { y: number; height: number };
+      const x = box.font * 0.75;
+      const y = view.y + view.height / 2;
+      return (
+        <text
+          data-axis-unit=""
+          x={x}
+          y={y}
+          transform={`rotate(-90 ${x} ${y})`}
+          textAnchor="middle"
+          dominantBaseline="central"
+          className={styles.tick}
+          fontSize={box.font}
+        >
+          {unit}
+        </text>
+      );
+    },
+  };
+}
+
 /** A colour swatch, its colour from a token. */
 export function Swatch({ colour, line }: { colour: string; line?: boolean }) {
   return (
@@ -198,10 +232,9 @@ export function Swatch({ colour, line }: { colour: string; line?: boolean }) {
   );
 }
 
-/** The figure: the unit and any legend over the plot, the source under. */
+/** The figure: any legend over the plot, the source under. */
 export function ChartFrame({
   kind,
-  unit,
   source,
   legend,
   lang,
@@ -209,7 +242,6 @@ export function ChartFrame({
   plot,
 }: {
   kind: "bar" | "line" | "donut";
-  unit?: Words;
   source?: Words;
   /** The series' names and colours; shown only for two or more. */
   legend?: { name: Words; colour: string }[];
@@ -221,32 +253,17 @@ export function ChartFrame({
   const showLegend = legend && legend.length > 1;
   return (
     <figure className={styles.chart} data-chart={kind}>
-      {(unit || showLegend) && (
-        <div className={styles.top}>
-          {unit && (
-            <Text
-              as="p"
-              variant="label-m"
-              tone="secondary"
-              className={styles.unit}
-              data-unit=""
-            >
-              {say(unit, lang)}
-            </Text>
-          )}
-          {showLegend && (
-            <ul className={styles.legend} data-legend="">
-              {legend.map((item, i) => (
-                <li key={i} className={styles.legendItem}>
-                  <Swatch colour={item.colour} line={kind === "line"} />
-                  <Text as="span" variant="label-m" tone="secondary">
-                    {say(item.name, lang)}
-                  </Text>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+      {showLegend && (
+        <ul className={styles.legend} data-legend="">
+          {legend.map((item, i) => (
+            <li key={i} className={styles.legendItem}>
+              <Swatch colour={item.colour} line={kind === "line"} />
+              <Text as="span" variant="label-m" tone="secondary">
+                {say(item.name, lang)}
+              </Text>
+            </li>
+          ))}
+        </ul>
       )}
       {plot}
       {children}

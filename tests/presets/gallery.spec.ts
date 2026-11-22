@@ -224,10 +224,31 @@ for (const kind of chartKinds) {
       expect(labels.map(squash), slide.id).toEqual(
         block.categories.map((c) => squash(c[langs[0]])),
       );
-      if (block.unit)
-        await expect(chart.locator("[data-unit]")).toHaveText(
-          block.unit[langs[0]],
-        );
+      // T051 (owner on T050: "for the bar chart isnt that trippling titling
+      // bad?"): no caption line over the plot. The unit is on the value
+      // axis of a bar or line chart, and with each value in a donut's key.
+      await expect(chart.locator("[data-unit]")).toHaveCount(0);
+      if (block.unit) {
+        const unit = block.unit[langs[0]];
+        if (kind === "donut") {
+          await expect(chart.locator("[data-key-value]")).toHaveText(
+            block.series[0].values.map((v) => `${v} ${unit}`),
+          );
+        } else {
+          await expect(chart.locator("svg [data-axis-unit]")).toHaveText(unit);
+        }
+      } else {
+        await expect(chart.locator("[data-axis-unit]")).toHaveCount(0);
+      }
+      // Nothing but a legend stands between the slide's headline and the
+      // plot: the plot is the figure's first row, or follows the legend.
+      const above = await chart.evaluate((figure) => {
+        const first = figure.firstElementChild!;
+        return first.querySelector("svg") || first.hasAttribute("data-legend")
+          ? "plot or legend"
+          : (first.textContent ?? "");
+      });
+      expect(above, slide.id).toBe("plot or legend");
       if (block.source)
         await expect(chart.locator("[data-source]")).toHaveText(
           block.source[langs[0]],
@@ -257,13 +278,59 @@ test("the stat cards show each value as written", async ({ page }) => {
   expect(entry, "stat").toBeTruthy();
   const slides = gallery.presetSlides(entry!.name);
   for (const slide of [slides.example!, slides.alternate!]) {
-    const block = gallery.content[slide.id].blocks[0];
+    const block = shown(slide.id);
     if (block.type !== "stat") throw new Error(`${slide.id}: not a stat`);
     await openGallery(page, at(slide.id));
     const main = page.locator("main:not([aria-hidden])");
     await expect(main.locator("[data-preset-pending]")).toHaveCount(0);
     const values = main.locator("[data-stat-value]");
     await expect(values, slide.id).toHaveText(block.items.map((i) => i.value));
+    // T051 (owner on T050: "the stat is too crammed"): each card breathes.
+    // Measured in slide units (--u) on a landscape stage, in px on a phone.
+    const cards = await main.locator("[data-stat]").evaluateAll((cards) =>
+      cards.map((card) => {
+        const u =
+          parseFloat(getComputedStyle(card).getPropertyValue("--u")) ||
+          Math.min(
+            document.documentElement.clientWidth / 100,
+            (document.documentElement.clientHeight * 1.7778) / 100,
+          );
+        const s = getComputedStyle(card);
+        const value = card.querySelector("[data-stat-value]")!;
+        const label = card.querySelector("[data-stat-label]")!;
+        return {
+          u,
+          pad: Math.min(parseFloat(s.paddingTop), parseFloat(s.paddingLeft)),
+          gap:
+            label.getBoundingClientRect().top -
+            value.getBoundingClientRect().bottom,
+          size: parseFloat(getComputedStyle(value).fontSize),
+        };
+      }),
+    );
+    expect(cards, slide.id).toHaveLength(block.items.length);
+    const phone = (page.viewportSize()?.width ?? 0) < 700;
+    for (const card of cards) {
+      if (phone) {
+        expect(card.pad, `${slide.id}: padding`).toBeGreaterThanOrEqual(20);
+        expect(card.gap, `${slide.id}: value to label`).toBeGreaterThanOrEqual(
+          8,
+        );
+      } else {
+        expect(
+          card.pad / card.u,
+          `${slide.id}: padding`,
+        ).toBeGreaterThanOrEqual(3);
+        expect(
+          card.gap / card.u,
+          `${slide.id}: value to label`,
+        ).toBeGreaterThanOrEqual(1.2);
+        expect(
+          card.size / card.u,
+          `${slide.id}: value size`,
+        ).toBeLessThanOrEqual(5);
+      }
+    }
   }
 });
 

@@ -23,6 +23,8 @@ import {
   leftRoom,
   formatNumber,
   seriesColour,
+  unitLabel,
+  unitRoom,
   useBox,
   type Box,
 } from "./frame";
@@ -34,6 +36,7 @@ export function LinePreset({ block, lang }: PresetProps<"chart">) {
   const labels = block.categories.map((c) => say(c, lang));
   const n = block.series.length;
   const colours = block.series.map((_, i) => seriesColour(i, n));
+  const unit = block.unit ? say(block.unit, lang) : undefined;
   const rows = labels.map((_, j) => ({
     i: j,
     ...Object.fromEntries(block.series.map((s, k) => [`s${k}`, s.values[j]])),
@@ -43,7 +46,7 @@ export function LinePreset({ block, lang }: PresetProps<"chart">) {
     // The y axis's room, estimated before recharts lays out its ticks; a
     // line's points sit at the bands' edges, so the first and last labels
     // get half a band of padding each.
-    const axis = b.font * 4;
+    const axis = b.font * 4 + unitRoom(unit, b);
     const band = (b.width - axis) / labels.length;
     const ticks = categoryTicks(labels, band, b);
     const stroke = Math.max(2, b.font * 0.16);
@@ -57,7 +60,7 @@ export function LinePreset({ block, lang }: PresetProps<"chart">) {
           top: dot * 2,
           right: 0,
           bottom: 0,
-          left: leftRoom(ticks, band, b),
+          left: unitRoom(unit, b) + leftRoom(ticks, band, b),
         }}
         accessibilityLayer={false}
       >
@@ -86,6 +89,7 @@ export function LinePreset({ block, lang }: PresetProps<"chart">) {
           axisLine={false}
           tick={{ fill: MUTED, fontSize: b.font }}
           tickFormatter={(v: number) => formatNumber(v, lang)}
+          label={unitLabel(unit, b)}
         />
         {block.series.map((_, k) => (
           <Line
@@ -116,7 +120,6 @@ export function LinePreset({ block, lang }: PresetProps<"chart">) {
   return (
     <ChartFrame
       kind="line"
-      unit={block.unit}
       source={block.source}
       legend={block.series.map((s, i) => ({
         name: s.name,
