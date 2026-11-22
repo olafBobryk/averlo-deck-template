@@ -37,6 +37,30 @@
   background: transparent;
   border-bottom-color: transparent;
 }
+/* Aligned to the slide text, with margins of its own (owner, after reviewing
+   the merged build: "align to slide text and create padding / margins"):
+   the band's inner row drops the shell's centred 1120 px column and its
+   40 px padding, and starts where a slide's text starts, 6 slide units in
+   (deck.module.css's `.slide` padding; --u follows the stage, as the
+   slides' does). Its top margin is the footer's gutter, max(16 px, 3
+   units), so the brand frames the slide as the footer's section label
+   does at the bottom. It is as tall as the brand: the height the header
+   sets inline (100 px, 76 px under 1024 px) was the shell's band, which is
+   gone. */
+.bar :global(.top-inner) {
+  max-width: none;
+  height: auto !important;
+  margin: 0;
+  padding: max(16px, calc(var(--u) * 3)) calc(var(--u) * 6) 0;
+  align-items: flex-start;
+}
+/* A narrow portrait screen sets its slides 24 px in (deck.module.css). */
+@media (orientation: portrait) and (max-width: 699px) {
+  .bar :global(.top-inner) {
+    padding-inline: 24px;
+  }
+}
+
 /* The mark, drawn in currentColor (the ported Logo), light on the dark page.
    The deck's title beside it is muted: the Averlo muted text colour, which
    keeps 4.5:1 on the dark background. */
