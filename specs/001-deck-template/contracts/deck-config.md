@@ -7,7 +7,7 @@ A deck made from the template changes only these. Everything else is engine, mot
 | Slides, their content map and their text | `src/deck/slides.ts` | Each `Text` has every configured language. Words come from the owner (constitution III). |
 | Languages | `langs` in `src/deck/langs.ts` | First = default. 2+ shows the language switcher in the menu, and `?lang=` is kept in links. |
 | Brand | `src/brand/config.ts` | `averlo` (default) or `owner`. Owner assets go in `public/brand/` and are listed in `docs/licences.md`. |
-| Deck title | `src/brand/config.ts` | Shown in the top bar and used in the PDF file name. |
+| Deck title | `src/brand/config.ts` | Shown in the top bar, the browser tab and the home-screen app's name, and used in the PDF file name. |
 | Accent colour of the top bar | `src/brand/config.ts` | Sets the questionnaire bar's accent variables (default `#ff3200`). Text on it must keep 4.5:1 contrast, which the a11y test checks. |
 
 URL contract (unchanged from the origin): `?s=<position>`, `?lang=<code>` (only with 2+ languages), `?intro=off`.
