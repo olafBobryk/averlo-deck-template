@@ -1,5 +1,7 @@
 # Averlo deck template
 
+**Making your own deck?** Make a repository from this template, open it in Codex or Claude Code, and paste the prompt in [START.md](START.md). The agent sets everything up and builds the deck with you, and you never type a command.
+
 A template for full-screen web slide decks, built with Next.js on the Averlo design system. It has the deck engine (keys, clicks, swipes and shareable links), an intro, a menu with an overview, and a print view that renders a PDF of every slide on each build. It ships placeholder slides only.
 
 Agents working in this repository start with [`AGENTS.md`](AGENTS.md).
@@ -110,6 +112,7 @@ The steps are in the [port procedure](process/workflows.md#port-the-design-syste
 
 - **Your own blocked-term list:** put one term per line (names of people, clients or products that must not be published) in `.local/public-scan-terms.txt`. `.local/` is ignored, so the list is never committed. To keep it elsewhere, set `SCAN_TERMS_FILE` to its path, in the environment (the gate also reads it from `.local/env`). Without a list, the scan fails and scans nothing.
 - **Check a text before posting it:** `npm run scan:public -- --text <file>`.
+- **In a deck:** `npm run check:deck` never runs the scan. A deck in a public repository turns it on with the owner's own list: [Turn on the public scan](process/workflows.md#turn-on-the-public-scan).
 - **Turn it off:** there is no switch. For a deck that will never be public, edit `scripts/gate.mjs`: remove the `scan` check from `buildChecks`, and the scan of the report from `main()`. The port script (`scripts/port-averlo.mjs`) still needs a list with at least one term, because it checks every pulled file against it.
 
 ## The gate
@@ -134,6 +137,10 @@ Each check is reported as:
 A check that did not run is never reported as passed. A failing motion strip is re-run once; a pass on the retry counts as passed and is listed as flaky. The report is printed and written to `gate-results/gate-report.md`, and each check's output to `gate-results/logs/<check>.log`.
 
 The gate reads machine settings from the ignored `.local/env` (`KEY=value` lines): `TARGET_URL`, where it serves the build for the strip diff; `LD_LIBRARY_PATH`, if Chromium needs it; `PORT_SOURCES_DIR` and `SCAN_TERMS_FILE`, as above. The tests need Chromium (`npx playwright install chromium`). The motion baselines were recorded on the template's own machine, so on another machine a strip may drift. Details: [Run the gate](process/workflows.md#run-the-gate).
+
+## The deck's checks
+
+A deck made from the template runs `npm run check:deck` ([`scripts/check-deck.mjs`](scripts/check-deck.mjs)) in place of the gate, before showing a slide. It runs `check` (lint, format and types), `build` (the production build and its PDFs), `fit` (the specs tagged `@deck`: every slide of the deck and the gallery fits at 390 and 1440 px, and each preset file renders when copied into a deck), `inline-text` and `trace`. It never runs the strips, the drift test or the public scan, and it needs no `.local/` file. Each check is reported as passed, failed or not run, in `gate-results/deck-report.md`.
 
 ## Licence
 

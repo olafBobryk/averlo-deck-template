@@ -22,12 +22,12 @@ These are the same as features 002 and 003: no blocked terms; ports unchanged; r
 
 ## Phase D1: Docs and the amendment (branch `d1-docs`, base `d0-check`)
 
-- [ ] T410 Tests first. Docs tests check that:
+- [x] T410 Tests first. Docs tests check that:
   - AGENTS.md has both sections;
   - the deck section states every rule of FR-002, setup (FR-006), saving (FR-010), publishing (FR-007) and the opt-in scan (FR-008);
   - START.md holds one prompt;
   - the README opens with the pointer.
-- [ ] T411 AGENTS.md "Making a deck" section, START.md, the README pointer, and in `process/workflows.md`: "Set up a deck", "Save and share", "Turn on the public scan".
-- [ ] T412 Constitution amendment 1.1.0 (research R4), with the changelog citing the owner.
-- [ ] T413 Dry run: in a fresh clone, an agent follows START.md. Record what it did and asked, and fix any step that needed the owner to type a command.
+- [x] T411 AGENTS.md "Making a deck" section, START.md, the README pointer, and in `process/workflows.md`: "Set up a deck", "Save and share", "Turn on the public scan".
+- [x] T412 Constitution amendment 1.1.0 (research R4), with the changelog citing the owner.
+- [x] T413 Dry run: in a fresh clone, an agent follows START.md. Record what it did and asked, and fix any step that needed the owner to type a command.
 - **Gate D1:** `npm run gate`; `check:deck` in the fresh clone.
