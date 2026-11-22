@@ -124,7 +124,10 @@ test.describe("content workflow", () => {
 
   test("figures trace as written or formatted, never rounded or converted", () => {
     const figures = (words: Record<string, unknown>) =>
-      untracedCopy([slide("a", { title: "Sales by quarter", ...words })], sources);
+      untracedCopy(
+        [slide("a", { title: "Sales by quarter", ...words })],
+        sources,
+      );
     // As written, or with its thousands grouped.
     expect(figures({ values: [[1200, 1450, 990]] })).toEqual([]);
     expect(figures({ values: [4.5], stat: "4.5%" })).toEqual([]);
@@ -137,7 +140,9 @@ test.describe("content workflow", () => {
       "01-a.tsx: copy.en.values[1]: 200",
     ]);
     // "5%" stands inside "4.5%", but the figure 5 does not.
-    expect(figures({ stat: "5%" })).toEqual(['01-a.tsx: copy.en.stat: 5 in "5%"']);
+    expect(figures({ stat: "5%" })).toEqual([
+      '01-a.tsx: copy.en.stat: 5 in "5%"',
+    ]);
   });
 
   test("the trace reads every slide file's copy from src/slides/data.ts, labels and figures included", () => {

@@ -61,9 +61,7 @@ function check(fixtures) {
       source,
     ]),
   );
-  return checkInlineText({ files: Object.keys(sources), sources }).map(
-    format,
-  );
+  return checkInlineText({ files: Object.keys(sources), sources }).map(format);
 }
 
 /** The line of `needle` in `source`, 1-based. */
@@ -111,7 +109,8 @@ describe("the inline-text check", () => {
     "96-alt.tsx": slide('<img alt="A team at work" className="photo" />'),
   };
   const found = check(fixtures);
-  const of = (name) => found.filter((line) => line.startsWith(`src/slides/${name}:`));
+  const of = (name) =>
+    found.filter((line) => line.startsWith(`src/slides/${name}:`));
 
   test("an inline word fails, naming the file and the line", () => {
     const name = "90-inline-word.tsx";

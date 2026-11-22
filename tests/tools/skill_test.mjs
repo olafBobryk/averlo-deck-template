@@ -134,7 +134,11 @@ describe("the deck-visuals skill", () => {
     const missing = registry
       .map((entry) => `src/presets/slides/${entry.file}.tsx`)
       .filter((path) => !rules.includes(`\`${path}\``));
-    assert.deepEqual(missing, [], "preset files missing from the selection rules");
+    assert.deepEqual(
+      missing,
+      [],
+      "preset files missing from the selection rules",
+    );
     const folder = join(root, "src", "presets", "slides");
     const files = [
       ...readdirSync(folder)
