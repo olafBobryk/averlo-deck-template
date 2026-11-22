@@ -11,7 +11,12 @@ import { join } from "node:path";
 import { afterEach, describe, test } from "node:test";
 
 import { git, leaksNoTerm, runScript, write } from "./fixtures.mjs";
-import { SOURCE, makePortFixture, sourceFiles } from "./ports-fixtures.mjs";
+import {
+  SOURCE,
+  assetRows,
+  makePortFixture,
+  sourceFiles,
+} from "./ports-fixtures.mjs";
 
 const cleanups = [];
 afterEach(() => {
@@ -197,6 +202,63 @@ describe("port-averlo", () => {
       readFileSync(join(f.root, "docs/design-source.md"), "utf8"),
       /\*\.svg.*may not be shared.*mark\.svg/,
     );
+  });
+
+  // T051: Averlo's favicon files live in the source's public/ folder, not
+  // under src/. A public entry is ported unchanged to the same path, needs
+  // its licence row like any asset, and is recorded for the drift test.
+  test("ports a public file entry to the same path, unchanged", () => {
+    const favicon =
+      '<svg xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="20"/></svg>';
+    const f = fixture({
+      files: sourceFiles({ "public/favicon.svg": favicon }),
+      rows: [
+        ...assetRows,
+        "| `public/favicon.svg` | fixture | brand asset | yes (placeholder in this repo) |",
+      ],
+      manifestOverrides: {
+        entries: [
+          {
+            source: "src/components/ui/Card.tsx",
+            target: "src/components/ui/Card.tsx",
+          },
+          { source: "public/favicon.svg", target: "public/favicon.svg" },
+        ],
+      },
+    });
+    const result = port(f);
+    assert.equal(result.code, 0, result.out);
+    assert.equal(
+      readFileSync(join(f.root, "public/favicon.svg"), "utf8"),
+      favicon,
+    );
+    const [source] = lockOf(f).sources;
+    assert.ok(
+      source.files.some(
+        (file) =>
+          file.source === "public/favicon.svg" &&
+          file.target === "public/favicon.svg",
+      ),
+      "the lock records the public file",
+    );
+    assert.match(
+      readFileSync(join(f.root, "docs/design-source.md"), "utf8"),
+      /`public\/favicon\.svg`/,
+    );
+    // Without its licence row, the port stops, as for any asset.
+    const g = fixture({
+      files: sourceFiles({ "public/favicon.svg": favicon }),
+      manifestOverrides: {
+        entries: [
+          {
+            source: "src/components/ui/Card.tsx",
+            target: "src/components/ui/Card.tsx",
+          },
+          { source: "public/favicon.svg", target: "public/favicon.svg" },
+        ],
+      },
+    });
+    assertStopped(g, port(g), /public\/favicon\.svg.*licence/);
   });
 
   test("stops on an import it cannot resolve", () => {

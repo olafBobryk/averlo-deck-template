@@ -26,9 +26,24 @@
         "src/components/ui/overlays/Portal.tsx",
         "src/components/ui/icons/Icon.tsx",
         "src/components/ui/helpers/IconSwap.tsx",
-        "src/components/branding/Logo.tsx"
+        "src/components/branding/Logo.tsx",
+        "public/favicon.svg",
+        "public/favicon.ico",
+        "public/favicon-96x96.png"
       ],
       "files": [
+        {
+          "source": "public/favicon-96x96.png",
+          "target": "public/favicon-96x96.png"
+        },
+        {
+          "source": "public/favicon.ico",
+          "target": "public/favicon.ico"
+        },
+        {
+          "source": "public/favicon.svg",
+          "target": "public/favicon.svg"
+        },
         {
           "source": "src/components/branding/Logo.tsx",
           "target": "src/components/branding/Logo.tsx"

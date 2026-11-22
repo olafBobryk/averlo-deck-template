@@ -105,6 +105,18 @@
         {
           "source": "src/components/branding/Logo.tsx",
           "target": "src/components/branding/Logo.tsx"
+        },
+        {
+          "source": "public/favicon.svg",
+          "target": "public/favicon.svg"
+        },
+        {
+          "source": "public/favicon.ico",
+          "target": "public/favicon.ico"
+        },
+        {
+          "source": "public/favicon-96x96.png",
+          "target": "public/favicon-96x96.png"
         }
       ],
       "exclude": [
