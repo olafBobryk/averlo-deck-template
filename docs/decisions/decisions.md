@@ -18,3 +18,4 @@ Project-wide decisions, one line each, linking to where the owner gave the answe
 - 2026-11-22 — For the feature 002 run, the agent may merge each phase PR into `main` once its gate passes, in order, with merge commits (owner: "Yes, merge green") — owner in session
 - 2026-11-22 — The final build was promoted to the public production address (owner: "Promote final build") — owner in session
 - 2026-11-22 — For the feature 003 run, the agent may merge each phase PR into `main` once its gate passes, in order, with merge commits (owner: "Yes, merge green") — owner in session
+- 2026-11-23 — Main with features 003 and 004 was promoted to the public production address (owner: "Promote main") — owner in session

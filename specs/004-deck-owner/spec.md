@@ -25,6 +25,11 @@
 
 - Q: Should the agent save the owner's work in git and push it by itself? → A: "Yes, commit and push": after each change the owner keeps, a plain commit and a push to the owner's repository; no branches or PRs for the owner.
 - Q: How does the constitution fit with the deck's light rules? → A: "Amend: decks follow AGENTS.md": a constitution amendment (1.1.0) says its rules bind work on the template, and a deck made from it follows AGENTS.md's deck section.
+### Session 2026-11-23 (grilling with the owner, after the dry run)
+
+- Q: How does a non-technical owner get their new repository onto their computer without `git clone`? → A: "The agent app clones it": in the Codex or Claude desktop app, they open their new GitHub repository, signing in with GitHub when asked, and the app copies it to the computer.
+- Q: On Linux without Chromium's system libraries, one `sudo` command is needed that the agent can't type. Is that one exception to "never ask the owner to type a command" allowed? → A: "Allow, agent explains": the agent tells the owner the one command to paste and why. It applies only on Linux, and only when the libraries are missing.
+- Q: The Claude Code SessionStart hook says the constitution "binds every change", but 1.1.0's Scope says it binds work on the template. Reword it? → A: "Reword it".
 
 ## User Scenarios & Testing *(mandatory)*
 

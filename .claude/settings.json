@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "printf 'This repository'\\''s constitution (loaded by .claude/settings.json; it binds every change):\\n\\n'; cat \"$CLAUDE_PROJECT_DIR/.specify/memory/constitution.md\""
+            "command": "printf 'This repository'\\''s constitution (loaded by .claude/settings.json; it binds work on the template, and a deck made from it follows the Making a deck section of AGENTS.md):\\n\\n'; cat \"$CLAUDE_PROJECT_DIR/.specify/memory/constitution.md\""
           }
         ]
       }

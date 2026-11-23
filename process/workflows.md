@@ -8,7 +8,7 @@ How an agent gets a deck owner's computer ready and the deck running, on macOS, 
 
 ### What you need
 
-- The owner's repository, made with **Use this template** on GitHub, open in Codex or Claude Code on their computer.
+- The owner's repository, made with **Use this template** on GitHub, open in the Codex or Claude desktop app on their computer. The owner opens it from GitHub in the app, signing in with GitHub when asked, and the app clones it; they never type `git clone` (owner, 2026-11-23).
 - A browser the owner can open links in.
 
 Codex and Claude Code may ask the owner before a command runs, or before it uses the network (`npm ci`, the browser download, `npx vercel`). Before each one, tell the owner in one plain sentence what it does, so they know what they are allowing when they click.
@@ -24,7 +24,7 @@ Codex and Claude Code may ask the owner before a command runs, or before it uses
 
 2. **The packages.** Run `npm ci`.
 3. **The check browser.** The checks and the PDFs use Chromium. Run `npx playwright install chromium`.
-   - **Linux** may also need Chromium's system libraries. Run `npx playwright install-deps chromium`. It needs administrator rights (`sudo`), and an agent cannot type the password at its prompt: if it stops there, or fails without the rights, tell the owner in plain words that the computer is missing a few parts the test browser needs, and that whoever looks after the computer can add them with that command. Until then, the checks that use the browser fail.
+   - **Linux** may also need Chromium's system libraries. Run `npx playwright install-deps chromium`. It needs administrator rights (`sudo`), and an agent cannot type the password at its prompt. If it stops there, or fails without the rights, this is the one command the owner types (owner, 2026-11-23): tell them in plain words that the computer is missing a few parts the test browser needs, give them `sudo npx playwright install-deps chromium` to paste into a terminal, say that it asks for their computer password, and continue once they say it finished. Until then, the checks that use the browser fail.
 4. **Prove it.** Run `npm run check:deck`. On a fresh copy every check passes; if one fails, fix the cause before you go on (the report names it, in `gate-results/deck-report.md`).
 5. **Start the deck.** Run `npm run dev` in the background and keep it running. When it prints its address, give the owner the link, http://127.0.0.1:3000, to open in their browser. When you stop it, stop it by its process id.
 6. **Check that you can save.** Run `git remote -v` and `git push --dry-run`. If the push asks for a sign-in to GitHub, tell the owner what to click in the window that opens. Then go on with [Draft a deck from any source](#draft-a-deck-from-any-source).

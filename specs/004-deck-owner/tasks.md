@@ -31,3 +31,7 @@ These are the same as features 002 and 003: no blocked terms; ports unchanged; r
 - [x] T412 Constitution amendment 1.1.0 (research R4), with the changelog citing the owner.
 - [x] T413 Dry run: in a fresh clone, an agent follows START.md. Record what it did and asked, and fix any step that needed the owner to type a command.
 - **Gate D1:** `npm run gate`; `check:deck` in the fresh clone.
+
+## After the dry run (light path)
+
+- [x] T414 The owner's answers of 2026-11-23 (spec, Session 2026-11-23): START.md and "Set up a deck" say the Codex or Claude desktop app clones the repository; on Linux the agent gives the owner the one `sudo` command and says why; AGENTS.md names that one exception; the SessionStart hook in `.claude/settings.json` says the constitution binds work on the template and a deck follows AGENTS.md.

@@ -48,3 +48,8 @@ Then the outline proposed from the material's own headings, for the owner to con
 
 1. How does the owner get the repository onto their computer, opened in Codex or Claude Code, without typing `git clone`? The docs say only "open it in Codex or Claude Code".
 2. On Linux without the browser's system libraries, someone must run one `sudo` command (research R2). Is that exception acceptable, or should the docs say something else?
+
+**Answered on 2026-11-23** (spec, Session 2026-11-23; T414):
+
+1. "The agent app clones it": the owner opens the repository from GitHub in the Codex or Claude desktop app. START.md and "Set up a deck" now say so.
+2. "Allow, agent explains": on Linux, the agent gives the owner the one `sudo` command and says why. "Set up a deck" and AGENTS.md now say so.
