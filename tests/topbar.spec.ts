@@ -41,8 +41,9 @@ import {
 // commit the manifest pins, else the clone's HEAD) into the ignored
 // .local/questionnaire-top/, as a static page with the same font override and
 // as many steps as the deck has slides, and serves it from this process on
-// REFERENCE_PORT (default 3195, plus the worker's parallel index). Without the
-// clone those tests are skipped as "not run", as check:ports is. At 1440, with
+// REFERENCE_PORT (default 3210, plus the worker's parallel index, clear of
+// the scratch decks' 3194 and 3195, DEV_PORT 3196, SMOKE_PORT 3198 and
+// PDF_PORT 3199). Without the clone those tests are skipped as "not run", as check:ports is. At 1440, with
 // reduced motion so nothing is mid-spring, the deck's header band and
 // navigator have the reference's elements, classes, roles and attribute names
 // (text and aria values may differ; the header's right-hand controls are left
@@ -1065,7 +1066,7 @@ test.describe("parity with the questionnaire's own top", () => {
     test.setTimeout(600_000);
     const out = await buildReference(reference, TOTAL);
     const port =
-      Number(process.env.REFERENCE_PORT ?? 3195) + info.parallelIndex;
+      Number(process.env.REFERENCE_PORT ?? 3210) + info.parallelIndex;
     const served = await serveReference(out, port);
     url = served.url;
     close = served.close;

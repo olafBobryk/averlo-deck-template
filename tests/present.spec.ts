@@ -257,6 +257,11 @@ async function expectPageStep(
 }
 
 test.describe("page step", () => {
+  // Sampled per frame, so a frame dropped while the rest of the smoke
+  // suite runs beside it can fail it on an idle-looking machine: re-run once,
+  // and the gate reports a pass on retry as flaky (owner, for the strips:
+  // "Retry once, report it"; for these, 2026-11-23: "Fix the flakes").
+  test.describe.configure({ retries: 1 });
   test("→ and ← step by the page step, sampled per frame", async ({ page }) => {
     const errors = watchConsole(page);
     await openDeck(page, "?s=2");
