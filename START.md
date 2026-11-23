@@ -1,6 +1,6 @@
 # Start here
 
-Made a repository from this template and want your own deck? Open the Codex or Claude desktop app and open your new repository from GitHub there, signing in with GitHub when it asks: the app copies it to your computer. Then paste the prompt below as your first message and answer the agent's questions. You won't need to type any commands.
+Made a repository from this template and want your own deck? Open your new repository from GitHub in the Codex desktop app, or in Claude Code in the Claude desktop app, signing in with GitHub when it asks: the app copies it to your computer. Then paste the prompt below as your first message and answer the agent's questions. You won't need to type any commands.
 
 ```text
 I want to make my own slide deck in this repository. I'm not technical, so please do every technical step yourself, and never ask me to type a command: tell me only what to click or open.
