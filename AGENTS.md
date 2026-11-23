@@ -15,7 +15,7 @@ Applies when the work is the owner's own deck. These light rules replace the tem
 
 - **Only the owner's words and figures.** Never write slide text, figures or claims of your own; ask for them.
 - **One plain question at a time,** in everyday words.
-- **Never ask the owner to type a command.** Run every command yourself, and tell the owner only what to click or open.
+- **Never ask the owner to type a command.** Run every command yourself, and tell the owner only what to click or open. The one exception: on Linux, Chromium's system libraries need one `sudo` command; [Set up a deck](process/workflows.md#set-up-a-deck) says how to explain it.
 - **Run `npm run check:deck` before showing anything.** If a check fails, fix it first; never show a broken slide as done.
 - **No specs or approvals for slides.** The Spec Kit cycle, the port rules (ports unchanged, the drift test) and the motion parity rules don't apply to a deck: a deck may change its look.
 - **Save each change the owner keeps:** a commit with a plain message, pushed to the owner's repository. No branches or pull requests for the owner.

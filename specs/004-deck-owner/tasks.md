@@ -31,3 +31,8 @@ These are the same as features 002 and 003: no blocked terms; ports unchanged; r
 - [x] T412 Constitution amendment 1.1.0 (research R4), with the changelog citing the owner.
 - [x] T413 Dry run: in a fresh clone, an agent follows START.md. Record what it did and asked, and fix any step that needed the owner to type a command.
 - **Gate D1:** `npm run gate`; `check:deck` in the fresh clone.
+
+## After the dry run (light path)
+
+- [x] T414 The owner's answers of 2026-11-23 (spec, Session 2026-11-23): START.md and "Set up a deck" say the Codex or Claude desktop app clones the repository; on Linux the agent gives the owner the one `sudo` command and says why; AGENTS.md names that one exception; the SessionStart hook in `.claude/settings.json` says the constitution binds work on the template and a deck follows AGENTS.md.
+- [x] T415 Light path (the gate failed three times on T414 in tests it doesn't touch; owner, 2026-11-23: "Fix the flakes, then merge"): the top bar's parity reference serves on REFERENCE_PORT 3210 plus the worker index, clear of the scratch decks' 3194 and 3195, DEV_PORT 3196, SMOKE_PORT 3198 and PDF_PORT 3199 (it hit `EADDRINUSE` on 3198); the frame-sampled "swipe" and "page step" groups re-run once, and the gate reports a pass on retry as flaky, as for the strips (owner: "Retry once, report it"). Both groups passed 232 of 232 alone, four times over.
