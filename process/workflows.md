@@ -8,13 +8,19 @@ How an agent gets a deck owner's computer ready and the deck running, on macOS, 
 
 ### What you need
 
-- The owner's repository, made with **Use this template** on GitHub, open in the Codex or Claude desktop app on their computer. The owner opens it from GitHub in the app, signing in with GitHub when asked, and the app clones it; they never type `git clone` (owner, 2026-11-23).
-- A browser the owner can open links in.
+- Codex or Claude Code open on a folder on the owner's computer: an empty one, or one that already holds their copy of the template. The owner pastes the README's prompt there, and nothing else (owner, 2026-11-23: "one setup prompt start to end on the readme").
+- A browser the owner can open links in, and a GitHub account (step 0 helps them make one).
 
 Codex and Claude Code may ask the owner before a command runs, or before it uses the network (`npm ci`, the browser download, `npx vercel`). Before each one, tell the owner in one plain sentence what it does, so they know what they are allowing when they click.
 
 ### Steps
 
+0. **The owner's own copy.** Skip this if the folder already holds a copy of the template (it has `AGENTS.md` and `src/slides/`). Otherwise:
+   - Ask the owner one question: what to call the deck. Its repository is named after it, in lowercase words joined by hyphens.
+   - If the owner has no GitHub account, tell them to open github.com/signup and sign up, then continue.
+   - Make the repository from the template, **private** unless the owner says otherwise. With the GitHub CLI (`gh`): if `gh auth status` says it isn't signed in, run `gh auth login --web`, and tell the owner to open the page it names and enter the code it shows. Then run `gh repo create <name> --template olafBobryk/averlo-deck-template --private`, and `gh repo clone <name> .` to put it in this folder (GitHub may take a few seconds to fill a new copy: if the clone is empty, wait and clone again).
+   - Without `gh`: ask the owner to open https://github.com/new?template_name=averlo-deck-template&template_owner=olafBobryk, type the name, choose **Private** and click **Create repository**, then tell you its address. Clone it into the folder with `git clone <address> .`. If git asks for a GitHub sign-in, tell the owner what to click in the window that opens.
+   - Read the copy's `AGENTS.md`, and follow its "Making a deck" section from here on.
 1. **Node 24.** Run `node --version`. The deck needs version 24 (`.nvmrc`, and `engines` in `package.json`). If Node is missing or another version:
    - **macOS:** with nvm installed, run `nvm install` and `nvm use` in the repository (they read `.nvmrc`). Without it, ask the owner to download the Node 24 installer for macOS from nodejs.org and click through it.
    - **Linux:** install nvm with the install command in its README (github.com/nvm-sh/nvm), then run `nvm install` and `nvm use`. No password is needed.

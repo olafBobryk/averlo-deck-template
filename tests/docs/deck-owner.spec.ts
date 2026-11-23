@@ -6,8 +6,9 @@ import { anchor, exists, read, sections, type Section } from "./markdown";
 // applies (FR-001). The deck section, with the procedures it points to in
 // process/workflows.md, states the light rules (FR-002), the setup on
 // macOS, Linux and Windows (FR-006), saving (FR-010), publishing to Vercel
-// (FR-007) and the opt-in public scan (FR-008). START.md holds one prompt
-// (FR-005), and the README opens with a pointer to it. The constitution is
+// (FR-007) and the opt-in public scan (FR-008). The README opens with one prompt,
+// start to end, from an empty folder (FR-005, the owner's correction of
+// 2026-11-23). The constitution is
 // amended to 1.1.0 (FR-011). No browser, no server.
 
 const PROCEDURES = {
@@ -134,14 +135,22 @@ test.describe("the deck owner's side", () => {
     expect(body).toMatch(/never runs it|off/i);
   });
 
-  test("START.md holds one prompt to paste into Codex or Claude Code (FR-005)", () => {
-    expect(exists("START.md"), "START.md exists").toBe(true);
-    const text = read("START.md");
-    const fences = [...text.matchAll(/^```[\w-]*\n([\s\S]*?)^```$/gm)];
+  test("the README opens with one prompt, start to end, to paste into Codex or Claude Code (FR-005)", () => {
+    expect(exists("START.md"), "no separate START.md").toBe(false);
+    const text = read("README.md");
+    const lines = text.split("\n").filter((line) => line.trim());
+    expect(lines[0]).toMatch(/^# /);
+    expect(lines[1]).toMatch(/Codex/);
+    expect(lines[1]).toMatch(/Claude Code/);
+    expect(lines[2]).toBe("```text");
+    const fences = [...text.matchAll(/^```text\n([\s\S]*?)^```$/gm)];
     expect(fences.length, "exactly one prompt").toBe(1);
-    expect(text).toMatch(/Codex/);
-    expect(text).toMatch(/Claude Code/);
+    expect(text.indexOf("```text")).toBeLessThan(text.indexOf("## "));
     const prompt = fences[0][1];
+    expect(prompt).toContain(
+      "https://github.com/olafBobryk/averlo-deck-template",
+    );
+    expect(prompt).toMatch(/private GitHub repository/i);
     expect(prompt).toContain("AGENTS.md");
     expect(prompt).toMatch(/Making a deck/);
     for (const part of [
@@ -151,6 +160,7 @@ test.describe("the deck owner's side", () => {
       /talk it through/i,
       /preset/i,
       /checks/i,
+      /save/i,
       /online|publish/i,
       /Vercel/,
     ])
@@ -158,12 +168,15 @@ test.describe("the deck owner's side", () => {
     expect(prompt).toMatch(/never ask me to type a command/i);
   });
 
-  test("the README opens with the pointer to START.md", () => {
-    const lines = read("README.md")
-      .split("\n")
-      .filter((line) => line.trim());
-    expect(lines[0]).toMatch(/^# /);
-    expect(lines[1]).toContain("(START.md)");
+  test("setting up starts with the owner's own copy of the template", () => {
+    const body = procedure(PROCEDURES.setup);
+    expect(body).toContain(
+      "--template olafBobryk/averlo-deck-template --private",
+    );
+    expect(body).toContain(
+      "https://github.com/new?template_name=averlo-deck-template&template_owner=olafBobryk",
+    );
+    expect(body).toMatch(/private/i);
   });
 
   test("the constitution is 1.1.0: its rules bind the template, a deck follows AGENTS.md (FR-011)", () => {

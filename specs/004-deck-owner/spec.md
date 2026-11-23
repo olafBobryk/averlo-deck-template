@@ -29,21 +29,22 @@
 
 - Q: How does a non-technical owner get their new repository onto their computer without `git clone`? → A: "The agent app clones it": in the Codex or Claude desktop app, they open their new GitHub repository, signing in with GitHub when asked, and the app copies it to the computer.
 - Q: On Linux without Chromium's system libraries, one `sudo` command is needed that the agent can't type. Is that one exception to "never ask the owner to type a command" allowed? → A: "Allow, agent explains": the agent tells the owner the one command to paste and why. It applies only on Linux, and only when the libraries are missing.
+- Correction (owner, 2026-11-23, after the merge): "no i wanted one setup prompt start to end on teh readme, so i can just give him a single prompt with no extra instructions". The prompt moves from START.md to the top of the README, and starts before the repository exists: the agent makes the owner's own private copy of the template on GitHub, then sets up and builds the deck. START.md is removed (FR-005, T416).
 - Q: The Claude Code SessionStart hook says the constitution "binds every change", but 1.1.0's Scope says it binds work on the template. Reword it? → A: "Reword it".
 
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Start with one paste (Priority: P1)
 
-A non-technical owner makes a repository from the template, opens it in Codex or Claude Code, and pastes the prompt from START.md. The agent sets everything up on their computer (dependencies, the browser the checks need), starts the deck, and gives them a link to open. It asks only plain questions, one at a time.
+A non-technical owner opens Codex or Claude Code on an empty folder and pastes the README's prompt. The agent makes their own copy of the template on GitHub. The agent sets everything up on their computer (dependencies, the browser the checks need), starts the deck, and gives them a link to open. It asks only plain questions, one at a time.
 
 **Why this priority**: This is the friend's whole entry point.
 
-**Independent Test**: In a fresh copy on a clean machine, paste the START.md prompt into an agent. The deck runs and the owner gets a link without typing a command. Every question the agent asks is plain language.
+**Independent Test**: In a fresh copy on a clean machine, paste the README's prompt into an agent. The deck runs and the owner gets a link without typing a command. Every question the agent asks is plain language.
 
 **Acceptance Scenarios**:
 
-1. **Given** a fresh copy and the START.md prompt, **When** the agent follows it, **Then** the deck runs locally and the owner gets the link.
+1. **Given** an empty folder and the README's prompt, **When** the agent follows it, **Then** the deck runs locally and the owner gets the link.
 2. **Given** the agent needs something from the owner, **When** it asks, **Then** it asks one plain question at a time and never asks the owner to type a command.
 
 ---
@@ -96,7 +97,7 @@ When the owner says the deck is ready, the agent walks them through a free Verce
 - **FR-002**: The deck section MUST state the light rules: only the owner's words and figures; one plain question at a time; never ask the owner to type commands; run `npm run check:deck` before showing; no specs or approvals for slides; the template's port, motion and Spec Kit rules don't apply.
 - **FR-003**: `npm run check:deck` MUST run lint and types, the build, the fit check at phone and desktop sizes, the words-in-copy check and the trace check. It MUST NOT run the motion strips, the drift test or the public scan, and MUST report each check as passed, failed or not run.
 - **FR-004**: `npm run check:deck` MUST pass on a fresh copy of the template with no `.local/` files.
-- **FR-005**: START.md MUST hold one prompt to paste into Codex or Claude Code. It covers setting up (dependencies, the check browser), starting the deck, talking the material through, building slides with the presets, the checks, and publishing. The README MUST open with a pointer to it.
+- **FR-005**: The README MUST open with one prompt to paste into Codex or Claude Code, on an empty folder, with no other instructions (owner correction, 2026-11-23). It covers making the owner's own private copy of the template on GitHub, setting up (dependencies, the check browser), starting the deck, talking the material through, building slides with the presets, the checks, saving, and publishing.
 - **FR-006**: The deck section MUST describe setup steps an agent can follow on macOS, Linux and Windows, including installing the check browser.
 - **FR-007**: The deck section MUST describe publishing to Vercel: a one-time sign-in guided by the agent, deploying, and redeploying to the same link.
 - **FR-008**: The deck section MUST say how to turn on the public scan with the owner's own list, for a public deck repo.
@@ -106,7 +107,7 @@ When the owner says the deck is ready, the agent walks them through a free Verce
 
 ### Key Entities
 
-- **START.md**: the one prompt.
+- **The README's prompt**: the one paste (START.md until the owner's correction of 2026-11-23).
 - **AGENTS.md deck section**: the light rules, setup, checks and publishing.
 - **`check:deck`**: the deck's check command.
 
