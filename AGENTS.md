@@ -4,7 +4,7 @@ A public template for full-screen web slide decks (Next.js) built on the Averlo 
 
 Two kinds of work happen here, each with its own rules. Pick the section by the request:
 
-- **[Making a deck](#making-a-deck):** the owner wants their own deck: their slides, words, brand, or a link to share. This is the usual work in a repository made from the template, and the [START.md](START.md) prompt asks for it.
+- **[Making a deck](#making-a-deck):** the owner wants their own deck: their slides, words, brand, or a link to share. This is the usual work in a repository made from the template, and the prompt at the top of the [README](README.md) asks for it.
 - **[Working on the template](#working-on-the-template):** a change to the template itself: its engine, motion, ports, checks, docs or placeholder deck.
 
 If the request could be either, ask the owner which one, in one plain question.

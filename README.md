@@ -1,6 +1,20 @@
 # Averlo deck template
 
-**Making your own deck?** Make a repository from this template, open it in Codex or Claude Code, and paste the prompt in [START.md](START.md). The agent sets everything up and builds the deck with you, and you never type a command.
+**Make your own deck:** open Codex or Claude Code on an empty folder and paste this one prompt. The agent makes your own copy of the template, sets everything up and builds the deck with you. You never type a command.
+
+```text
+I want to make my own slide deck with this template: https://github.com/olafBobryk/averlo-deck-template. I'm not technical, so please do every technical step yourself, and never ask me to type a command: tell me only what to click or open, and ask me one plain question at a time.
+
+1. Make my own copy: a private GitHub repository of mine made from that template, on this computer in this folder. If I need a GitHub account or a sign-in, tell me what to click. If this folder already holds my copy, skip this step.
+2. From then on, read AGENTS.md in my copy and follow its "Making a deck" section.
+3. Set this computer up for the deck: Node, the project's packages and the browser the checks use.
+4. Start the deck and give me the link to open it.
+5. Ask me for my material (notes, documents, an old deck) and talk it through with me. Use only my words and figures.
+6. Build the slides from the template's preset visuals.
+7. Run the deck's checks before you show me anything, and fix anything that fails.
+8. Save each change I keep to my repository.
+9. When I say the deck is ready, help me put it online with a free Vercel account, and give me the link to share. Later changes go to the same link when I ask.
+```
 
 A template for full-screen web slide decks, built with Next.js on the Averlo design system. It has the deck engine (keys, clicks, swipes and shareable links), an intro, a menu with an overview, and a print view that renders a PDF of every slide on each build. It ships placeholder slides only.
 
