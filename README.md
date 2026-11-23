@@ -3,9 +3,9 @@
 **Make your own deck:** open Codex or Claude Code on an empty folder and paste this one prompt. The agent makes your own copy of the template, sets everything up and builds the deck with you. You never type a command.
 
 ```text
-I want to make my own slide deck with this template: https://github.com/olafBobryk/averlo-deck-template. I'm not technical, so please do every technical step yourself, and never ask me to type a command: tell me only what to click or open, and ask me one plain question at a time.
+I want to make my own slide deck with this template: https://github.com/olafBobryk/averlo-deck-template. I'm not technical, so please do every technical step yourself, and never ask me to type a command: tell me only what to click or open, and ask me one plain question at a time. If something truly can't be done without me typing, give me the exact line to paste, where to paste it, and why.
 
-1. Make my own copy: a private GitHub repository of mine made from that template, on this computer in this folder. If I need a GitHub account or a sign-in, tell me what to click. If this folder already holds my copy, skip this step.
+1. Make my own copy: a private GitHub repository of mine made from that template, on this computer in this folder. The template's process/workflows.md, "Set up a deck", says how. If I need a GitHub account or a sign-in, tell me what to click. If this folder already holds my copy, skip this step.
 2. From then on, read AGENTS.md in my copy and follow its "Making a deck" section.
 3. Set this computer up for the deck: Node, the project's packages and the browser the checks use.
 4. Start the deck and give me the link to open it.
